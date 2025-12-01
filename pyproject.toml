@@ -1,0 +1,68 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chackra-web"
+dynamic = ["version"]
+description = 'This is the base for chakra and integration'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Gabriel Vargas", email = "vmgabriel96@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "Flask>=3.1.2",
+  "pydantic>=2.12.4",
+]
+
+[project.urls]
+Documentation = "https://github.com/Gabriel Vargas/chackra-web#readme"
+Issues = "https://github.com/Gabriel Vargas/chackra-web/issues"
+Source = "https://github.com/Gabriel Vargas/chackra-web"
+
+[project.scripts]
+run-server = "chackra_web.entrypoints.web:main"
+
+
+[tool.hatch.version]
+path = "src/chackra_web/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/chackra_web tests}"
+
+[tool.coverage.run]
+source_pkgs = ["chackra_web", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/chackra_web/__about__.py",
+]
+
+[tool.coverage.paths]
+chackra_web = ["src/chackra_web", "*/chackra-web/src/chackra_web"]
+tests = ["tests", "*/chackra-web/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
