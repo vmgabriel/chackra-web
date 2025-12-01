@@ -1,9 +1,8 @@
 from typing import Type, TypeVar
 
-from chackra_web.domain.shared import configuration as shared_configuration
-from chackra_web.domain.web import app as web_app
-from chackra_web.infraestructure.web import flask as flask_web
-
+from chackra_web.web.domain.shared import configuration as shared_configuration
+from chackra_web.web.domain.web import app as web_app
+from chackra_web.web.infraestructure.web import flask as flask_web
 
 T = TypeVar("T", bound=web_app.WebAppFactory)
 

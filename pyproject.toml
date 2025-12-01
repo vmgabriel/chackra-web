@@ -35,7 +35,7 @@ Issues = "https://github.com/Gabriel Vargas/chackra-web/issues"
 Source = "https://github.com/Gabriel Vargas/chackra-web"
 
 [project.scripts]
-run-server = "chackra_web.entrypoints.web:main"
+run-server = "chackra_web.web.entrypoints.web:main"
 
 
 [tool.hatch.version]

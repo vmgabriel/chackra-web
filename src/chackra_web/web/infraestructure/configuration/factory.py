@@ -1,5 +1,5 @@
-from chackra_web.domain.shared import configuration as shared_configuration
-from chackra_web.infraestructure.configuration import dev as infraestructure_dev, prod as infraestructure_prod
+from chackra_web.web.domain.shared import configuration as shared_configuration
+from chackra_web.web.infraestructure.configuration import dev as infraestructure_dev, prod as infraestructure_prod
 
 CONFIGURATION_FACTORIES: dict[str, type[shared_configuration.Configuration]] = {
     "DEV": infraestructure_dev.ConfigurationDev,

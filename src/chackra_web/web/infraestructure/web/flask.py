@@ -4,8 +4,8 @@ import os
 import flask
 import functools
 
-from chackra_web.domain.shared import configuration as shared_configuration
-from chackra_web.domain.web import app as web_app
+from chackra_web.web.domain.shared import configuration as shared_configuration
+from chackra_web.web.domain.web import app as web_app
 
 
 class FlaskAdapter(web_app.Adapter):
@@ -13,8 +13,8 @@ class FlaskAdapter(web_app.Adapter):
 
     def __init__(self) -> None:
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-        template_dir = os.path.join(base_dir, 'presentation', 'templates')
-        static_dir = os.path.join(base_dir, 'presentation', 'static')
+        template_dir = os.path.join(base_dir, "presentation", "templates")
+        static_dir = os.path.join(base_dir, "presentation", "static")
 
 
         _flask_app = flask.Flask(
