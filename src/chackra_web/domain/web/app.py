@@ -31,23 +31,22 @@ class RouteDefinition:
 class WebController(abc.ABC):
     @abc.abstractmethod
     def get_routes(self) -> list[RouteDefinition]:
-        pass
+        raise NotImplementedError()
 
 
 class WebApplication(abc.ABC):
     @abc.abstractmethod
     def add_controller(self, controller: WebController) -> None:
-        pass
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def configure(self, config: Dict[str, Any]) -> None:
-        pass
+        raise NotImplementedError()
 
     def build(self) -> object:
         return self
 
 
-#
 class Adapter(abc.ABC):
     def __init__(self, app: object) -> None:
         self.app = app
@@ -64,9 +63,17 @@ class Adapter(abc.ABC):
     def build(self) -> object:
         raise NotImplementedError()
 
+    @abc.abstractmethod
+    def _wrap_handler(self, route: RouteDefinition) -> Callable:
+        raise NotImplementedError()
+
 
 class WebAppFactory(WebApplication):
-    def __init__(self, app_adapter: Adapter, configuration: shared_configuration.Configuration) -> None:
+    def __init__(
+            self,
+            app_adapter: Adapter,
+            configuration: shared_configuration.Configuration,
+    ) -> None:
         self.adapter = app_adapter
         self.configuration = configuration
         self.controllers: list[WebController] = []

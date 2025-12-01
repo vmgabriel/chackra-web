@@ -28,4 +28,4 @@ class WebApplicationFactory:
         adapter.configure(configuration)
 
         factory = web_application_factories.get(web_app_factory_value)(adapter, configuration)
-        return factory.build()
+        return factory
