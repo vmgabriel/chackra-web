@@ -1,6 +1,6 @@
 from chackra_web.web.domain.web import app as domain_web_app
 
-from chackra_web.web.domain.shared import configuration as shared_configuration
+from chackra_web.shared.domain.model.configuration import configuration as shared_configuration
 from chackra_web.web.infraestructure.configuration import factory as infraestructure_configuration_factory
 from chackra_web.web.infraestructure.web import factory as infraestructure_web_factory
 

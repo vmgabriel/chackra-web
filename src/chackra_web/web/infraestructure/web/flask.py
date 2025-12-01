@@ -4,7 +4,7 @@ import os
 import flask
 import functools
 
-from chackra_web.web.domain.shared import configuration as shared_configuration
+from chackra_web.shared.domain.model.configuration import configuration as shared_configuration
 from chackra_web.web.domain.web import app as web_app
 
 
