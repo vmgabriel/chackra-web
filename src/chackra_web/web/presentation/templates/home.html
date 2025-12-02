@@ -1,8 +1,74 @@
 {% extends "base.html" %}
 
-{% block title %}Inicio - Chackra Web{% endblock %}
-
 {% block content %}
-<h1>Bienvenido a Chackra Web</h1>
-<p>Esta es la página principal.</p>
+<div class="container-fluid py-5 bg-light">
+    <!-- Hero Section -->
+    <div class="row align-items-center min-vh-75">
+        <div class="col-lg-6 text-center text-lg-start">
+            <h1 class="display-4 fw-bold mb-4">Bienvenido a Chackra Web</h1>
+            <p class="lead mb-4">Una plataforma moderna y poderosa para gestionar tus necesidades web.</p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <button type="button" class="btn btn-primary btn-lg px-4 me-md-2">Comenzar</button>
+                <button type="button" class="btn btn-outline-secondary btn-lg px-4">Más información</button>
+            </div>
+        </div>
+        <div class="col-lg-6 d-none d-lg-block">
+            <img src="https://placehold.co/600x400" class="img-fluid rounded shadow" alt="Hero image">
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container py-5">
+    <div class="row g-4 py-5">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3">
+                        <i class="bi bi-gear-fill fs-2 p-3"></i>
+                    </div>
+                    <h3 class="card-title">Característica 1</h3>
+                    <p class="card-text">Descubre todas las posibilidades que nuestra plataforma tiene para ofrecer.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="feature-icon bg-success bg-gradient text-white rounded-3 mb-3">
+                        <i class="bi bi-shield-check fs-2 p-3"></i>
+                    </div>
+                    <h3 class="card-title">Característica 2</h3>
+                    <p class="card-text">Seguridad y confiabilidad en cada aspecto de nuestro servicio.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="feature-icon bg-info bg-gradient text-white rounded-3 mb-3">
+                        <i class="bi bi-graph-up fs-2 p-3"></i>
+                    </div>
+                    <h3 class="card-title">Característica 3</h3>
+                    <p class="card-text">Analíticas avanzadas y reportes detallados para tu negocio.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action Section -->
+<div class="container-fluid bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2 class="display-6 fw-bold">¿Listo para empezar?</h2>
+                <p class="lead">Únete a nosotros y descubre todo lo que podemos hacer por ti.</p>
+            </div>
+            <div class="col-lg-4 text-center">
+                <button class="btn btn-light btn-lg">Registrarse ahora</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

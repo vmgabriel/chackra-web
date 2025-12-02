@@ -4,6 +4,7 @@ import os
 import flask
 import functools
 
+from chackra_web.shared.domain.model.web import route as shared_route
 from chackra_web.shared.domain.model.configuration import configuration as shared_configuration
 from chackra_web.web.domain.web import app as web_app
 
@@ -26,10 +27,22 @@ class FlaskAdapter(web_app.Adapter):
 
         super().__init__(_flask_app)
 
-    def _wrap_handler(self, route: web_app.RouteDefinition) -> Callable:
+    def _wrap_handler(self, route: shared_route.RouteDefinition) -> Callable:
         @functools.wraps(route.handler)
         def wrapped(*args, **kwargs):
+            handler_params = route.handler.__code__.co_varnames[:route.handler.__code__.co_argcount]
+
+            if "request" in handler_params:
+                kwargs["request"] = flask.request
+
             result = route.handler(*args, **kwargs)
+
+            if isinstance(result, flask.Response):
+                return result
+
+            if isinstance(result, shared_route.RouteResponse):
+                flask.flash(result.flash_message)
+                return flask.redirect(flask.url_for(result.redirection))
 
             if route.template:
                 if isinstance(result, dict):
@@ -41,8 +54,9 @@ class FlaskAdapter(web_app.Adapter):
 
     def configure(self, configuration: shared_configuration.Configuration) -> None:
         self.configuration.update(configuration.dict())
+        self.app.secret_key = self.configuration.get("SECRET_KEY", "secret")
 
-    def register_route(self, route: web_app.RouteDefinition) -> None:
+    def register_route(self, route: shared_route.RouteDefinition) -> None:
         wrapped_handler = self._wrap_handler(route)
 
         if route.middleware:

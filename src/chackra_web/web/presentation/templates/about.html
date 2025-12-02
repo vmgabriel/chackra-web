@@ -1,8 +1,142 @@
 {% extends "base.html" %}
 
-{% block title %}Inicio - Chackra Web{% endblock %}
-
 {% block content %}
-<h1>Bienvenido a Chackra Web</h1>
-<p>Esta es la página principal.</p>
+<!-- Header Section -->
+<div class="container-fluid bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">Sobre Nosotros</h1>
+                <p class="lead mb-0">Descubre quiénes somos y nuestra misión de transformar el mundo digital</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historia Section -->
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h2 class="display-6 mb-4">Nuestra Historia</h2>
+            <p class="lead text-muted">Fundada en 2023, Chackra Web nació con la visión de revolucionar la forma en que las empresas gestionan sus servicios web.</p>
+            <p class="mb-4">Nos especializamos en crear soluciones innovadoras que ayudan a nuestros clientes a alcanzar sus objetivos digitales de manera eficiente y efectiva.</p>
+            <div class="d-flex gap-3">
+                <div class="text-primary">
+                    <h3 class="display-6 fw-bold">500+</h3>
+                    <p>Clientes Satisfechos</p>
+                </div>
+                <div class="text-success">
+                    <h3 class="display-6 fw-bold">1000+</h3>
+                    <p>Proyectos Completados</p>
+                </div>
+                <div class="text-info">
+                    <h3 class="display-6 fw-bold">50+</h3>
+                    <p>Países Alcanzados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://placehold.co/600x400" class="img-fluid rounded-3 shadow-lg" alt="Nuestra Historia">
+        </div>
+    </div>
+</div>
+
+<!-- Valores Section -->
+<div class="container-fluid bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Nuestros Valores</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card border-0 bg-transparent text-center">
+                    <div class="card-body">
+                        <div class="bg-primary text-white rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="bi bi-star-fill fs-2"></i>
+                        </div>
+                        <h4>Excelencia</h4>
+                        <p class="text-muted">Buscamos la perfección en cada proyecto</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 bg-transparent text-center">
+                    <div class="card-body">
+                        <div class="bg-success text-white rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="bi bi-heart-fill fs-2"></i>
+                        </div>
+                        <h4>Pasión</h4>
+                        <p class="text-muted">Amamos lo que hacemos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 bg-transparent text-center">
+                    <div class="card-body">
+                        <div class="bg-info text-white rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="bi bi-lightning-fill fs-2"></i>
+                        </div>
+                        <h4>Innovación</h4>
+                        <p class="text-muted">Siempre a la vanguardia</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 bg-transparent text-center">
+                    <div class="card-body">
+                        <div class="bg-warning text-white rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="bi bi-people-fill fs-2"></i>
+                        </div>
+                        <h4>Trabajo en Equipo</h4>
+                        <p class="text-muted">Juntos somos más fuertes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Section -->
+<div class="container py-5">
+    <h2 class="text-center mb-5">Nuestro Equipo</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <img src="https://placehold.co/400x400" class="card-img-top" alt="Team Member">
+                <div class="card-body">
+                    <h5 class="card-title">Gabriel Vargas</h5>
+                    <p class="card-text text-muted">CEO & Fundador</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="btn btn-outline-primary btn-sm"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="btn btn-outline-primary btn-sm"><i class="bi bi-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <img src="https://placehold.co/400x400" class="card-img-top" alt="Team Member">
+                <div class="card-body">
+                    <h5 class="card-title">Gabriel Vargas</h5>
+                    <p class="card-text text-muted">CTO</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="btn btn-outline-primary btn-sm"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="btn btn-outline-primary btn-sm"><i class="bi bi-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <img src="https://placehold.co/400x400" class="card-img-top" alt="Team Member">
+                <div class="card-body">
+                    <h5 class="card-title">Gabriel Vargas</h5>
+                    <p class="card-text text-muted">Lead Developer</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="btn btn-outline-primary btn-sm"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="btn btn-outline-primary btn-sm"><i class="bi bi-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

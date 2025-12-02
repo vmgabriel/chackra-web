@@ -15,4 +15,9 @@ class Configuration:
             setattr(self, key, value)
 
     def dict(self) -> Dict[str, Any]:
-        return vars(self)
+        return {
+            "secret_key": self.secret_key,
+            "debug": self.debug,
+            "host": self.host,
+            "port": self.port,
+        }

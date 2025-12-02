@@ -1,42 +1,14 @@
-from typing import Callable, List, Dict, Any, Optional
+from typing import Callable, Dict, Any
 
 import abc
-import dataclasses
-import enum
 
+from chackra_web.shared.domain.model.web import route as shared_route, controller as shared_controller
 from chackra_web.shared.domain.model.configuration import configuration as shared_configuration
-
-
-class HttpMethod(enum.Enum):
-    GET = "GET"
-    POST = "POST"
-    PUT = "PUT"
-    DELETE = "DELETE"
-    PATCH = "PATCH"
-    OPTIONS = "OPTIONS"
-    HEAD = "HEAD"
-
-
-@dataclasses.dataclass
-class RouteDefinition:
-    path: str
-    handler: Callable
-    methods: List[HttpMethod]
-    name: Optional[str] = None
-    middleware: List[Callable] = None
-    template: Optional[str] = None
-    description: Optional[str] = None
-
-
-class WebController(abc.ABC):
-    @abc.abstractmethod
-    def get_routes(self) -> list[RouteDefinition]:
-        raise NotImplementedError()
 
 
 class WebApplication(abc.ABC):
     @abc.abstractmethod
-    def add_controller(self, controller: WebController) -> None:
+    def add_controller(self, controller: shared_controller.WebController) -> None:
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -56,7 +28,7 @@ class Adapter(abc.ABC):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def register_route(self, route: RouteDefinition) -> None:
+    def register_route(self, route: shared_route.RouteDefinition) -> None:
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -64,7 +36,7 @@ class Adapter(abc.ABC):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _wrap_handler(self, route: RouteDefinition) -> Callable:
+    def _wrap_handler(self, route: shared_route.RouteDefinition) -> Callable:
         raise NotImplementedError()
 
 
@@ -76,10 +48,10 @@ class WebAppFactory(WebApplication):
     ) -> None:
         self.adapter = app_adapter
         self.configuration = configuration
-        self.controllers: list[WebController] = []
+        self.controllers: list[shared_controller.WebController] = []
         self.config: Dict[str, Any] = {}
 
-    def add_controller(self, controller: WebController) -> None:
+    def add_controller(self, controller: shared_controller.WebController) -> None:
         self.controllers.append(controller)
 
         for route in controller.get_routes():
