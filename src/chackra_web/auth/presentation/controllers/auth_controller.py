@@ -29,6 +29,13 @@ class AuthController(shared_controller.WebController):
                 name="auth.home",
                 template="main.html"
             ),
+            shared_route.RouteDefinition(
+                path="/login/recovery",
+                handler=self.recovery,
+                methods=[shared_route.HttpMethod.GET],
+                name="auth.recovery",
+                template="auth/recovery.html"
+            )
         ]
 
     def home(self) -> dict:
@@ -62,4 +69,7 @@ class AuthController(shared_controller.WebController):
             )
 
     def logout(self):
+        return {}
+
+    def recovery(self):
         return {}

@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}Recuperar Contraseña - Chackra Web{% endblock %}
+
+{% block content %}
+<div class="container-fluid min-vh-100 d-flex align-items-center py-5" style="background: linear-gradient(135deg, #00B4DB 0%, #0083B0 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card border-0 shadow-lg">
+                    <!-- Stepper Progress -->
+                    <div class="card-header bg-transparent border-0 pt-4">
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar" role="progressbar" style="width: 0%;" id="stepperProgress"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <span class="badge rounded-pill bg-primary step-badge">1. Email</span>
+                            <span class="badge rounded-pill bg-secondary step-badge">2. Verificación</span>
+                            <span class="badge rounded-pill bg-secondary step-badge">3. Nueva Contraseña</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-5">
+                        <!-- Logo y título -->
+                        <div class="text-center mb-4">
+                            <i class="bi bi-shield-lock text-primary" style="font-size: 3rem;"></i>
+                            <h2 class="mt-3 mb-2">Recuperación de Contraseña</h2>
+                            <p class="text-muted" id="stepDescription">
+                                Ingresa tu correo electrónico para comenzar el proceso de recuperación
+                            </p>
+                        </div>
+
+                        {% if error %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {{ error }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endif %}
+
+                        <!-- Multi-step form -->
+                        <form id="recoveryForm" method="POST" action="{{ url_for('auth.recovery') }}">
+                            <!-- Step 1: Email -->
+                            <div class="step" id="step1">
+                                <div class="form-floating mb-3">
+                                    <input type="email"
+                                           class="form-control"
+                                           id="email"
+                                           name="email"
+                                           placeholder="nombre@ejemplo.com"
+                                           required>
+                                    <label for="email">
+                                        <i class="bi bi-envelope-fill me-2"></i>Correo electrónico
+                                    </label>
+                                </div>
+                                <button type="button" class="btn btn-primary w-100 py-3 mb-3 next-step">
+                                    <i class="bi bi-arrow-right-circle me-2"></i>Continuar
+                                </button>
+                                <div class="text-center">
+                                    <a href="{{ url_for('auth.login_get') }}" class="text-decoration-none">
+                                        <i class="bi bi-arrow-left me-1"></i>Volver al inicio de sesión
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Verification Code -->
+                            <div class="step d-none" id="step2">
+                                <div class="verification-code mb-4">
+                                    <div class="d-flex justify-content-between gap-2">
+                                        <input type="text" class="form-control form-control-lg text-center code-input" maxlength="1" required>
+                                        <input type="text" class="form-control form-control-lg text-center code-input" maxlength="1" required>
+                                        <input type="text" class="form-control form-control-lg text-center code-input" maxlength="1" required>
+                                        <input type="text" class="form-control form-control-lg text-center code-input" maxlength="1" required>
+                                        <input type="text" class="form-control form-control-lg text-center code-input" maxlength="1" required>
+                                        <input type="text" class="form-control form-control-lg text-center code-input" maxlength="1" required>
+                                    </div>
+                                </div>
+                                <div class="text-center mb-4">
+                                    <p class="text-muted">¿No recibiste el código?</p>
+                                    <button type="button" class="btn btn-link" id="resendCode">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>Reenviar código
+                                    </button>
+                                </div>
+                                <button type="button" class="btn btn-primary w-100 py-3 mb-3 next-step">
+                                    Verificar código
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary w-100 prev-step">
+                                    Volver atrás
+                                </button>
+                            </div>
+
+                            <!-- Step 3: New Password -->
+                            <div class="step d-none" id="step3">
+                                <div class="form-floating mb-3">
+                                    <input type="password"
+                                           class="form-control"
+                                           id="newPassword"
+                                           name="newPassword"
+                                           placeholder="Nueva contraseña"
+                                           required>
+                                    <label for="newPassword">
+                                        <i class="bi bi-lock-fill me-2"></i>Nueva contraseña
+                                    </label>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input type="password"
+                                           class="form-control"
+                                           id="confirmPassword"
+                                           name="confirmPassword"
+                                           placeholder="Confirmar contraseña"
+                                           required>
+                                    <label for="confirmPassword">
+                                        <i class="bi bi-lock-fill me-2"></i>Confirmar contraseña
+                                    </label>
+                                </div>
+                                <div class="password-strength mb-3">
+                                    <p class="mb-2">Fortaleza de la contraseña:</p>
+                                    <div class="progress" style="height: 4px;">
+                                        <div class="progress-bar" role="progressbar" id="passwordStrength"></div>
+                                    </div>
+                                    <ul class="list-unstyled small mt-2">
+                                        <li class="text-muted">
+                                            <i class="bi bi-check-circle me-1"></i>Mínimo 8 caracteres
+                                        </li>
+                                        <li class="text-muted">
+                                            <i class="bi bi-check-circle me-1"></i>Una letra mayúscula
+                                        </li>
+                                        <li class="text-muted">
+                                            <i class="bi bi-check-circle me-1"></i>Un número
+                                        </li>
+                                        <li class="text-muted">
+                                            <i class="bi bi-check-circle me-1"></i>Un carácter especial
+                                        </li>
+                                    </ul>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 py-3 mb-3">
+                                    <i class="bi bi-check-circle me-2"></i>Cambiar contraseña
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary w-100 prev-step">
+                                    Volver atrás
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .step-badge {
+        z-index: 1;
+        padding: 0.5rem 1rem;
+    }
+
+    .code-input {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .card {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+    }
+
+    .password-strength .progress-bar {
+        transition: width 0.3s ease;
+    }
+
+    .verification-code input:focus {
+        border-color: #0083B0;
+        box-shadow: 0 0 0 0.25rem rgba(0, 131, 176, 0.25);
+    }
+</style>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentStep = 1;
+    const totalSteps = 3;
+    const form = document.getElementById('recoveryForm');
+    const progress = document.getElementById('stepperProgress');
+    const badges = document.querySelectorAll('.step-badge');
+    const description = document.getElementById('stepDescription');
+    const descriptions = [
+        'Ingresa tu correo electrónico para comenzar el proceso de recuperación',
+        'Ingresa el código de verificación enviado a tu correo',
+        'Crea una nueva contraseña segura'
+    ];
+
+    // Manejo de pasos
+    document.querySelectorAll('.next-step').forEach(button => {
+        button.addEventListener('click', () => {
+            if (validateStep(currentStep)) {
+                showStep(currentStep + 1);
+            }
+        });
+    });
+
+    document.querySelectorAll('.prev-step').forEach(button => {
+        button.addEventListener('click', () => {
+            showStep(currentStep - 1);
+        });
+    });
+
+    // Código de verificación
+    document.querySelectorAll('.code-input').forEach((input, index) => {
+        input.addEventListener('keyup', (e) => {
+            if (e.key >= 0 && e.key <= 9) {
+                if (index < 5) {
+                    document.querySelectorAll('.code-input')[index + 1].focus();
+                }
+            } else if (e.key === 'Backspace') {
+                if (index > 0) {
+                    document.querySelectorAll('.code-input')[index - 1].focus();
+                }
+            }
+        });
+    });
+
+    // Validación de contraseña
+    const newPassword = document.getElementById('newPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const strengthBar = document.getElementById('passwordStrength');
+
+    newPassword.addEventListener('input', () => {
+        const strength = calculatePasswordStrength(newPassword.value);
+        updatePasswordStrength(strength);
+    });
+
+    function showStep(step) {
+        document.querySelectorAll('.step').forEach(s => s.classList.add('d-none'));
+        document.getElementById(`step${step}`).classList.remove('d-none');
+
+        progress.style.width = `${((step - 1) / (totalSteps - 1)) * 100}%`;
+        description.textContent = descriptions[step - 1];
+
+        badges.forEach((badge, index) => {
+            if (index + 1 === step) {
+                badge.classList.replace('bg-secondary', 'bg-primary');
+            } else if (index + 1 < step) {
+                badge.classList.replace('bg-secondary', 'bg-success');
+            }
+        });
+
+        currentStep = step;
+    }
+
+    function validateStep(step) {
+        switch(step) {
+            case 1:
+                const email = document.getElementById('email');
+                return email.checkValidity();
+            case 2:
+                const codes = [...document.querySelectorAll('.code-input')];
+                return codes.every(input => input.value.length === 1);
+            case 3:
+                return newPassword.value === confirmPassword.value;
+            default:
+                return true;
+        }
+    }
+
+    function calculatePasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength += 25;
+        if (password.match(/[A-Z]/)) strength += 25;
+        if (password.match(/[0-9]/)) strength += 25;
+        if (password.match(/[^A-Za-z0-9]/)) strength += 25;
+        return strength;
+    }
+
+    function updatePasswordStrength(strength) {
+        strengthBar.style.width = `${strength}%`;
+        if (strength <= 25) {
+            strengthBar.className = 'progress-bar bg-danger';
+        } else if (strength <= 50) {
+            strengthBar.className = 'progress-bar bg-warning';
+        } else if (strength <= 75) {
+            strengthBar.className = 'progress-bar bg-info';
+        } else {
+            strengthBar.className = 'progress-bar bg-success';
+        }
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}
