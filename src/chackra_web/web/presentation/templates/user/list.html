@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Usuarios - Backoffice{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">Gestión de Usuarios</h1>
+            <p class="text-muted">Administra los usuarios del sistema</p>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            <i class="bi bi-person-plus-fill me-2"></i>Añadir Usuario
+        </button>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="searchUser" placeholder="Buscar usuarios...">
+                    </div>
+                </div>
+                <div class="col-12 col-md-8">
+                    <div class="d-flex gap-2 justify-content-md-end">
+                        <select class="form-select w-auto" id="roleFilter">
+                            <option value="">Todos los roles</option>
+                            <option value="admin">Administrador</option>
+                            <option value="editor">Editor</option>
+                            <option value="user">Usuario</option>
+                        </select>
+                        <select class="form-select w-auto" id="statusFilter">
+                            <option value="">Todos los estados</option>
+                            <option value="active">Activo</option>
+                            <option value="inactive">Inactivo</option>
+                            <option value="suspended">Suspendido</option>
+                        </select>
+                        <button class="btn btn-outline-secondary" id="clearFilters">
+                            <i class="bi bi-x-circle me-2"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Usuarios -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="selectAll">
+                                </div>
+                            </th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Último acceso</th>
+                            <th>Fecha registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input user-select" type="checkbox" value="{{ user.id }}">
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar me-3">
+                                        {% if user.avatar %}
+                                        <img src="{{ user.avatar }}" class="rounded-circle" width="40" alt="Avatar">
+                                        {% else %}
+                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            {{ user.initials }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ user.name }}</h6>
+                                        <small class="text-muted">{{ user.email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill
+                                    {% if user.role == 'admin' %}bg-danger{% endif %}
+                                    {% if user.role == 'editor' %}bg-warning{% endif %}
+                                    {% if user.role == 'user' %}bg-info{% endif %}">
+                                    {{ user.role }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                           {% if user.status == 'active' %}checked{% endif %}
+                                           data-user-id="{{ user.id }}">
+                                </div>
+                            </td>
+                            <td>{{ user.last_login }}</td>
+                            <td>{{ user.created_at }}</td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                        Acciones
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="{{ user.id }}">
+                                                <i class="bi bi-pencil me-2"></i>Editar
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changeRoleModal" data-user-id="{{ user.id }}">
+                                                <i class="bi bi-person-gear me-2"></i>Cambiar rol
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#" onclick="resetPassword('{{ user.id }}')">
+                                                <i class="bi bi-key me-2"></i>Resetear contraseña
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="{{ user.id }}">
+                                                <i class="bi bi-trash me-2"></i>Eliminar
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="d-flex align-items-center">
+                    <select class="form-select me-2 w-auto" id="perPage">
+                        <option value="10">10 por página</option>
+                        <option value="25">25 por página</option>
+                        <option value="50">50 por página</option>
+                        <option value="100">100 por página</option>
+                    </select>
+                    <span class="text-muted">Mostrando {{ pagination.start }} - {{ pagination.end }} de {{ pagination.total }}</span>
+                </div>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('user.list_users_get', page=pagination.prev_page) }}">Anterior</a>
+                        </li>
+                        {% for page in pagination.pages %}
+                        <li class="page-item {% if page == pagination.current %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('user.list_users_get', page=page) }}">{{ page }}</a>
+                        </li>
+                        {% endfor %}
+                        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('user.list_users_get', page=pagination.next_page) }}">Siguiente</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Añadir Usuario -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Añadir Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rol</label>
+                        <select class="form-select" name="role" required>
+                            <option value="user">Usuario</option>
+                            <option value="editor">Editor</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="addUserForm" class="btn btn-primary">Añadir Usuario</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cambiar Rol -->
+<div class="modal fade" id="changeRoleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Rol</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changeRoleForm">
+                    <input type="hidden" name="userId" id="roleUserId">
+                    <div class="mb-3">
+                        <label class="form-label">Nuevo Rol</label>
+                        <select class="form-select" name="newRole" required>
+                            <option value="user">Usuario</option>
+                            <option value="editor">Editor</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="changeRoleForm" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Eliminar Usuario -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Eliminar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.</p>
+                <input type="hidden" id="deleteUserId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Búsqueda en tiempo real
+    const searchInput = document.getElementById('searchUser');
+    searchInput.addEventListener('input', function(e) {
+        // Implementar lógica de búsqueda
+    });
+
+    // Seleccionar todos los checkboxes
+    const selectAll = document.getElementById('selectAll');
+    selectAll.addEventListener('change', function() {
+        document.querySelectorAll('.user-select').forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+    });
+
+    // Cambio de estado de usuario
+    document.querySelectorAll('.form-check-input[data-user-id]').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const userId = this.dataset.userId;
+            const isActive = this.checked;
+            updateUserStatus(userId, isActive);
+        });
+    });
+
+    // Manejo de roles
+    document.getElementById('changeRoleModal').addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const userId = button.dataset.userId;
+        document.getElementById('roleUserId').value = userId;
+    });
+
+    // Manejo de eliminación
+    document.getElementById('deleteUserModal').addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const userId = button.dataset.userId;
+        document.getElementById('deleteUserId').value = userId;
+    });
+
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+        const userId = document.getElementById('deleteUserId').value;
+        deleteUser(userId);
+    });
+
+    // Funciones de API
+    async function updateUserStatus(userId, status) {
+        try {
+            const response = await fetch(`/api/users/${userId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status })
+            });
+            if (!response.ok) throw new Error('Error al actualizar estado');
+            showToast('Estado actualizado correctamente', 'success');
+        } catch (error) {
+            showToast('Error al actualizar estado', 'error');
+            console.error(error);
+        }
+    }
+
+    async function deleteUser(userId) {
+        try {
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) throw new Error('Error al eliminar usuario');
+            location.reload();
+        } catch (error) {
+            showToast('Error al eliminar usuario', 'error');
+            console.error(error);
+        }
+    }
+
+    function showToast(message, type) {
+        // Implementar lógica de notificaciones
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

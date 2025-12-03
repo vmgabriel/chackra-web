@@ -6,7 +6,7 @@ from chackra_web.web.infraestructure.configuration import factory as infraestruc
 from chackra_web.web.infraestructure.web import factory as infraestructure_web_factory
 
 from chackra_web.auth.presentation.controllers import auth_controller
-from chackra_web.user.presentation.controllers import user_controller
+from chackra_web.user.presentation.controllers import user_controller, list_users_controller
 
 
 class HomeWebController(shared_controller.WebController):
@@ -84,6 +84,7 @@ def create_app() -> object:
 
         auth_controller.AuthController(),
         user_controller.UserController(),
+        list_users_controller.UserController(),
     ]
     inject_controllers(web, controllers)
 
