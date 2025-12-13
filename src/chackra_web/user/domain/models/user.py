@@ -6,6 +6,7 @@ from chackra_web.shared.domain.model.user import user_id as domain_user_id
 
 
 class UserCreateDTO(pydantic.BaseModel):
+    username: str
     name: str
     last_name: str
     email: str
@@ -16,6 +17,7 @@ class User(pydantic.BaseModel):
     name: str
     last_name: str
     email: str
+    username: str
     active: bool = True
 
     created_at: datetime.datetime = datetime.datetime.now()
@@ -28,6 +30,7 @@ class User(pydantic.BaseModel):
             id=domain_user_id.UserId(value=str(uuid.uuid4())),
             name=user_data.name,
             last_name=user_data.last_name,
+            username=user_data.username,
             email=user_data.email,
         )
 

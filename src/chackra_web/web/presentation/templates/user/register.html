@@ -27,6 +27,20 @@
                         <!-- Formulario de registro -->
                         <form method="POST" action="{{ url_for('user.register_get') }}" class="needs-validation" novalidate>
                             <div class="row g-4">
+                                <!-- Username -->
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <input type="text"
+                                               class="form-control"
+                                               id="username"
+                                               name="username"
+                                               placeholder="Alias"
+                                               required>
+                                        <label for="username">
+                                            <i class="bi bi-person-fill me-2"></i>Alias
+                                        </label>
+                                    </div>
+                                </div>
                                 <!-- Nombre y Apellido -->
                                 <div class="col-md-6">
                                     <div class="form-floating">

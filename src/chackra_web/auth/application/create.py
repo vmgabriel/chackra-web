@@ -25,7 +25,7 @@ class AuthRegisterService:
 
     def save(self, auth_register_dto: AuthRegisterDTO) -> AuthRegisterResponse:
         # Validations?
-        # Create Object?
+
         new_auth = domain_auth.AuthUser.create(
             auth_user_data=domain_auth.BaseAuthUserDTO(
                 email=auth_register_dto.email,
@@ -33,9 +33,11 @@ class AuthRegisterService:
                 user_id=auth_register_dto.user_id,
             )
         )
+
         # Persistence object?
         # Post Creation Object
         # Send Events?
+
         return AuthRegisterResponse(
             id=new_auth.id,
             email=new_auth.email,

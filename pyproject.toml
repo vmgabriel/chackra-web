@@ -27,6 +27,7 @@ classifiers = [
 dependencies = [
   "Flask>=3.1.2",
   "pydantic>=2.12.4",
+  "psycopg[binary] >= 3.2.9",
 ]
 
 [project.urls]
