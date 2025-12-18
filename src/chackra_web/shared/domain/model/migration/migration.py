@@ -16,6 +16,7 @@ class Migrator(pydantic.BaseModel):
 
 class MigrateHandler(pydantic.BaseModel):
     name: str
+    module: str
     migrator: Migrator
     is_migrated: bool = False
 
@@ -45,18 +46,18 @@ class MigratorHandler(abc.ABC):
     def execute(self) -> None:
         with self.uow.session() as session:
             for to_migrate in self.migrations:
-                self.logger.info(f"Checking Migrating {to_migrate.name}")
+                self.logger.info(f"Checking Migrating [{to_migrate.module}] {to_migrate.name}")
                 if self._is_migrated(to_migrate, session):
                     self.logger.info(f"Migration {to_migrate.name} already completed")
                     continue
                 try:
-                    self.logger.info(f"Making Migrating {to_migrate.name}")
+                    self.logger.info(f"Making Migrating [{to_migrate.module}] {to_migrate.name}")
                     self._migrate(to_migrate, session)
                     self._mark_as_migrated(to_migrate, session)
                 except migration_exceptions.MigrationFailedError as exc:
-                    self.logger.error(f"Migration {to_migrate.name} failed: {exc}")
+                    self.logger.error(f"Migration [{to_migrate.module}] {to_migrate.name} failed: {exc}")
                     self.logger.warning(
-                        f"Migration {to_migrate.name} failed - Making Rollback"
+                        f"Migration [{to_migrate.module}] {to_migrate.name} failed - Making Rollback"
                     )
                     self._rollback_migration(to_migrate, session)
             session.commit()

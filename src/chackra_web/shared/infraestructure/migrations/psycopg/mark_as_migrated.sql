@@ -1,1 +1,1 @@
-INSERT INTO migration(file_name, created_at) VALUES (%s, %s);
+INSERT INTO migration(file_name, module, created_at) VALUES (%s, %s, %s);

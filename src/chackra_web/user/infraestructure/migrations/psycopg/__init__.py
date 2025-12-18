@@ -4,6 +4,7 @@ from chackra_web.user.infraestructure.migrations.psycopg import migration_1_crea
 
 migrations: list[shared_migration.MigrateHandler] = [
     shared_migration.MigrateHandler(
+        module="user",
         name="migration_1_create_user_table",
         migrator=migration_1_create_user_table.migrator,
     ),

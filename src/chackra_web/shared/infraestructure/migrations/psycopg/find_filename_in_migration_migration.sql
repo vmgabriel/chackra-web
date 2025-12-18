@@ -1,1 +1,1 @@
-SELECT * from migration WHERE file_name=(%s);
+SELECT * from migration WHERE file_name=(%s) AND module=(%s);

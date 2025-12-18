@@ -35,7 +35,7 @@ class PsycopgMigrationHandler(model.MigratorHandler):
         self, to_migrate: model.MigrateHandler, session: log_uow.Session
     ) -> bool:
         response_query = session.atomic_execute(
-            params=(to_migrate.name,),
+            params=(to_migrate.name, to_migrate.module,),
             query=self._get_sql(file_path=self.find_filename_in_migration_sql_path),
         )
         return getattr(response_query, "fetchone", lambda: None)() is not None
@@ -45,23 +45,23 @@ class PsycopgMigrationHandler(model.MigratorHandler):
     ) -> None:
         current_date = datetime.datetime.now()
         session.atomic_execute(
-            params=(to_migrate.name, current_date.isoformat()),
+            params=(to_migrate.name, to_migrate.module, current_date.isoformat()),
             query=self._get_sql(file_path=self.mark_as_migrated_sql_path),
         )
-        self.logger.info("Marked as migrated: %s" % to_migrate.name)
+        self.logger.info("Marked as migrated: [%s] %s" % (to_migrate.module, to_migrate.name))
 
     def _rollback_migration(
         self, to_migrate: model.MigrateHandler, session: log_uow.Session
     ) -> None:
         if not to_migrate.is_migrated:
-            self.logger.info(f"{to_migrate.name} No require rollback")
+            self.logger.info(f"[{to_migrate.module}] {to_migrate.name} No require rollback")
         session.atomic_execute(query=to_migrate.migrator.rollback, params=tuple())
-        self.logger.info("Rolling back migrate: %s" % to_migrate.name)
+        self.logger.info("Rolling back migrate: [%s] %s" % (to_migrate.module, to_migrate.name))
 
     def _migrate(
         self, to_migrate: model.MigrateHandler, session: log_uow.Session
     ) -> None:
-        self.logger.info(f"up {to_migrate.name}")
+        self.logger.info(f"up [{to_migrate.module}] {to_migrate.name}")
         session.atomic_execute(query=to_migrate.migrator.up, params=tuple())
         to_migrate.is_migrated = True
 
