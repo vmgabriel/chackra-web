@@ -2,6 +2,7 @@
 from typing import List
 
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
+
 from chackra_web.shared.applications import register_user
 
 
@@ -27,26 +28,22 @@ class UserController(shared_controller.WebController):
     def register_page(self) -> dict:
         return {"title": "Home"}
 
-    def save_user(self, request):
-        data = request.form
-
+    def save_user(self, request: shared_route.RequestData):
         to_register = register_user.RegisterUserDTO(
-            email=data.get("email", ""),
-            password=data.get("password", ""),
-            name=data.get("name", ""),
-            last_name=data.get("last_name", ""),
+            email=request.body.get("email", ""),
+            password=request.body.get("password", ""),
+            name=request.body.get("name", ""),
+            last_name=request.body.get("last_name", ""),
+            username=request.body.get("username", ""),
         )
-        print(f"To Register User: {to_register}")
         try:
-            new_user_recorded = register_user.ApplicationRegisterUser(dependencies="...").execute(to_register)
-            print(f"New User Recorded: {new_user_recorded}")
+            new_user_recorded = register_user.ApplicationRegisterUser(dependencies=self.dependencies).execute(to_register)
             return shared_route.RouteResponse(
                 flash_message="Usuario Registrado Correctamente",
                 status_code=300,
                 redirection="auth.home",
             )
         except Exception as exc:
-            print(f"Error Registering User: {exc}")
             return {
                 "title": "Home",
                 "error": str(exc)

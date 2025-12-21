@@ -18,6 +18,5 @@ class ConfigurationFactory:
         try:
             return CONFIGURATION_FACTORIES[self.env]()
         except ValueError as exc:
-            print(f"Not Found Environment: {str(exc)}")
             return CONFIGURATION_FACTORIES[self._default_env]()
 

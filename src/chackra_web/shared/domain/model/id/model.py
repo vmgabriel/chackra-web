@@ -1,8 +1,11 @@
 from typing import Any
-from chackra_web.shared.domain.model.id import model as shared_id
+
+import pydantic
 
 
-class UserId(shared_id.BaseId):
+class BaseId(pydantic.BaseModel):
+    value: str
+
     def __str__(self) -> str:
         return self.value
 

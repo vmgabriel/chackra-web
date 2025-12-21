@@ -24,7 +24,6 @@ class WebApplicationFactory:
         web_app_factory_value = getattr(configuration, self.name_configuration_attribute, "flask").lower()
 
         adapter = web_application_adapter.get(web_app_factory_value)()
-        print("configuration 1 - ", configuration)
         adapter.configure(configuration)
 
         factory = web_application_factories.get(web_app_factory_value)(adapter, configuration)

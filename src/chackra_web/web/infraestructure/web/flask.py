@@ -33,7 +33,8 @@ class FlaskAdapter(web_app.Adapter):
             handler_params = route.handler.__code__.co_varnames[:route.handler.__code__.co_argcount]
 
             if "request" in handler_params:
-                kwargs["request"] = flask.request
+                request_handler = FlaskRequestDataFactory()
+                kwargs["request"] = request_handler.create(flask.request)
 
             result = route.handler(*args, **kwargs)
 
@@ -82,3 +83,16 @@ class FlaskWebApplicationFactory(web_app.WebAppFactory):
     ) -> None:
         super().__init__(adapter, configuration)
 
+
+class FlaskRequestDataFactory(shared_route.RequestDataFactory):
+    def create(self, request: flask.Request) -> shared_route.RequestData:
+        body = None
+        if request.is_json:
+            body = request.get_json()
+        elif request.form:
+            body = dict(request.form)
+
+        return shared_route.RequestData(
+            headers=dict(request.headers) if request.headers else None,
+            body=body
+        )

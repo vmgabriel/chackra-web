@@ -15,6 +15,7 @@ class Configuration:
     web_adapter: str = "flask"
     logger_adapter: str = "logging"
     migration_adapter: str = "psycopg"
+    repository_adapter: str = "psycopg"
 
     # Postgres
     postgres_port: int = 5432

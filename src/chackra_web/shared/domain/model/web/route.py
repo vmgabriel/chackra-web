@@ -1,8 +1,10 @@
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Any
 
 import dataclasses
 import pydantic
 import enum
+
+import abc
 
 
 class HttpMethod(enum.Enum):
@@ -30,3 +32,14 @@ class RouteResponse(pydantic.BaseModel):
     status_code: int
     redirection: str
     flash_message: str
+
+
+class RequestData(pydantic.BaseModel):
+    headers: dict[str, Any] | None = None
+    body: dict[str, Any] | None = None
+
+
+class RequestDataFactory(abc.ABC):
+    @abc.abstractmethod
+    def create(self, request: object) -> RequestData:
+        raise NotImplementedError()
