@@ -2,9 +2,11 @@ import pydantic
 import enum
 import datetime
 import uuid
+import bcrypt
 
 from chackra_web.shared.domain.model.user import user_id as domain_user_id
 from chackra_web.shared.domain.model.auth import auth_id as domain_auth_id
+
 
 class AuthRole(enum.StrEnum):
     ADMIN = "ADMIN"
@@ -32,10 +34,14 @@ class AuthUser(pydantic.BaseModel):
 
     @staticmethod
     def create(auth_user_data: BaseAuthUserDTO) -> "AuthUser":
+        salt_password = bcrypt.gensalt()
         return AuthUser(
             id=domain_auth_id.AuthId(value=str(uuid.uuid4())),
             email=auth_user_data.email,
-            password=auth_user_data.password,
+            password=bcrypt.hashpw(auth_user_data.password.encode("utf-8"), salt_password).decode("utf-8"),
             user_id=auth_user_data.user_id,
             auth_role=auth_user_data.auth_role,
         )
+
+    def compare_password(self, to_compare_password: str) -> bool:
+        return bcrypt.checkpw(to_compare_password.encode("utf-8"), self.password.encode("utf-8"))
