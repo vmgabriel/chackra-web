@@ -2,6 +2,7 @@ from chackra_web.shared.domain.model.migration import migration as shared_migrat
 
 from chackra_web.user.infraestructure.migrations.psycopg import migration_1_create_user_table
 
+
 migrations: list[shared_migration.MigrateHandler] = [
     shared_migration.MigrateHandler(
         module="user",

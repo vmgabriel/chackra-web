@@ -4,7 +4,7 @@ import datetime
 import uuid
 
 from chackra_web.shared.domain.model.user import user_id as domain_user_id
-
+from chackra_web.shared.domain.model.auth import auth_id as domain_auth_id
 
 class AuthRole(enum.StrEnum):
     ADMIN = "ADMIN"
@@ -19,7 +19,7 @@ class BaseAuthUserDTO(pydantic.BaseModel):
 
 
 class AuthUser(pydantic.BaseModel):
-    id: str
+    id: domain_auth_id.AuthId
     email: str
     password: str
     user_id: domain_user_id.UserId
@@ -33,7 +33,7 @@ class AuthUser(pydantic.BaseModel):
     @staticmethod
     def create(auth_user_data: BaseAuthUserDTO) -> "AuthUser":
         return AuthUser(
-            id=str(uuid.uuid4()),
+            id=domain_auth_id.AuthId(value=str(uuid.uuid4())),
             email=auth_user_data.email,
             password=auth_user_data.password,
             user_id=auth_user_data.user_id,

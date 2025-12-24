@@ -1,11 +1,12 @@
 import pydantic
 import datetime
 
-from chackra_web.shared.domain.model.user import user_id as domain_user_id
 from chackra_web.user.application import create as application_user_create
 from chackra_web.auth.application import create as application_auth_create
 
 from chackra_web.shared.domain.model import extended_dependencies as domain_dependencies
+from chackra_web.shared.domain.model.user import user_id as domain_user_id
+from chackra_web.shared.domain.model.auth import auth_id as domain_auth_id
 
 
 class RegisterUserDTO(pydantic.BaseModel):
@@ -17,7 +18,7 @@ class RegisterUserDTO(pydantic.BaseModel):
 
 
 class RegisterUserResponse(pydantic.BaseModel):
-    auth_id: str
+    auth_id: domain_auth_id.AuthId
     user_id: domain_user_id.UserId
     email: str
     created_at: datetime.datetime

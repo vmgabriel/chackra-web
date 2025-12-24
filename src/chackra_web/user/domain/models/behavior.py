@@ -4,15 +4,18 @@ from chackra_web.shared.domain.model.behavior import behavior as shared_behavior
 
 
 class EmailFinderBehavior(Protocol[shared_behavior.M]):
-    def find_by_email(self, email: str) -> shared_behavior.M | None: ...
+    def find_by_email(self, email: str) -> shared_behavior.M | None:
+        raise NotImplementedError()
 
 
 class UsernameFinderBehavior(Protocol[shared_behavior.M]):
-    def find_by_username(self, username: str) -> shared_behavior.M | None: ...
+    def find_by_username(self, username: str) -> shared_behavior.M | None:
+        raise NotImplementedError()
 
 
 class UniqueUsernameEmailFinderBehavior(Protocol[shared_behavior.M]):
-    def find_unique_by_username_and_email(self, username: str, email: str) -> shared_behavior.M | None: ...
+    def find_unique_by_username_and_email(self, username: str, email: str) -> shared_behavior.M | None:
+        raise NotImplementedError()
 
 
 class UserFinderBehavior(

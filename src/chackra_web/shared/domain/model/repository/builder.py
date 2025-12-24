@@ -9,13 +9,14 @@ from chackra_web.shared.domain.model.repository import repository as shared_repo
 
 M = TypeVar("M", bound=shared_repository.GenericRepository)
 ME = TypeVar("ME")
+F = TypeVar("F", bound=shared_behavior.FinderBehavior[shared_behavior.M, shared_behavior.ID])
 
 
 @dataclasses.dataclass
 class PreDefinitionRepository:
     repository: Type[M]
     creator: Type[shared_behavior.CreatorBehavior[shared_behavior.M]]
-    finder: Type[shared_behavior.FinderBehavior[shared_behavior.M, shared_behavior.ID]]
+    finder: Type[F]
 
     def build(self, dependencies: shared_dependencies.ControllerDependencies) -> M:
         return self.repository(

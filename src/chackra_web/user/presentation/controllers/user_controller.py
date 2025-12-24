@@ -2,8 +2,10 @@
 from typing import List
 
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
-
 from chackra_web.shared.applications import register_user
+
+from chackra_web.user.domain.models import exceptions as user_exceptions
+from chackra_web.auth.domain.models import exceptions as auth_exceptions
 
 
 class UserController(shared_controller.WebController):
@@ -37,14 +39,20 @@ class UserController(shared_controller.WebController):
             username=request.body.get("username", ""),
         )
         try:
-            new_user_recorded = register_user.ApplicationRegisterUser(dependencies=self.dependencies).execute(to_register)
+            new_user_recorded = register_user.ApplicationRegisterUser(
+                dependencies=self.dependencies
+            ).execute(to_register)
             return shared_route.RouteResponse(
                 flash_message="Usuario Registrado Correctamente",
                 status_code=300,
                 redirection="auth.home",
             )
-        except Exception as exc:
+        except (user_exceptions.UserExistsException, auth_exceptions.AuthExistsException):
             return {
-                "title": "Home",
-                "error": str(exc)
+                "errors": [
+                    {
+                        "title": "Usuario ya registrado",
+                        "description": "El usuario ya existe, quizas quiera iniciar sesion",
+                    }
+                ]
             }

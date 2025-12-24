@@ -1,12 +1,12 @@
 import pydantic
-import traceback
 
-from chackra_web.user.domain.models import user as domain_user, repositories as user_repositories
+from chackra_web.shared.domain.model import extended_dependencies as domain_dependencies
 from chackra_web.shared.domain.model.uow import uow as shared_uow
 from chackra_web.shared.domain.model.logger import logger as shared_logger
 from chackra_web.shared.domain.model.user import user_id as shared_user_id
 
-from chackra_web.shared.domain.model import extended_dependencies as domain_dependencies
+from chackra_web.user.domain.models import user as domain_user, repositories as user_repositories
+from chackra_web.user.domain.models import exceptions as user_exceptions
 
 
 class CreateUserDTO(pydantic.BaseModel):
@@ -38,4 +38,13 @@ class CreateUserCommand:
                 email=create_user_dto.email
             )
         )
+
+        user_exists = self.user_repository.find_unique_by_username_and_email(
+            username=create_user_dto.username,
+            email=create_user_dto.email
+        )
+
+        if user_exists:
+            raise user_exceptions.UserExistsException()
+
         return self.user_repository.create(entity=user_created)

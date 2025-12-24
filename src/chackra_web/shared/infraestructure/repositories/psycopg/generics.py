@@ -38,6 +38,9 @@ class PsycopgGenericCreator(shared_behavior.CreatorBehavior[shared_behavior.M]):
         try:
             entity_data = entity.model_dump(exclude_none=True, exclude=("id",))
             entity_data["id"] = entity.id.value
+            for k, v in entity_data.items():
+                if k.endswith("_id") and isinstance(v, dict) and "value" in v:
+                    entity_data[k] = v["value"]
             safe_data = self.serializer.to_primitive(entity_data)
         except ValueError as e:
             raise ValueError(f"Cannot safely serialize entity: {e}")
@@ -60,6 +63,9 @@ class PsycopgGenericCreator(shared_behavior.CreatorBehavior[shared_behavior.M]):
                 column_names = [desc[0] for desc in result.description]
                 db_data = dict(zip(column_names, row))
                 db_data["id"] = {"value": db_data["id"]}
+                for k, v in db_data.items():
+                    if k.endswith("_id"):
+                        db_data[k] = {"value": v}
 
                 session.commit()
                 return self.serializer.from_primitive(db_data, entity.__class__)

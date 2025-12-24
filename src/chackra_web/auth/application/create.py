@@ -2,11 +2,14 @@ import pydantic
 import datetime
 
 from chackra_web.auth.domain.models import auth as domain_auth
+from chackra_web.auth.domain.models import repositories as auth_repositories
+from chackra_web.auth.domain.models import exceptions as auth_exceptions
+
 from chackra_web.shared.domain.model.user import user_id as domain_user_id
 from chackra_web.shared.domain.model.uow import uow as shared_uow
 from chackra_web.shared.domain.model.logger import logger as shared_logger
-
-from chackra_web.shared.domain.model import dependencies as domain_dependencies
+from chackra_web.shared.domain.model import extended_dependencies as domain_dependencies
+from chackra_web.shared.domain.model.auth import auth_id as shared_auth_id
 
 
 class AuthRegisterDTO(pydantic.BaseModel):
@@ -16,7 +19,7 @@ class AuthRegisterDTO(pydantic.BaseModel):
 
 
 class AuthRegisterResponse(pydantic.BaseModel):
-    id: str
+    id: shared_auth_id.AuthId
     email: str
     user_id: domain_user_id.UserId
     auth_role: domain_auth.AuthRole
@@ -26,14 +29,17 @@ class AuthRegisterResponse(pydantic.BaseModel):
 class AuthRegisterService:
     uow: shared_uow.UOW
     logger: shared_logger.LogAdapter
+    auth_repository: auth_repositories.AuthBaseRepository[domain_auth.AuthUser, shared_auth_id.AuthId]
 
-    def __init__(self, dependencies: domain_dependencies.ControllerDependencies) -> None:
+    def __init__(self, dependencies: domain_dependencies.ExtendedControllerDependencies) -> None:
         self.uow = dependencies.uow
         self.logger = dependencies.logger
 
-    def save(self, auth_register_dto: AuthRegisterDTO) -> AuthRegisterResponse:
-        # Validations?
+        self.auth_repository = dependencies.repository_store.build(
+            auth_repositories.AuthBaseRepository[domain_auth.AuthUser, shared_auth_id.AuthId]
+        )
 
+    def save(self, auth_register_dto: AuthRegisterDTO) -> AuthRegisterResponse:
         new_auth = domain_auth.AuthUser.create(
             auth_user_data=domain_auth.BaseAuthUserDTO(
                 email=auth_register_dto.email,
@@ -42,15 +48,18 @@ class AuthRegisterService:
             )
         )
 
-        # Persistence object?
-        # Post Creation Object
-        # Send Events?
+        self.auth_repository.find_by_email(email=new_auth.email)
+
+        if self.auth_repository.find_by_email(email=new_auth.email):
+            raise auth_exceptions.AuthExistsException()
+
+        created = self.auth_repository.create(entity=new_auth)
 
         return AuthRegisterResponse(
-            id=new_auth.id,
-            email=new_auth.email,
-            user_id=new_auth.user_id,
-            auth_role=new_auth.auth_role,
-            created_at=new_auth.created_at,
+            id=created.id,
+            email=created.email,
+            user_id=created.user_id,
+            auth_role=created.auth_role,
+            created_at=created.created_at,
         )
 

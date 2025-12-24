@@ -3,7 +3,7 @@ from typing import TypeVar, List
 from chackra_web.shared.domain.model.configuration import configuration as shared_configuration
 from chackra_web.shared.domain.model.migration import migration as shared_migration
 
-from chackra_web.user.infraestructure.migrations.psycopg import migrations as migrations_psycopg
+from chackra_web.auth.infraestructure.migrations.psycopg import migrations as migrations_psycopg
 
 
 T = TypeVar("T", bound=shared_migration.MigrateHandler)

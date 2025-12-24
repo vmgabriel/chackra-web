@@ -23,6 +23,7 @@ from chackra_web.shared.infraestructure.uow import factory as infraestructure_uo
 from chackra_web.shared.infraestructure.migrations import factory as infraestructure_migration_factory
 
 from chackra_web.user.infraestructure import migrations as user_migrations, repositories as user_repositories
+from chackra_web.auth.infraestructure import migrations as auth_migrations, repositories as auth_repositories
 
 
 class HomeWebController(shared_controller.WebController):
@@ -142,6 +143,7 @@ def create_app() -> object:
 
     migrations = []
     migrations.extend(user_migrations.get_migration_handlers(configuration=configuration))
+    migrations.extend(auth_migrations.get_migration_handlers(configuration=configuration))
 
     inject_migrations(migration_handler=migration_handler, migrations=migrations)
     migration_handler.pre_execute()
@@ -155,6 +157,7 @@ def create_app() -> object:
 
     repository_factories = [
         user_repositories.UserRepositoryFactory,
+        auth_repositories.AuthRepositoryFactory,
     ]
     repositories_store = get_repositories(dependencies=dependencies, factory_repositories=repository_factories)
 

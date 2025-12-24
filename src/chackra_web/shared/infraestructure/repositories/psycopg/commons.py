@@ -79,7 +79,7 @@ def execute_query(
         model_class: Type[T],
         serializer: SafeSerializer
 ) -> T | None:
-    with uow as session:
+    with uow.session() as session:
         try:
             result = session.atomic_execute(query, params)
             row = result.fetchone()
@@ -89,6 +89,10 @@ def execute_query(
 
             column_names = [desc[0] for desc in result.description]
             db_data = dict(zip(column_names, row))
+            db_data["id"] = {"value": db_data["id"]}
+            for k, v in db_data.items():
+                if k.endswith("_id"):
+                    db_data[k] = {"value": v}
 
             return serializer.from_primitive(db_data, model_class)
 
