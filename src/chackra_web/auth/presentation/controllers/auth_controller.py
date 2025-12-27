@@ -30,7 +30,7 @@ class AuthController(shared_controller.WebController):
                 methods=[shared_route.HttpMethod.GET],
                 name="auth.home",
                 template="main.html",
-                middleware=[login_required.login_required(roles=["ADMIN", "USER"])]
+                middleware=[login_required.login_required(roles=["ADMIN", "USER"])],
             ),
             shared_route.RouteDefinition(
                 path="/login/recovery",
@@ -38,11 +38,19 @@ class AuthController(shared_controller.WebController):
                 methods=[shared_route.HttpMethod.GET],
                 name="auth.recovery",
                 template="auth/recovery.html"
+            ),
+            shared_route.RouteDefinition(
+                path="/logout",
+                handler=self.logout,
+                methods=[shared_route.HttpMethod.GET],
+                name="auth.logout",
+                template="main.html",
+                middleware=[login_required.login_required(roles=["ADMIN", "USER"])],
             )
         ]
 
-    def home(self) -> dict:
-        return {"title": "Home"}
+    def home(self, user: shared_route.Session) -> dict:
+        return {"title": "Home", "user": user}
 
     def login_page(self) -> dict:
         return {
@@ -50,29 +58,48 @@ class AuthController(shared_controller.WebController):
             "form": {}
         }
 
-    def login_submit(self, request) -> shared_route.RouteResponse | dict:
-        data = request.form
+    def login_submit(self, request: shared_route.RequestData) -> shared_route.RouteResponse | dict:
 
         login_data = login.LoginDTO(
-            email=data.get("email", ""),
-            password=data.get("password", ""),
+            email=request.body.get("email", ""),
+            password=request.body.get("password", ""),
         )
-        verification = login.LoginCommand("").execute(login_data)
+        verification = login.LoginCommand(dependencies=self.dependencies).execute(login_data)
+
         if verification:
             return shared_route.RouteResponse(
                 flash_message="Login correcto",
                 status_code=300,
                 redirection="auth.home",
+                session=shared_route.Session(
+                    status=shared_route.StatusSession.SUCCESS,
+                    user_id=verification.user_id.value,
+                    auth_id=verification.id.value,
+                    email=verification.email,
+                    role=verification.auth_role,
+                )
             )
         else:
             return shared_route.RouteResponse(
-                flash_message="Login incorrecto",
+                flash_message="Login no valido",
                 status_code=300,
                 redirection="auth.login_get",
             )
 
-    def logout(self):
-        return {}
+    def logout(self, user: shared_route.Session):
+        print("user - ", user)
+        return shared_route.RouteResponse(
+            flash_message="Logout hecho correctamente",
+            status_code=300,
+            redirection="home",
+            session=shared_route.Session(
+                status=shared_route.StatusSession.LOGOUT,
+                user_id=user.user_id,
+                auth_id=user.auth_id,
+                email=user.email,
+                role=user.role,
+            )
+        )
 
     def recovery(self):
         return {}
