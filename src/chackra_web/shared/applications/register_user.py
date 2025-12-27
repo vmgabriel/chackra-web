@@ -21,6 +21,7 @@ class RegisterUserResponse(pydantic.BaseModel):
     auth_id: domain_auth_id.AuthId
     user_id: domain_user_id.UserId
     email: str
+    role: str
     created_at: datetime.datetime
 
 
@@ -52,5 +53,6 @@ class ApplicationRegisterUser:
             auth_id=new_auth.id,
             user_id=new_user.id,
             email=new_user.email,
-            created_at=new_user.created_at
+            created_at=new_user.created_at,
+            role=new_auth.auth_role,
         )

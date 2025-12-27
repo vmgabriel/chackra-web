@@ -2,6 +2,8 @@
 from typing import List
 
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
+from chackra_web.auth.domain.services.middlewares import login_required
+
 from chackra_web.auth.application import login
 
 
@@ -27,7 +29,8 @@ class AuthController(shared_controller.WebController):
                 handler=self.home,
                 methods=[shared_route.HttpMethod.GET],
                 name="auth.home",
-                template="main.html"
+                template="main.html",
+                middleware=[login_required.login_required(roles=["ADMIN", "USER"])]
             ),
             shared_route.RouteDefinition(
                 path="/login/recovery",

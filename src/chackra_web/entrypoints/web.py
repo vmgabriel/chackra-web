@@ -79,9 +79,12 @@ def get_configuration() -> shared_configuration.Configuration:
     return factory_configuration.build()
 
 
-def get_web_app(configuration: shared_configuration.Configuration) -> domain_web_app.WebAppFactory:
+def get_web_app(
+        configuration: shared_configuration.Configuration,
+        dependencies: shared_extended_dependencies.ExtendedControllerDependencies
+) -> domain_web_app.WebAppFactory:
     factory_web = infraestructure_web_factory.WebApplicationFactory()
-    return factory_web.build(configuration=configuration)
+    return factory_web.build(configuration=configuration, dependencies=dependencies)
 
 
 def get_logger(configuration: shared_configuration.Configuration) -> shared_logger.LogAdapter:
@@ -161,12 +164,12 @@ def create_app() -> object:
     ]
     repositories_store = get_repositories(dependencies=dependencies, factory_repositories=repository_factories)
 
-    web = get_web_app(configuration)
-
     extended_dependencies = shared_extended_dependencies.ExtendedControllerDependencies.from_dependencies(
         controller_dependencies=dependencies,
         repository_store=repositories_store
     )
+
+    web = get_web_app(configuration, extended_dependencies)
 
     controllers = [
         HomeWebController,

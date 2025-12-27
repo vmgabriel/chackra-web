@@ -5,6 +5,9 @@ import abc
 from chackra_web.shared.domain.model.web import route as shared_route, controller as shared_controller
 from chackra_web.shared.domain.model.configuration import configuration as shared_configuration
 
+from chackra_web.auth.domain.models import auth as auth_models, repositories as auth_repositories
+from chackra_web.shared.domain.model.auth import auth_id as shared_auth_id
+
 
 class WebApplication(abc.ABC):
     @abc.abstractmethod
@@ -20,8 +23,14 @@ class WebApplication(abc.ABC):
 
 
 class Adapter(abc.ABC):
-    def __init__(self, app: object) -> None:
+    auth_repository: auth_repositories.AuthBaseRepository[auth_models.AuthUser, shared_auth_id.AuthId]
+    def __init__(
+            self,
+            app: object,
+            auth_repository: auth_repositories.AuthBaseRepository[auth_models.AuthUser, shared_auth_id.AuthId]
+    ) -> None:
         self.app = app
+        self.auth_repository = auth_repository
 
     @abc.abstractmethod
     def configure(self, config: shared_configuration.Configuration) -> None:
@@ -37,6 +46,18 @@ class Adapter(abc.ABC):
 
     @abc.abstractmethod
     def _wrap_handler(self, route: shared_route.RouteDefinition) -> Callable:
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get_auth_user(self) -> shared_route.Session | None:
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def redirect_to_login(self) -> Any:
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get_session(self, auth_id: str) -> shared_route.Session | None:
         raise NotImplementedError()
 
 

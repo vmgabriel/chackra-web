@@ -46,6 +46,13 @@ class UserController(shared_controller.WebController):
                 flash_message="Usuario Registrado Correctamente",
                 status_code=300,
                 redirection="auth.home",
+                session=shared_route.Session(
+                    status=shared_route.StatusSession.SUCCESS,
+                    user_id=new_user_recorded.user_id.value,
+                    auth_id=new_user_recorded.auth_id.value,
+                    email=new_user_recorded.email,
+                    role=new_user_recorded.role,
+                ),
             )
         except (user_exceptions.UserExistsException, auth_exceptions.AuthExistsException):
             return {
