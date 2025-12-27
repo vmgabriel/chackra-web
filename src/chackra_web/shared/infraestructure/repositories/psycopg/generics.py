@@ -15,7 +15,7 @@ INSERT INTO {table_name}({fields})
 ;
 """
 FIND_BY_ID_QUERY = """
-SELECT * FROM {table_name} WHERE id = %s; AND enabled = false;
+SELECT * FROM {table_name} WHERE id = %s AND active = true;
 """
 
 
@@ -94,7 +94,7 @@ class PsycopgGenericFinder(shared_behavior.FinderBehavior[shared_behavior.M, sha
         query = FIND_BY_ID_QUERY.format(table_name=self.table_name)
         return psycopg_commons.execute_query(
             query=query,
-            params=(id,),
+            params=(id.value,),
             uow=self.uow,
             model_class=Type[shared_behavior.M],
             serializer=self.serializer,

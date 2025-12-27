@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Perfil - Chackra Web{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i class="bi bi-person-circle fs-2 me-3"></i>
+                    <h4 class="mb-0">Mi Perfil</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        {% if user.avatar_url %}
+                            <img src="{{ user.avatar_url }}" alt="Avatar" class="rounded-circle img-thumbnail mb-3" width="120" height="120" style="object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light border rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
+                                <i class="bi bi-person-fill text-secondary" style="font-size: 4rem;"></i>
+                            </div>
+                        {% endif %}
+                        <h3 class="mb-1">{{ user_data.name or 'Nombre no disponible' }} {{ user_data.last_name }}</h3>
+                        <p class="text-muted mb-3">{{ user_data.email or 'Email no disponible' }}</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-envelope me-2 text-muted"></i>
+                                <span>{{ user.email or '—' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-person me-2 text-muted"></i>
+                                <span>{{ user_data.username or '—' }}</span>
+                            </div>
+                        </div>
+                        {% if user_data.created_at %}
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar-check me-2 text-muted"></i>
+                                <span>Registrado el: {{ user_data.created_at.strftime('%d/%m/%Y') }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if user_data.created_at %}
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar-check me-2 text-muted"></i>
+                                <span>Is Active: {{ user_data.active }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-shield-lock me-2 text-muted"></i>
+                                <span>Rol: {{ user.role or 'Usuario' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <a href="/settings" class="btn btn-outline-secondary me-2">
+                            <i class="bi bi-gear me-1"></i> Editar Perfil
+                        </a>
+                        <a href="" class="btn btn-outline-primary">
+                            <i class="bi bi-key me-1"></i> Cambiar Contraseña
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

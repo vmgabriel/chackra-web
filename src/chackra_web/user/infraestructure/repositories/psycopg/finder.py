@@ -12,13 +12,13 @@ from chackra_web.user.infraestructure.repositories.psycopg import commons as psy
 
 
 FIND_BY_ID_QUERY = """
-SELECT * FROM {table_name} WHERE id = %s AND active = false;
+SELECT * FROM {table_name} WHERE id = %s AND active = true;
 """
 FIND_BY_EMAIL_QUERY = """
-SELECT * FROM {table_name} WHERE email = %s AND active = false;
+SELECT * FROM {table_name} WHERE email = %s AND active = true;
 """
 FIND_BY_USERNAME_QUERY = """
-SELECT * FROM {table_name} WHERE username = %s AND active = false;
+SELECT * FROM {table_name} WHERE username = %s AND active = true;
 """
 FIND_BY_USERNAME_AND_EMAIL_QUERY = """
 SELECT * FROM {table_name} WHERE username = %s OR email = %s;
@@ -54,7 +54,7 @@ class PsycopgUserBaseFinderRepository(
         query = FIND_BY_ID_QUERY.format(table_name=self.table_name)
         return psycopg_commons.execute_query(
             query=query,
-            params=(id,),
+            params=(id.value,),
             uow=self.uow,
             model_class=self.model_class,
             serializer=self.serializer,

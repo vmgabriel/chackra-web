@@ -1,11 +1,13 @@
 
-from typing import List
+from typing import List, Any
 
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
 from chackra_web.shared.applications import register_user
 
 from chackra_web.user.domain.models import exceptions as user_exceptions
 from chackra_web.auth.domain.models import exceptions as auth_exceptions
+
+from chackra_web.user.application import get_by_id as user_get_by_id
 
 
 class UserController(shared_controller.WebController):
@@ -24,6 +26,13 @@ class UserController(shared_controller.WebController):
                 methods=[shared_route.HttpMethod.POST],
                 name="user.register_save",
                 template="user/register.html"
+            ),
+            shared_route.RouteDefinition(
+                path="/users/me",
+                handler=self.get_profile,
+                methods=[shared_route.HttpMethod.GET],
+                name="user.profile_get",
+                template="user/profile.html"
             ),
         ]
 
@@ -63,3 +72,20 @@ class UserController(shared_controller.WebController):
                     }
                 ]
             }
+
+    def get_profile(self, user: shared_route.Session) -> Any:
+        print("user - ", user)
+        current_user = user_get_by_id.GetByIdUserCommand(
+            dependencies=self.dependencies
+        ).execute(
+            get_by_id_user_dto=user_get_by_id.GetByIDUserDTO(user_id=user.user_id)
+        )
+        print("current_user - ", current_user)
+        print("current_user.model_dump()", current_user.model_dump())
+        if not current_user:
+            return shared_route.RouteResponse(
+                flash_message="Usuario no encontrado",
+                status_code=300,
+                redirection="auth.home",
+            )
+        return {"title": "Perfil", "user": user, "user_data": current_user.model_dump()}
