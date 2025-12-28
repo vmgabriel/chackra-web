@@ -12,6 +12,7 @@ from chackra_web.shared.domain.model import (
     extended_dependencies as shared_extended_dependencies
 )
 from chackra_web.shared.domain.model.repository import builder as shared_builder_repository, factory as shared_factory
+from chackra_web.shared.domain.model.specifications import builder as shared_builder_specification
 
 from chackra_web.auth.presentation.controllers import auth_controller
 from chackra_web.user.presentation.controllers import user_controller, list_users_controller
@@ -21,6 +22,8 @@ from chackra_web.web.infraestructure.web import factory as infraestructure_web_f
 from chackra_web.shared.infraestructure.logger import factory as infraestructure_logger_factory
 from chackra_web.shared.infraestructure.uow import factory as infraestructure_uow_factory
 from chackra_web.shared.infraestructure.migrations import factory as infraestructure_migration_factory
+from chackra_web.shared.infraestructure.specifications import factory as infraestructure_specification_factory
+from chackra_web.shared.infraestructure.pagination import factory as infraestructure_pagination_factory
 
 from chackra_web.user.infraestructure import migrations as user_migrations, repositories as user_repositories
 from chackra_web.auth.infraestructure import migrations as auth_migrations, repositories as auth_repositories
@@ -164,9 +167,19 @@ def create_app() -> object:
     ]
     repositories_store = get_repositories(dependencies=dependencies, factory_repositories=repository_factories)
 
+
+    specifications_store = shared_builder_specification.SpecificationStore()
+    handlers = infraestructure_specification_factory.SpecificationsGenericsFactory().build(configuration=configuration, logger=log)
+    for handler_type, handler_class in handlers.items():
+        specifications_store.add(handler_type, handler_class)
+
+    pagination_builder = infraestructure_pagination_factory.PaginationFactory().build(configuration=configuration)
+
     extended_dependencies = shared_extended_dependencies.ExtendedControllerDependencies.from_dependencies(
         controller_dependencies=dependencies,
-        repository_store=repositories_store
+        repository_store=repositories_store,
+        specification_store=shared_builder_specification.SpecificationStore(),
+        paginator_builder=pagination_builder,
     )
 
     web = get_web_app(configuration, extended_dependencies)

@@ -16,6 +16,8 @@ class Configuration:
     logger_adapter: str = "logging"
     migration_adapter: str = "psycopg"
     repository_adapter: str = "psycopg"
+    specification_adapter: str = "psycopg"
+    pagination_adapter: str = "psycopg"
 
     # Postgres
     postgres_port: int = 5432
