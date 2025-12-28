@@ -30,8 +30,25 @@ class RouteDefinition:
     methods: List[HttpMethod]
     name: Optional[str] = None
     middleware: List[Callable[[object, Callable], Callable]] = None
+    getters_allowed: List[str] = dataclasses.field(default_factory=list)
     template: Optional[str] = None
     description: Optional[str] = None
+
+    def query_params_allowed(self) -> List[str]:
+        return self.getters_allowed + ["order_by", "page", "page_size"]
+
+    def is_valid_query_param(self, key: str) -> bool:
+        name = key.split("__")[0]
+        return name in self.query_params_allowed()
+
+    def is_valid_query_param_filter(self, key: str) -> bool:
+        name = key.split("__")[0]
+        return name in self.getters_allowed
+
+    def is_valid_order_by(self, key: str) -> bool:
+        name = key.replace("-", "")
+        return name in self.getters_allowed
+
 
 
 class Session(pydantic.BaseModel):

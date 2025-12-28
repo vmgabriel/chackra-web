@@ -1,5 +1,6 @@
 from typing import Type
 
+from chackra_web.shared.infraestructure.convertion_specification.factory import to_specification_handler
 from chackra_web.web.domain.web import app as domain_web_app
 
 from chackra_web.shared.domain.model.web import route as shared_route, controller as shared_controller
@@ -12,7 +13,6 @@ from chackra_web.shared.domain.model import (
     extended_dependencies as shared_extended_dependencies
 )
 from chackra_web.shared.domain.model.repository import builder as shared_builder_repository, factory as shared_factory
-from chackra_web.shared.domain.model.specifications import builder as shared_builder_specification
 
 from chackra_web.auth.presentation.controllers import auth_controller
 from chackra_web.user.presentation.controllers import user_controller, list_users_controller
@@ -24,6 +24,12 @@ from chackra_web.shared.infraestructure.uow import factory as infraestructure_uo
 from chackra_web.shared.infraestructure.migrations import factory as infraestructure_migration_factory
 from chackra_web.shared.infraestructure.specifications import factory as infraestructure_specification_factory
 from chackra_web.shared.infraestructure.pagination import factory as infraestructure_pagination_factory
+from chackra_web.shared.infraestructure.convertion_specification import (
+    factory as infraestructure_convertion_specification_factory
+)
+from chackra_web.shared.infraestructure.convertion_pagination import (
+    factory as infraestructure_convertion_pagination_factory
+)
 
 from chackra_web.user.infraestructure import migrations as user_migrations, repositories as user_repositories
 from chackra_web.auth.infraestructure import migrations as auth_migrations, repositories as auth_repositories
@@ -168,18 +174,32 @@ def create_app() -> object:
     repositories_store = get_repositories(dependencies=dependencies, factory_repositories=repository_factories)
 
 
-    specifications_store = shared_builder_specification.SpecificationStore()
-    handlers = infraestructure_specification_factory.SpecificationsGenericsFactory().build(configuration=configuration, logger=log)
-    for handler_type, handler_class in handlers.items():
-        specifications_store.add(handler_type, handler_class)
+    specification_builder = infraestructure_specification_factory.SpecificationsGenericsFactory().build(
+        configuration=configuration,
+        logger=log
+    )
+
+    to_specification_builder = infraestructure_convertion_specification_factory.ToSpecificationFactory().build(
+        configuration=configuration,
+        specification_builder=specification_builder,
+        logger=log
+    )
 
     pagination_builder = infraestructure_pagination_factory.PaginationFactory().build(configuration=configuration)
+
+    to_conversation_handler = infraestructure_convertion_pagination_factory.ToConvertionFactory().build(
+        configuration=configuration,
+        pagination_builder=pagination_builder,
+        logger=log
+    )
 
     extended_dependencies = shared_extended_dependencies.ExtendedControllerDependencies.from_dependencies(
         controller_dependencies=dependencies,
         repository_store=repositories_store,
-        specification_store=shared_builder_specification.SpecificationStore(),
+        specification_builder=specification_builder,
         paginator_builder=pagination_builder,
+        to_specification_builder=to_specification_builder,
+        to_pagination_builder=to_conversation_handler,
     )
 
     web = get_web_app(configuration, extended_dependencies)

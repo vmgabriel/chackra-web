@@ -1,5 +1,9 @@
-from chackra_web.shared.domain.model.pagination import builder as shared_pagination_builder
 from chackra_web.shared.domain.model.configuration import configuration as shared_configuration
+from chackra_web.shared.domain.model.pagination import (
+    builder as shared_pagination_builder,
+    conversion as shared_pagination_conversion
+)
+
 from chackra_web.shared.infraestructure.pagination.psycopg import pagination as shared_pagination_psycopg
 
 pagination_handlers: dict[

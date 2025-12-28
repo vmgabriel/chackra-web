@@ -18,6 +18,8 @@ class Configuration:
     repository_adapter: str = "psycopg"
     specification_adapter: str = "psycopg"
     pagination_adapter: str = "psycopg"
+    to_specification_adapter: str = "flask"
+    to_convertion_adapter: str = "flask"
 
     # Postgres
     postgres_port: int = 5432

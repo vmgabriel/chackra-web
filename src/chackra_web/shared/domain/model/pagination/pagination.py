@@ -31,8 +31,8 @@ class DescOrdered(Ordered, abc.ABC):
 
 
 class Pagination(abc.ABC):
-    filters: shared_specifications.Specification | None = None
-    order_by: list[Ordered]
+    filters: shared_specifications.BaseSpecification | None = None
+    order_by: list[Ordered] | None = None
     page: int
     page_size: int
 
@@ -40,8 +40,8 @@ class Pagination(abc.ABC):
             self,
             page: int,
             page_size: int,
-            order_by: list[Ordered],
-            filters: shared_specifications.Specification | None = None
+            order_by: list[Ordered] | None = None,
+            filters: shared_specifications.BaseSpecification | None = None
     ) -> None:
         self.filters = filters
         self.page = page

@@ -1,43 +1,72 @@
-from typing import Type
+from typing import Any, Callable
 import abc
 
 
-class Specification(abc.ABC):
-
-    def __and__(self, other: "Specification") -> "Specification":
-        return AndSpecification(self, other)
-
-    def __or__(self, other: "Specification") -> "Specification":
-        return OrSpecification(self, other)
+class AbstractSpecification(abc.ABC):
+    def __init__(self, attribute: str, value: Any, sql_converter: Callable[[str, Any], tuple[str, tuple]]):
+        self.attribute = attribute
+        self.value = value
+        self._sql_converter = sql_converter
 
     @abc.abstractmethod
-    def to_sql(self) -> tuple[str, tuple[str, ...]]:
+    def to_sql(self) -> tuple[str, tuple]:
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def is_satisfied_by(self, item: object) -> bool:
+    def __and__(self, other: 'Specification') -> 'AndSpecification':
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def __or__(self, other: 'Specification') -> 'OrSpecification':
         raise NotImplementedError()
 
 
-class AndSpecification(Specification, abc.ABC):
-    specification_1: Specification
-    specification_2: Specification
+class BaseSpecification(AbstractSpecification):
+    def __init__(self, attribute: str, value: Any, sql_converter: Callable[[str, Any], tuple[str, tuple]]):
+        super().__init__(attribute, value, sql_converter)
 
-    def __init__(self, specification_1: Specification, specification_2: Specification) -> None:
-        self.specification_1 = specification_1
-        self.specification_2 = specification_2
-
-    def is_satisfied_by(self, item: object) -> bool:
-        return self.specification_1.is_satisfied_by(item) and self.specification_2.is_satisfied_by(item)
+    def to_sql(self) -> tuple[str, tuple]:
+        return self._sql_converter(self.attribute, self.value)
 
 
-class OrSpecification(Specification):
-    specification_1: Specification
-    specification_2: Specification
+class CompositeSpecification(AbstractSpecification, abc.ABC):
+    def __init__(self, left: AbstractSpecification, right: AbstractSpecification):
+        self.left = left
+        self.right = right
 
-    def __init__(self, specification_1: Specification, specification_2: Specification) -> None:
-        self.specification_1 = specification_1
-        self.specification_2 = specification_2
 
-    def is_satisfied_by(self, item: object) -> bool:
-        return self.specification_1.is_satisfied_by(item) or self.specification_2.is_satisfied_by(item)
+class AndSpecification(CompositeSpecification, abc.ABC):
+    ...
+
+
+class OrSpecification(CompositeSpecification, abc.ABC):
+    ...
+
+
+
+
+class ConvertersSpecification(abc.ABC):
+    @staticmethod
+    @abc.abstractmethod
+    def equal(attribute: str, value: Any) -> tuple[str, tuple]:
+        raise NotImplementedError()
+
+    @staticmethod
+    @abc.abstractmethod
+    def not_equal(attribute: str, value: Any) -> tuple[str, tuple]:
+        raise NotImplementedError()
+
+    @staticmethod
+    @abc.abstractmethod
+    def ilike(attribute: str, value: Any) -> tuple[str, tuple]:
+        raise NotImplementedError()
+
+    @staticmethod
+    @abc.abstractmethod
+    def like(attribute: str, value: Any) -> tuple[str, tuple]:
+        raise NotImplementedError()
+
+    @staticmethod
+    @abc.abstractmethod
+    def in_values(attribute: str, value: Any) -> tuple[str, tuple]:
+        raise NotImplementedError()

@@ -2,7 +2,7 @@
 from typing import List
 
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
-from chackra_web.shared.applications import register_user
+from chackra_web.shared.domain.model.pagination import pagination as shared_pagination
 
 from chackra_web.auth.domain.services.middlewares import login_required
 
@@ -17,10 +17,14 @@ class UserController(shared_controller.WebController):
                 name="user.list_users_get",
                 template="user/list.html",
                 middleware=[login_required.login_required(roles=["ADMIN"])],
+                getters_allowed=["name", "active", "roles", "id"],
             ),
         ]
 
-    def list_users(self) -> dict:
+    def list_users(self, pagination: shared_pagination.Pagination) -> dict:
+        print("pagination - ", pagination)
+        print("pagination.page - ", pagination.page_to_sql())
+        print("pagination.page size - ", pagination.page_size_to_sql())
         return {
             "pagination": {
                 "has_prev": False,
