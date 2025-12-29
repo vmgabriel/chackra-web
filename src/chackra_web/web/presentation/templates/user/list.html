@@ -10,45 +10,56 @@
             <h1 class="h3 mb-2">Gestión de Usuarios</h1>
             <p class="text-muted">Administra los usuarios del sistema</p>
         </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-            <i class="bi bi-person-plus-fill me-2"></i>Añadir Usuario
-        </button>
     </div>
 
     <!-- Filtros y Búsqueda -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-12 col-md-4">
-                    <div class="input-group">
-                        <span class="input-group-text bg-transparent">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" class="form-control" id="searchUser" placeholder="Buscar usuarios...">
-                    </div>
-                </div>
-                <div class="col-12 col-md-8">
-                    <div class="d-flex gap-2 justify-content-md-end">
-                        <select class="form-select w-auto" id="roleFilter">
-                            <option value="">Todos los roles</option>
-                            <option value="admin">Administrador</option>
-                            <option value="editor">Editor</option>
-                            <option value="user">Usuario</option>
-                        </select>
-                        <select class="form-select w-auto" id="statusFilter">
-                            <option value="">Todos los estados</option>
-                            <option value="active">Activo</option>
-                            <option value="inactive">Inactivo</option>
-                            <option value="suspended">Suspendido</option>
-                        </select>
-                        <button class="btn btn-outline-secondary" id="clearFilters">
-                            <i class="bi bi-x-circle me-2"></i>Limpiar
-                        </button>
-                    </div>
-                </div>
+    <form method="GET" action="" class="mb-4">
+        <div class="row g-3">
+            <!-- Campo de búsqueda -->
+            <div class="col-md-4">
+                <input type="text"
+                       class="form-control"
+                       name="search"
+                       placeholder="Buscar usuarios..."
+                       value="{{ request.args.get('search', '') }}">
+            </div>
+
+            <!-- Selector de roles -->
+            <div class="col-md-3">
+                <select class="form-select" name="role">
+                    <option value="">Todos los roles</option>
+                    <option value="admin" {% if request.args.get('role') == 'admin' %}selected{% endif %}>
+                        Administrador
+                    </option>
+                    <option value="user" {% if request.args.get('role') == 'user' %}selected{% endif %}>
+                        Usuario
+                    </option>
+                    <!-- Agrega más roles según necesites -->
+                </select>
+            </div>
+
+            <!-- Selector de estado activo -->
+            <div class="col-md-3">
+                <select class="form-select" name="active">
+                    <option value="">Todos los estados</option>
+                    <option value="true" {% if request.args.get('active') == 'true' %}selected{% endif %}>
+                        Activo
+                    </option>
+                    <option value="false" {% if request.args.get('active') == 'false' %}selected{% endif %}>
+                        Inactivo
+                    </option>
+                </select>
+            </div>
+
+            <!-- Botón de búsqueda -->
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
             </div>
         </div>
-    </div>
+    </form>
+
 
     <!-- Tabla de Usuarios -->
     <div class="card shadow-sm">
@@ -65,13 +76,12 @@
                             <th>Usuario</th>
                             <th>Rol</th>
                             <th>Estado</th>
-                            <th>Último acceso</th>
                             <th>Fecha registro</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for user in users %}
+                        {% for user in paginator.entities %}
                         <tr>
                             <td>
                                 <div class="form-check">
@@ -90,7 +100,7 @@
                                         {% endif %}
                                     </div>
                                     <div>
-                                        <h6 class="mb-0">{{ user.name }}</h6>
+                                        <h6 class="mb-0">{{ user.full_name }}</h6>
                                         <small class="text-muted">{{ user.username }}</small>
                                     </div>
                                 </div>
@@ -105,12 +115,14 @@
                             </td>
                             <td>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           {% if user.status == 'active' %}checked{% endif %}
-                                           data-user-id="{{ user.id }}">
+                                    <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            {% if user.active %}checked{% endif %}
+                                            data-user-id="{{ user.id }}"
+                                    >
                                 </div>
                             </td>
-                            <td>{{ user.last_login }}</td>
                             <td>{{ user.created_at }}</td>
                             <td>
                                 <div class="dropdown">
@@ -157,59 +169,23 @@
                         <option value="50">50 por página</option>
                         <option value="100">100 por página</option>
                     </select>
-                    <span class="text-muted">Mostrando {{ pagination.start }} - {{ pagination.end }} de {{ pagination.total }}</span>
+                    <span class="text-muted">Mostrando {{ paginator.start }} - {{ paginator.end }} de {{ paginator.total }}</span>
                 </div>
                 <nav>
                     <ul class="pagination mb-0">
-                        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
-                            <a class="page-link" href="{{ url_for('user.list_users_get', page=pagination.prev_page) }}">Anterior</a>
+                        <li class="page-item {% if not paginator.has_prev %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('user.list_users_get', page=paginator.prev_page) }}">Anterior</a>
                         </li>
-                        {% for page in pagination.pages %}
-                        <li class="page-item {% if page == pagination.current %}active{% endif %}">
+                        {% for page in paginator.pages %}
+                        <li class="page-item {% if page == paginator.page %}active{% endif %}">
                             <a class="page-link" href="{{ url_for('user.list_users_get', page=page) }}">{{ page }}</a>
                         </li>
                         {% endfor %}
-                        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
-                            <a class="page-link" href="{{ url_for('user.list_users_get', page=pagination.next_page) }}">Siguiente</a>
+                        <li class="page-item {% if not paginator.has_next %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('user.list_users_get', page=paginator.next_page) }}">Siguiente</a>
                         </li>
                     </ul>
                 </nav>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Añadir Usuario -->
-<div class="modal fade" id="addUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Añadir Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addUserForm">
-                    <div class="mb-3">
-                        <label class="form-label">Nombre</label>
-                        <input type="text" class="form-control" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Rol</label>
-                        <select class="form-select" name="role" required>
-                            <option value="user">Usuario</option>
-                            <option value="editor">Editor</option>
-                            <option value="admin">Administrador</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="addUserForm" class="btn btn-primary">Añadir Usuario</button>
             </div>
         </div>
     </div>

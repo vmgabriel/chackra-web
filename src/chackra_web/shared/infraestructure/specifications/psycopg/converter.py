@@ -7,6 +7,9 @@ from chackra_web.shared.domain.model.specifications import specifications  as sh
 class PsycopgConvertersSpecification(shared_specifications.ConvertersSpecification):
     @staticmethod
     def equal(attribute: str, value: Any) -> Tuple[str, tuple]:
+        if isinstance(value, str) and value.lower() in ("true", "false"):
+            return f"{attribute} = %b", (value.lower() == "true",)
+
         return f"{attribute} = %s", (value,)
 
     @staticmethod
@@ -15,17 +18,18 @@ class PsycopgConvertersSpecification(shared_specifications.ConvertersSpecificati
 
     @staticmethod
     def ilike(attribute: str, value: Any) -> Tuple[str, tuple]:
-        return f"{attribute} LIKE %s", (f"%{value}%",)
+        return f"{attribute} ILIKE %s", (f"%{value}%",)
 
     @staticmethod
     def like(attribute: str, value: Any) -> Tuple[str, tuple]:
-        return f"{attribute} LIKE %s", (f"%{value}%",)
+        return f"{attribute} ) LIKE %s", (f"%{value}%",)
 
     @staticmethod
     def in_values(attribute: str, value: Any) -> Tuple[str, tuple]:
         value = value.split(',')
         placeholders = ','.join(['%s'] * len(value))
         return f"{attribute} IN ({placeholders})", tuple(value)
+
 
 class PsycopgAndSpecification(shared_specifications.AndSpecification):
     def __and__(self, other: shared_specifications.AbstractSpecification) -> shared_specifications.AndSpecification:

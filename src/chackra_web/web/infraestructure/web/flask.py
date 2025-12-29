@@ -123,19 +123,24 @@ class FlaskAdapter(web_app.Adapter):
         flask.flash("You must be logged in to access this page or you dont have permission to access this page.")
         return flask.redirect(flask.url_for("auth.login_get"))
 
-    def to_request_pagination(self, request: flask.Request, route: shared_route.RouteDefinition) -> shared_pagination.Pagination:
+    def to_request_pagination(
+            self,
+            request: flask.Request,
+            route: shared_route.RouteDefinition
+    ) -> shared_pagination.Pagination:
         request = request.args.to_dict()
         paginator_handler = self.pagination_builder.get_pagination()
 
         specifications = []
         for key, value in request.items():
+            if value == "":
+                continue
             if not route.is_valid_query_param_filter(key):
                 continue
             specifications.append(self.to_specification_builder.to_specification(key, value))
         specifications = [spec for spec in specifications if spec]
 
         and_specification = functools.reduce(lambda x, y: x & y, specifications) if specifications else None
-
 
         orders = []
         if current_orders := request.get("order_by"):

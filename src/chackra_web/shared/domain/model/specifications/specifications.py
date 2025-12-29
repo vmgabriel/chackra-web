@@ -28,11 +28,49 @@ class BaseSpecification(AbstractSpecification):
     def to_sql(self) -> tuple[str, tuple]:
         return self._sql_converter(self.attribute, self.value)
 
+    def find_by_attribute(self, attribute: str) -> AbstractSpecification | None:
+        if self.attribute == attribute:
+            return self
+        return None
+
+    def find_and_replace_by_attribute(self, attribute: str, to_replace: AbstractSpecification) -> AbstractSpecification:
+        if self.attribute == attribute:
+            return to_replace
+        return None
+
 
 class CompositeSpecification(AbstractSpecification, abc.ABC):
     def __init__(self, left: AbstractSpecification, right: AbstractSpecification):
         self.left = left
         self.right = right
+
+    def find_and_replace_by_attribute(self, attribute: str, to_replace: AbstractSpecification) -> AbstractSpecification:
+        if isinstance(self.left, (AndSpecification, OrSpecification)):
+            self.left.find_and_replace_by_attribute(attribute, to_replace)
+        else:
+            if self.left.attribute == attribute:
+                self.left = to_replace
+        if isinstance(self.right, (AndSpecification, OrSpecification)):
+            self.right.find_and_replace_by_attribute(attribute, to_replace)
+        else:
+            if self.right.attribute == attribute:
+                self.right = to_replace
+        return self
+
+    def find_by_attribute(self, attribute: str) -> AbstractSpecification | None:
+        if isinstance(self.left, (AndSpecification, OrSpecification)):
+            if in_left := self.left.find_by_attribute(attribute):
+                return in_left
+        else:
+            if self.left.attribute == attribute:
+                return self.left
+        if isinstance(self.right, (AndSpecification, OrSpecification)):
+            if in_right := self.right.find_by_attribute(attribute):
+                return in_right
+        else:
+            if self.right.attribute == attribute:
+                return self.right
+        return None
 
 
 class AndSpecification(CompositeSpecification, abc.ABC):
@@ -41,8 +79,6 @@ class AndSpecification(CompositeSpecification, abc.ABC):
 
 class OrSpecification(CompositeSpecification, abc.ABC):
     ...
-
-
 
 
 class ConvertersSpecification(abc.ABC):

@@ -38,6 +38,10 @@ class User(pydantic.BaseModel):
     def full_name(self) -> str:
         return f"{self.name} {self.last_name}"
 
+    @property
+    def initials(self) -> str:
+        return "".join([self.name[0], self.last_name[0]])
+
     def deactivate(self) -> None:
         self.active = False
         self.updated_at = datetime.datetime.now()

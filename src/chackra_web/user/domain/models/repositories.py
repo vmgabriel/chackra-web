@@ -1,8 +1,9 @@
 from chackra_web.shared.domain.model import dependencies as shared_dependencies
 from chackra_web.shared.domain.model.behavior import behavior as shared_behavior
 from chackra_web.shared.domain.model.repository import repository as shared_repository
+from chackra_web.shared.domain.model.pagination import pagination as shared_pagination
 
-from chackra_web.user.domain.models.behavior import UserFinderBehavior
+from chackra_web.user.domain.models import behavior as user_behavior
 
 
 class UserBaseRepository(shared_repository.GenericRepository[shared_behavior.M, shared_behavior.ID]):
@@ -10,13 +11,14 @@ class UserBaseRepository(shared_repository.GenericRepository[shared_behavior.M, 
         self,
         dependencies: shared_dependencies.ControllerDependencies,
         creator: shared_behavior.CreatorBehavior[shared_behavior.M],
-        finder: UserFinderBehavior[shared_behavior.M, shared_behavior.ID],
+        finder: user_behavior.UserFinderBehavior[shared_behavior.M, shared_behavior.ID],
+        listener: shared_behavior.ListerBehavior[shared_behavior.M],
     ):
         super().__init__(dependencies, creator, finder)
         self._email_finder = finder
         self._username_finder = finder
         self._unique_username_email_finder = finder
-
+        self._listener = listener
 
     def find_by_email(self, email: str) -> shared_behavior.M | None:
         return self._email_finder.find_by_email(email)
@@ -26,3 +28,6 @@ class UserBaseRepository(shared_repository.GenericRepository[shared_behavior.M, 
 
     def find_unique_by_username_and_email(self, username: str, email: str) -> shared_behavior.M | None:
         return self._unique_username_email_finder.find_unique_by_username_and_email(username, email)
+
+    def matching(self, pagination: shared_pagination.Pagination) -> shared_pagination.Paginator:
+        return self._listener.matching(pagination)

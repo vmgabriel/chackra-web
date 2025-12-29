@@ -1,5 +1,7 @@
 from typing import Protocol, TypeVar
 
+from chackra_web.shared.domain.model.pagination import pagination as shared_pagination
+
 M = TypeVar("M")
 ID = TypeVar("ID")
 
@@ -21,4 +23,9 @@ class DeleterBehavior(Protocol[ID]):
 
 class FinderBehavior(Protocol[M, ID]):
     def find_by_id(self, id: ID) -> M | None:
+        raise NotImplementedError()
+
+
+class ListerBehavior(Protocol[M]):
+    def matching(self, pagination: shared_pagination.Pagination) -> shared_pagination.Paginator:
         raise NotImplementedError()

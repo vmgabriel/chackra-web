@@ -7,6 +7,8 @@ from chackra_web.shared.domain.model.repository import exceptions as repository_
 from chackra_web.shared.domain.model.uow import uow as shared_uow
 from chackra_web.shared.infraestructure.repositories.psycopg import commons as psycopg_commons
 
+from chackra_web.shared.domain.model.pagination import pagination as shared_pagination
+
 
 CREATE_GENERIC_QUERY = """
 INSERT INTO {table_name}({fields})
@@ -16,6 +18,12 @@ INSERT INTO {table_name}({fields})
 """
 FIND_BY_ID_QUERY = """
 SELECT * FROM {table_name} WHERE id = %s AND active = true;
+"""
+MATCHING_QUERY = """
+SELECT * FROM {table_name} {specificator} {paginator};
+"""
+MATCHING_COUNT_QUERY = """
+SELECT COUNT(*) FROM {table_name} {specificator};
 """
 
 
@@ -98,4 +106,77 @@ class PsycopgGenericFinder(shared_behavior.FinderBehavior[shared_behavior.M, sha
             uow=self.uow,
             model_class=Type[shared_behavior.M],
             serializer=self.serializer,
+        )
+
+
+class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
+    table_name: str
+    uow: shared_uow.UOW
+    serializer: psycopg_commons.SafeSerializer
+    model_class: Type[shared_behavior.M]
+
+    def __init__(
+            self,
+            table_name: str,
+            uow: shared_uow.UOW,
+            model_class: Type[shared_behavior.M],
+            serializer: psycopg_commons.SafeSerializer = psycopg_commons.BasicTypeSerializer()
+    ) -> None:
+        self.table_name = table_name
+        self.uow = uow
+        self.serializer = serializer
+        self.model_class = model_class
+
+    def matching(self, pagination: shared_pagination.Pagination) -> shared_pagination.Paginator:
+        filters_data: tuple = tuple()
+        filters: str = ""
+
+        if pagination.filters:
+            filters, filters_data = pagination.filters.to_sql()
+            filters = f"WHERE {filters}"
+
+        order_by_conversation = [ordered.to_sql() for ordered in pagination.order_by if ordered]
+
+        limit_sql = pagination.page_size_to_sql()
+        offset_sql = pagination.page_to_sql()
+
+        paginator = f"ORDER BY {','.join(order_by_conversation)} " if order_by_conversation else ""
+        paginator += f"{limit_sql} {offset_sql}"
+
+        count_query = MATCHING_COUNT_QUERY.format(table_name=self.table_name, specificator=filters)
+        print("count_query - ", count_query)
+        data_query = MATCHING_QUERY.format(table_name=self.table_name, specificator=filters, paginator=paginator)
+        print("data_query - ", data_query)
+
+        print("filters_data - ", filters_data)
+
+        entities = []
+        with self.uow.session() as session:
+            try:
+                count_result = session.atomic_execute(count_query, filters_data)
+                count_row = count_result.fetchone()
+                total = count_row[0] if count_row else 0
+
+                print("total - ", total)
+                result = session.atomic_execute(data_query, filters_data)
+                rows = result.fetchall()
+
+                column_names = [desc[0] for desc in result.description]
+                for row in rows:
+                    db_data = dict(zip(column_names, row))
+                    db_data["id"] = {"value": db_data["id"]}
+                    for k, v in db_data.items():
+                        if k.endswith("_id"):
+                            db_data[k] = {"value": v}
+
+                    entities.append(self.serializer.from_primitive(db_data, self.model_class))
+
+            except psycopg.Error as e:
+                raise repository_exceptions.RepositoryError(f"Error executing query: {str(e)}")
+
+        return shared_pagination.Paginator(
+            page_size=pagination.page_size,
+            page=pagination.page,
+            total=total,
+            entities=entities,
         )

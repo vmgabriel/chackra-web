@@ -64,8 +64,16 @@ class Paginator(pydantic.BaseModel):
     entities: list[object] = pydantic.Field(default_factory=list)
 
     @property
+    def start(self) -> int:
+        return self.page_size * (self.page - 1)
+
+    @property
+    def end(self) -> int:
+        return self.start + self.page_size
+
+    @property
     def total_pages(self) -> int:
-        return self.total // self.page_size
+        return (self.total // self.page_size) + 1
 
     @property
     def has_previous(self) -> bool:
@@ -74,3 +82,24 @@ class Paginator(pydantic.BaseModel):
     @property
     def has_next(self) -> bool:
         return self.total_pages < self.page
+
+    @property
+    def prev_page(self) -> int:
+        return self.page - 1 if self.has_previous else self.page
+
+    @property
+    def __next__(self) -> int:
+        return self.page + 1 if self.has_next else self.page
+
+    @property
+    def pages(self) -> list[int]:
+        response = [self.page]
+        current_pages = [self.page - 2, self.page - 1, self.page + 1, self.page + 2]
+        for current_page in current_pages:
+            if current_page <= 0:
+                continue
+            if current_page > self.total_pages:
+                continue
+            response.append(current_page)
+        return response
+

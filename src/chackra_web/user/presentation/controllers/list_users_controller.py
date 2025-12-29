@@ -6,6 +6,8 @@ from chackra_web.shared.domain.model.pagination import pagination as shared_pagi
 
 from chackra_web.auth.domain.services.middlewares import login_required
 
+from chackra_web.user.application import list as application_user_list
+
 
 class UserController(shared_controller.WebController):
     def get_routes(self) -> List[shared_route.RouteDefinition]:
@@ -17,189 +19,20 @@ class UserController(shared_controller.WebController):
                 name="user.list_users_get",
                 template="user/list.html",
                 middleware=[login_required.login_required(roles=["ADMIN"])],
-                getters_allowed=["name", "active", "roles", "id"],
+                getters_allowed=["active", "roles", "id", "search"],
             ),
         ]
 
-    def list_users(self, pagination: shared_pagination.Pagination) -> dict:
-        print("pagination - ", pagination)
-        print("pagination.page - ", pagination.page_to_sql())
-        print("pagination.page size - ", pagination.page_size_to_sql())
+    def list_users(self, pagination: shared_pagination.Pagination, user: shared_route.Session) -> dict:
+        paginator = application_user_list.ListCommand(
+            dependencies=self.dependencies
+        ).execute(
+            list_user_matching_dto=application_user_list.ListUserMatchingDTO(
+                pagination=pagination
+            )
+        )
+
         return {
-            "pagination": {
-                "has_prev": False,
-                "has_next": True,
-                "next_page": 2,
-                "current": 1,
-                "pages": [1, 2, 3, 4]
-            },
-            "users": [
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "username": "juanito123",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "username": "juanito123",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "username": "juanito123",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "username": "juanito123",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "status": "active",
-                    "username": "juanito123",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "status": "active",
-                    "username": "juanito123",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "username": "juanito123",
-                    "role": "user",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "username": "juanito123",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "username": "juanito123",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "username": "juanito123",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "username": "juanito123",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "role": "admin",
-                    "username": "juanito123",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },{
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "status": "active",
-                    "username": "juanito123",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                },
-                {
-                    "id": 1,
-                    "avatar": "https://avatars.githubusercontent.com/u/10355449?v=4",
-                    "initials": "JD",
-                    "name": "Juan",
-                    "email": "juanito.123@gmail.com",
-                    "role": "user",
-                    "username": "juanito123",
-                    "status": "active",
-                    "last_login": "2023-01-01T00:00:00",
-                    "created_at": "2023-01-01T00:00:00",
-                }
-            ]
+            "paginator": paginator,
+            "user": user,
         }
