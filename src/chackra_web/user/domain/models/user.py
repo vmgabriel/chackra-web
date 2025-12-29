@@ -3,6 +3,7 @@ import uuid
 import datetime
 
 from chackra_web.shared.domain.model.user import user_id as domain_user_id
+from chackra_web.shared.domain.model.auth import enums as auth_enums
 
 
 class UserCreateDTO(pydantic.BaseModel):
@@ -18,6 +19,7 @@ class User(pydantic.BaseModel):
     last_name: str
     email: str
     username: str
+    auth_role: auth_enums.AuthRole = auth_enums.AuthRole.USER
     active: bool = True
 
     created_at: datetime.datetime = datetime.datetime.now()

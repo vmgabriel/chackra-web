@@ -110,6 +110,13 @@ class PsycopgGenericFinder(shared_behavior.FinderBehavior[shared_behavior.M, sha
 
 
 class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
+    MATCHING_QUERY = """
+    SELECT * FROM {table_name} {specificator} {paginator};
+    """
+    MATCHING_COUNT_QUERY = """
+    SELECT COUNT(*) FROM {table_name} {specificator};
+    """
+
     table_name: str
     uow: shared_uow.UOW
     serializer: psycopg_commons.SafeSerializer
@@ -143,9 +150,9 @@ class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
         paginator = f"ORDER BY {','.join(order_by_conversation)} " if order_by_conversation else ""
         paginator += f"{limit_sql} {offset_sql}"
 
-        count_query = MATCHING_COUNT_QUERY.format(table_name=self.table_name, specificator=filters)
+        count_query = self.MATCHING_COUNT_QUERY.format(table_name=self.table_name, specificator=filters)
         print("count_query - ", count_query)
-        data_query = MATCHING_QUERY.format(table_name=self.table_name, specificator=filters, paginator=paginator)
+        data_query = self.MATCHING_QUERY.format(table_name=self.table_name, specificator=filters, paginator=paginator)
         print("data_query - ", data_query)
 
         print("filters_data - ", filters_data)

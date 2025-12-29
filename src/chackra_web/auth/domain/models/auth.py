@@ -5,19 +5,14 @@ import uuid
 import bcrypt
 
 from chackra_web.shared.domain.model.user import user_id as domain_user_id
-from chackra_web.shared.domain.model.auth import auth_id as domain_auth_id
-
-
-class AuthRole(enum.StrEnum):
-    ADMIN = "ADMIN"
-    USER = "USER"
+from chackra_web.shared.domain.model.auth import auth_id as domain_auth_id, enums as auth_enums
 
 
 class BaseAuthUserDTO(pydantic.BaseModel):
     email: str
     password: str
     user_id: domain_user_id.UserId
-    auth_role: AuthRole = AuthRole.USER
+    auth_role: auth_enums.AuthRole = auth_enums.AuthRole.USER
 
 
 class AuthUser(pydantic.BaseModel):
@@ -25,7 +20,7 @@ class AuthUser(pydantic.BaseModel):
     email: str
     password: str
     user_id: domain_user_id.UserId
-    auth_role: AuthRole = AuthRole.USER
+    auth_role: auth_enums.AuthRole = auth_enums.AuthRole.USER
     active: bool = True
 
     created_at: datetime.datetime = datetime.datetime.now()

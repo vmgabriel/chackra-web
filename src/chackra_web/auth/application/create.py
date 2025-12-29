@@ -9,7 +9,7 @@ from chackra_web.shared.domain.model.user import user_id as domain_user_id
 from chackra_web.shared.domain.model.uow import uow as shared_uow
 from chackra_web.shared.domain.model.logger import logger as shared_logger
 from chackra_web.shared.domain.model import extended_dependencies as domain_dependencies
-from chackra_web.shared.domain.model.auth import auth_id as shared_auth_id
+from chackra_web.shared.domain.model.auth import auth_id as shared_auth_id, enums as shared_auth_enums
 
 
 class AuthRegisterDTO(pydantic.BaseModel):
@@ -22,7 +22,7 @@ class AuthRegisterResponse(pydantic.BaseModel):
     id: shared_auth_id.AuthId
     email: str
     user_id: domain_user_id.UserId
-    auth_role: domain_auth.AuthRole
+    auth_role: shared_auth_enums.AuthRole
     created_at: datetime.datetime
 
 

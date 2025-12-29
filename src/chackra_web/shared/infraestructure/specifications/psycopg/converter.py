@@ -6,29 +6,35 @@ from chackra_web.shared.domain.model.specifications import specifications  as sh
 
 class PsycopgConvertersSpecification(shared_specifications.ConvertersSpecification):
     @staticmethod
-    def equal(attribute: str, value: Any) -> Tuple[str, tuple]:
+    def equal(attribute: str, value: Any, prefix: str | None = None) -> Tuple[str, tuple]:
+        print("prefix - ", prefix)
+        with_prefix = f"{prefix}." if prefix else ""
         if isinstance(value, str) and value.lower() in ("true", "false"):
-            return f"{attribute} = %b", (value.lower() == "true",)
+            return f"{with_prefix}{attribute} = %b", (value.lower() == "true",)
 
-        return f"{attribute} = %s", (value,)
-
-    @staticmethod
-    def not_equal(attribute: str, value: Any) -> Tuple[str, tuple]:
-        return f"{attribute} != %s", (value,)
+        return f"{with_prefix}{attribute} = %s", (value,)
 
     @staticmethod
-    def ilike(attribute: str, value: Any) -> Tuple[str, tuple]:
-        return f"{attribute} ILIKE %s", (f"%{value}%",)
+    def not_equal(attribute: str, value: Any, prefix: str | None = None) -> Tuple[str, tuple]:
+        with_prefix = f"{prefix}." if prefix else ""
+        return f"{with_prefix}{attribute} != %s", (value,)
 
     @staticmethod
-    def like(attribute: str, value: Any) -> Tuple[str, tuple]:
-        return f"{attribute} ) LIKE %s", (f"%{value}%",)
+    def ilike(attribute: str, value: Any, prefix: str | None = None) -> Tuple[str, tuple]:
+        with_prefix = f"{prefix}." if prefix else ""
+        return f"{with_prefix}{attribute} ILIKE %s", (f"%{value}%",)
 
     @staticmethod
-    def in_values(attribute: str, value: Any) -> Tuple[str, tuple]:
+    def like(attribute: str, value: Any, prefix: str | None = None) -> Tuple[str, tuple]:
+        with_prefix = f"{prefix}." if prefix else ""
+        return f"{with_prefix}{attribute} ) LIKE %s", (f"%{value}%",)
+
+    @staticmethod
+    def in_values(attribute: str, value: Any, prefix: str | None = None) -> Tuple[str, tuple]:
+        with_prefix = f"{prefix}." if prefix else ""
         value = value.split(',')
         placeholders = ','.join(['%s'] * len(value))
-        return f"{attribute} IN ({placeholders})", tuple(value)
+        return f"{with_prefix}{attribute} IN ({placeholders})", tuple(value)
 
 
 class PsycopgAndSpecification(shared_specifications.AndSpecification):
@@ -61,4 +67,4 @@ class PsycopgBaseSpecification(shared_specifications.BaseSpecification):
         return PsycopgOrSpecification(self, other)
 
     def to_sql(self) -> Tuple[str, tuple]:
-        return self._sql_converter(self.attribute, self.value)
+        return self._sql_converter(self.attribute, self.value, self.prefix)

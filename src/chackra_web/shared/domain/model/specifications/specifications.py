@@ -3,10 +3,20 @@ import abc
 
 
 class AbstractSpecification(abc.ABC):
-    def __init__(self, attribute: str, value: Any, sql_converter: Callable[[str, Any], tuple[str, tuple]]):
+    def __init__(
+            self,
+            attribute: str,
+            value: Any,
+            sql_converter: Callable[[str, Any, str | None], tuple[str, tuple]],
+            prefix: str | None = None
+    ):
+        self.prefix = prefix
         self.attribute = attribute
         self.value = value
         self._sql_converter = sql_converter
+
+    def set_prefix(self, prefix: str) -> None:
+        self.prefix = prefix
 
     @abc.abstractmethod
     def to_sql(self) -> tuple[str, tuple]:
@@ -22,21 +32,36 @@ class AbstractSpecification(abc.ABC):
 
 
 class BaseSpecification(AbstractSpecification):
-    def __init__(self, attribute: str, value: Any, sql_converter: Callable[[str, Any], tuple[str, tuple]]):
-        super().__init__(attribute, value, sql_converter)
+    def __init__(
+            self,
+            attribute: str,
+            value: Any,
+            sql_converter: Callable[[str, Any, str | None], tuple[str, tuple]],
+            prefix: str | None = None
+    ):
+        super().__init__(attribute, value, sql_converter, prefix)
 
     def to_sql(self) -> tuple[str, tuple]:
-        return self._sql_converter(self.attribute, self.value)
+        print(f"self.prefix - {self.prefix}")
+        return self._sql_converter(self.attribute, self.value, self.prefix)
 
     def find_by_attribute(self, attribute: str) -> AbstractSpecification | None:
         if self.attribute == attribute:
             return self
         return None
 
-    def find_and_replace_by_attribute(self, attribute: str, to_replace: AbstractSpecification) -> AbstractSpecification:
+    def find_and_replace_by_attribute(
+            self,
+            attribute: str,
+            to_replace: AbstractSpecification
+    ) -> AbstractSpecification | None:
         if self.attribute == attribute:
             return to_replace
         return None
+
+    def inject_all_to_prefix(self, prefix: str) -> None:
+        print("injecting specification")
+        self.set_prefix(prefix)
 
 
 class CompositeSpecification(AbstractSpecification, abc.ABC):
@@ -72,6 +97,18 @@ class CompositeSpecification(AbstractSpecification, abc.ABC):
                 return self.right
         return None
 
+    def inject_all_to_prefix(self, prefix: str) -> None:
+        print("injecting and/or")
+        if isinstance(self.left, (AndSpecification, OrSpecification)):
+            self.left.inject_all_to_prefix(prefix)
+        else:
+            self.left.set_prefix(prefix)
+        if isinstance(self.right, (AndSpecification, OrSpecification)):
+            self.right.inject_all_to_prefix(prefix)
+        else:
+            self.right.set_prefix(prefix)
+        self.set_prefix(prefix)
+
 
 class AndSpecification(CompositeSpecification, abc.ABC):
     ...
@@ -84,25 +121,25 @@ class OrSpecification(CompositeSpecification, abc.ABC):
 class ConvertersSpecification(abc.ABC):
     @staticmethod
     @abc.abstractmethod
-    def equal(attribute: str, value: Any) -> tuple[str, tuple]:
+    def equal(attribute: str, value: Any, prefix: str | None = None) -> tuple[str, tuple]:
         raise NotImplementedError()
 
     @staticmethod
     @abc.abstractmethod
-    def not_equal(attribute: str, value: Any) -> tuple[str, tuple]:
+    def not_equal(attribute: str, value: Any, prefix: str | None = None) -> tuple[str, tuple]:
         raise NotImplementedError()
 
     @staticmethod
     @abc.abstractmethod
-    def ilike(attribute: str, value: Any) -> tuple[str, tuple]:
+    def ilike(attribute: str, value: Any, prefix: str | None = None) -> tuple[str, tuple]:
         raise NotImplementedError()
 
     @staticmethod
     @abc.abstractmethod
-    def like(attribute: str, value: Any) -> tuple[str, tuple]:
+    def like(attribute: str, value: Any, prefix: str | None = None) -> tuple[str, tuple]:
         raise NotImplementedError()
 
     @staticmethod
     @abc.abstractmethod
-    def in_values(attribute: str, value: Any) -> tuple[str, tuple]:
+    def in_values(attribute: str, value: Any, prefix: str | None = None) -> tuple[str, tuple]:
         raise NotImplementedError()

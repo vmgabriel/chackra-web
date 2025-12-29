@@ -33,28 +33,32 @@ class ListCommand:
 
     def execute(self, list_user_matching_dto: ListUserMatchingDTO) -> shared_pagination.Paginator:
         if filters := list_user_matching_dto.pagination.filters:
-            print("filters - ", filters)
+            filters.inject_all_to_prefix("tu")
             if search_specification := filters.find_by_attribute("search"):
                 print("search - ", search_specification)
                 name_like_specification = self.specification_builder.build(
                     "name",
                     "ilike",
-                    search_specification.value
+                    search_specification.value,
+                    prefix="tu"
                 )
                 last_name_like_specification = self.specification_builder.build(
                     "last_name",
                     "ilike",
-                    search_specification.value
+                    search_specification.value,
+                    prefix="tu"
                 )
                 email_like_specification = self.specification_builder.build(
                     "email",
                     "ilike",
-                    search_specification.value
+                    search_specification.value,
+                    prefix="tu"
                 )
                 username_like_specification = self.specification_builder.build(
                     "username",
                     "ilike",
-                    search_specification.value
+                    search_specification.value,
+                    prefix="tu"
                 )
                 filtered_or_like = (
                         name_like_specification |

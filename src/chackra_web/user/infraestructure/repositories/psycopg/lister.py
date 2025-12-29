@@ -8,6 +8,19 @@ from chackra_web.user.infraestructure.repositories.psycopg import commons as psy
 
 
 class PsycopgUserListerRepository(psycopg_generics.PsycopgGenericLister[domain_user.User]):
+    MATCHING_QUERY = """
+    SELECT
+    tu.*, ta.auth_role
+    FROM {table_name} as tu
+    LEFT JOIN tbl_auth as ta ON ta.user_id = tu.id
+    {specificator} 
+    {paginator}
+    ;
+    """
+    MATCHING_COUNT_QUERY = """
+    SELECT COUNT(tu.*) FROM {table_name} as tu {specificator};
+    """
+
     def __init__(self, uow: shared_uow.UOW) -> None:
         super().__init__(
             table_name=psycopg_user_commons.TABLE_NAME,

@@ -62,9 +62,9 @@
 
 
     <!-- Tabla de Usuarios -->
-    <div class="card shadow-sm">
+    <div class="card shadow-sm main-content">
         <div class="card-body">
-            <div class="table-responsive">
+            <div class="table-responsive main-content">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
@@ -107,10 +107,10 @@
                             </td>
                             <td>
                                 <span class="badge rounded-pill
-                                    {% if user.role == 'admin' %}bg-danger{% endif %}
-                                    {% if user.role == 'editor' %}bg-warning{% endif %}
-                                    {% if user.role == 'user' %}bg-info{% endif %}">
-                                    {{ user.role }}
+                                    {% if user.auth_role == 'ADMIN' %}bg-danger{% endif %}
+                                    {% if user.auth_role == 'EDITOR' %}bg-warning{% endif %}
+                                    {% if user.auth_role == 'USER' %}bg-info{% endif %}">
+                                    {{ user.auth_role }}
                                 </span>
                             </td>
                             <td>

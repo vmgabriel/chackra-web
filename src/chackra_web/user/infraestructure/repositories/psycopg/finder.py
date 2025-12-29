@@ -12,16 +12,32 @@ from chackra_web.user.infraestructure.repositories.psycopg import commons as psy
 
 
 FIND_BY_ID_QUERY = """
-SELECT * FROM {table_name} WHERE id = %s AND active = true;
+SELECT
+    tu.*, ta.auth_role
+FROM {table_name} as tu
+LEFT JOIN tbl_auth as ta ON ta.user_id = tu.id
+WHERE tu.id = %s AND tu.active = true;
 """
 FIND_BY_EMAIL_QUERY = """
-SELECT * FROM {table_name} WHERE email = %s AND active = true;
+SELECT
+    tu.*, ta.auth_role
+FROM {table_name} as tu
+LEFT JOIN tbl_auth as ta ON ta.user_id = tu.id
+WHERE tu.email = %s AND tu.active = true;
 """
 FIND_BY_USERNAME_QUERY = """
-SELECT * FROM {table_name} WHERE username = %s AND active = true;
+SELECT
+    tu.*, ta.auth_role
+FROM tbl_user as tu
+LEFT JOIN tbl_auth as ta ON ta.user_id = tu.id
+WHERE tu.username = %s AND tu.active = true;
 """
 FIND_BY_USERNAME_AND_EMAIL_QUERY = """
-SELECT * FROM {table_name} WHERE username = %s OR email = %s;
+SELECT
+    tu.*, ta.auth_role
+FROM {table_name} as tu
+LEFT JOIN tbl_auth as ta ON ta.user_id = tu.id
+WHERE tu.username = %s OR tu.email = %s;
 """
 
 
