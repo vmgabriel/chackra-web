@@ -12,8 +12,8 @@ from chackra_web.shared.domain.model.pagination import pagination as shared_pagi
 
 CREATE_GENERIC_QUERY = """
 INSERT INTO {table_name}({fields})
- VALUES ({placeholder})
- RETURNING *
+  VALUES ({placeholder})
+  RETURNING *
 ;
 """
 FIND_BY_ID_QUERY = """

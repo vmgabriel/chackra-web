@@ -24,7 +24,12 @@ class SafeSerializer(Protocol):
 
 @dataclasses.dataclass
 class BasicTypeSerializer(SafeSerializer):
-    SAFE_TYPES = (str, int, float, bool, type(None), datetime.datetime, decimal.Decimal, uuid.UUID)
+    SAFE_TYPES = (
+        str, int, float,
+        bool, type(None), datetime.datetime,
+        decimal.Decimal, uuid.UUID, id_model.BaseId,
+        pydantic.BaseModel, enum.Enum
+    )
 
     def _is_safe_dict(self, value: dict) -> bool:
         return all(
@@ -61,7 +66,7 @@ class BasicTypeSerializer(SafeSerializer):
         elif isinstance(value, id_model.BaseId):
             return str(value)
         elif isinstance(value, pydantic.BaseModel):
-            return self.to_primitive(value.model_dump())
+            return self.to_primitive(value.model_dump(exclude_none=True))
         raise ValueError(f"Unsafe type: {type(value)}")
 
     def from_primitive(self, value: Any, model_class: type[T]) -> T | None:

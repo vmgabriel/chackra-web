@@ -14,7 +14,7 @@ class UserBaseRepository(shared_repository.GenericRepository[shared_behavior.M, 
         finder: user_behavior.UserFinderBehavior[shared_behavior.M, shared_behavior.ID],
         listener: shared_behavior.ListerBehavior[shared_behavior.M],
         deleter: shared_behavior.DeleterBehavior[shared_behavior.ID],
-    ):
+    ) -> None:
         super().__init__(dependencies, creator, finder)
         self._email_finder = finder
         self._username_finder = finder

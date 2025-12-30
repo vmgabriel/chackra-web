@@ -29,7 +29,7 @@ class ToastManager {
     }
 
     /**
-     * Método estático para crear toasts dinámicamente
+     * Métoo estático para crear toasts dinámicamente
      * @param {string} message - Mensaje a mostrar
      * @param {string} type - Tipo de toast (success, danger, warning, info)
      */

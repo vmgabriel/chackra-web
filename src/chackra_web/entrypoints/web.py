@@ -1,6 +1,5 @@
 from typing import Type
 
-from chackra_web.shared.infraestructure.convertion_specification.factory import to_specification_handler
 from chackra_web.web.domain.web import app as domain_web_app
 
 from chackra_web.shared.domain.model.web import route as shared_route, controller as shared_controller
@@ -33,6 +32,10 @@ from chackra_web.shared.infraestructure.convertion_pagination import (
 
 from chackra_web.user.infraestructure import migrations as user_migrations, repositories as user_repositories
 from chackra_web.auth.infraestructure import migrations as auth_migrations, repositories as auth_repositories
+from chackra_web.food_track.infraestructure import (
+    migrations as food_track_migrations,
+    repositories as food_track_repositories
+)
 
 
 class HomeWebController(shared_controller.WebController):
@@ -156,6 +159,7 @@ def create_app() -> object:
     migrations = []
     migrations.extend(user_migrations.get_migration_handlers(configuration=configuration))
     migrations.extend(auth_migrations.get_migration_handlers(configuration=configuration))
+    migrations.extend(food_track_migrations.get_migration_handlers(configuration=configuration))
 
     inject_migrations(migration_handler=migration_handler, migrations=migrations)
     migration_handler.pre_execute()
@@ -170,6 +174,7 @@ def create_app() -> object:
     repository_factories = [
         user_repositories.UserRepositoryFactory,
         auth_repositories.AuthRepositoryFactory,
+        food_track_repositories.InventoryRepositoryFactory,
     ]
     repositories_store = get_repositories(dependencies=dependencies, factory_repositories=repository_factories)
 
