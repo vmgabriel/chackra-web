@@ -1,0 +1,195 @@
+
+{% extends "base.html" %}
+
+{% block title %}Food Track|Crear Inventario - Chackra Web{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Crear Item de Inventario</h1>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-plus-circle me-1"></i>
+            Nuevo Item
+        </div>
+        <div class="card-body">
+            <form id="createInventoryForm" method="POST" action="" novalidate>
+                <!-- Nombre -->
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre</label>
+                    <input type="text"
+                           class="form-control"
+                           id="name"
+                           name="name"
+                           required
+                           minlength="3"
+                           maxlength="50">
+                    <div class="invalid-feedback" id="nameError"></div>
+                </div>
+
+                <!-- Cantidad -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="quantity_value" class="form-label">Cantidad</label>
+                        <input type="number"
+                               class="form-control"
+                               id="quantity_value"
+                               name="quantity_value"
+                               required
+                               min="0"
+                               step="0.01">
+                        <div class="invalid-feedback" id="quantityError"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="quantity_measure_unit" class="form-label">Unidad de Medida</label>
+                        <select class="form-select"
+                                id="quantity_measure_unit"
+                                name="quantity_measure_unit"
+                                required>
+                            <option value="">Seleccione una unidad</option>
+                            <option value="UNIT">Unidades</option>
+                            <option value="KG">Kilogramos</option>
+                            <option value="G">Gramos</option>
+                            <option value="L">Litros</option>
+                            <option value="ML">Mililitros</option>
+                        </select>
+                        <div class="invalid-feedback" id="measureUnitError"></div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Guardar
+                    </button>
+                    <a href="{{ url_for('food_track.list_inventory_get') }}" class="btn btn-secondary ms-2">
+                        <i class="fas fa-times me-1"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('createInventoryForm');
+    const nameInput = document.getElementById('name');
+    const quantityInput = document.getElementById('quantity_value');
+    const measureUnitInput = document.getElementById('quantity_measure_unit');
+
+    // Función de validación
+    function validateForm() {
+        let isValid = true;
+
+        // Validar nombre
+        if (!nameInput.value.trim()) {
+            showError(nameInput, 'El nombre es requerido');
+            isValid = false;
+        } else if (nameInput.value.length < 3) {
+            showError(nameInput, 'El nombre debe tener al menos 3 caracteres');
+            isValid = false;
+        } else if (nameInput.value.length > 50) {
+            showError(nameInput, 'El nombre no puede exceder 50 caracteres');
+            isValid = false;
+        } else {
+            clearError(nameInput);
+        }
+
+        // Validar cantidad
+        if (!quantityInput.value) {
+            showError(quantityInput, 'La cantidad es requerida');
+            isValid = false;
+        } else if (parseFloat(quantityInput.value) < 0) {
+            showError(quantityInput, 'La cantidad no puede ser negativa');
+            isValid = false;
+        } else {
+            clearError(quantityInput);
+        }
+
+        // Validar unidad de medida
+        if (!measureUnitInput.value) {
+            showError(measureUnitInput, 'Debe seleccionar una unidad de medida');
+            isValid = false;
+        } else {
+            clearError(measureUnitInput);
+        }
+
+        return isValid;
+    }
+
+    // Función para mostrar errores
+    function showError(element, message) {
+        element.classList.add('is-invalid');
+        const errorDiv = element.nextElementSibling;
+        errorDiv.textContent = message;
+    }
+
+    // Función para limpiar errores
+    function clearError(element) {
+        element.classList.remove('is-invalid');
+        const errorDiv = element.nextElementSibling;
+        errorDiv.textContent = '';
+    }
+
+    // Event listeners para validación en tiempo real
+    nameInput.addEventListener('input', () => {
+        if (nameInput.value.trim()) {
+            clearError(nameInput);
+        }
+    });
+
+    quantityInput.addEventListener('input', () => {
+        if (quantityInput.value && parseFloat(quantityInput.value) >= 0) {
+            clearError(quantityInput);
+        }
+    });
+
+    measureUnitInput.addEventListener('change', () => {
+        if (measureUnitInput.value) {
+            clearError(measureUnitInput);
+        }
+    });
+
+    // Manejo del envío del formulario
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        if (validateForm()) {
+            // Crear objeto de datos
+            const formData = {
+                name: nameInput.value.trim(),
+                quantity: {
+                    value: parseFloat(quantityInput.value),
+                    measure_unit: measureUnitInput.value
+                }
+            };
+
+            // Enviar formulario
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = "";
+                } else {
+                    alert('Error al guardar: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al procesar la solicitud');
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
