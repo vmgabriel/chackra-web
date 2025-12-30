@@ -19,21 +19,23 @@ class PreDefinitionRepository:
     creator: Type[shared_behavior.CreatorBehavior[shared_behavior.M]]
     finder: Type[F]
     listener: Type[shared_behavior.ListerBehavior[shared_behavior.M]] | None = None
+    updater: Type[shared_behavior.UpdaterBehavior[shared_behavior.M, shared_behavior.ID]] | None = None
+    deleter: Type[shared_behavior.DeleterBehavior[shared_behavior.ID]] | None = None
 
     def build(self, dependencies: shared_dependencies.ControllerDependencies) -> M:
+        params = {
+            "dependencies": dependencies,
+            "finder": self.finder(dependencies.uow),
+            "creator": self.creator(dependencies.uow),
+        }
         if self.listener:
-            return self.repository(
-                dependencies=dependencies,
-                finder=self.finder(dependencies.uow),
-                creator=self.creator(dependencies.uow),
-                listener=self.listener(dependencies.uow),
-            )
+            params["listener"] = self.listener(dependencies.uow)
+        if self.updater:
+            params["updater"] = self.updater(dependencies.uow)
+        if self.deleter:
+            params["deleter"] = self.deleter(dependencies.uow)
 
-        return self.repository(
-            dependencies=dependencies,
-            finder=self.finder(dependencies.uow),
-            creator=self.creator(dependencies.uow)
-        )
+        return self.repository(**params)
 
 
 class RepositoryStore:

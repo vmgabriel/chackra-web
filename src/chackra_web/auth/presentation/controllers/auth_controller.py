@@ -2,9 +2,10 @@
 from typing import List
 
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
+from chackra_web.shared.domain.model.user import user_id as shared_user_id
 from chackra_web.auth.domain.services.middlewares import login_required
 
-from chackra_web.auth.application import login
+from chackra_web.auth.application import login, change_role
 
 
 class AuthController(shared_controller.WebController):
@@ -38,6 +39,12 @@ class AuthController(shared_controller.WebController):
                 methods=[shared_route.HttpMethod.GET],
                 name="auth.recovery",
                 template="auth/recovery.html"
+            ),
+            shared_route.RouteDefinition(
+                path="/backoffice/login/change-role",
+                handler=self.change_role,
+                methods=[shared_route.HttpMethod.POST],
+                name="auth.change-role_post",
             ),
             shared_route.RouteDefinition(
                 path="/logout",
@@ -103,3 +110,18 @@ class AuthController(shared_controller.WebController):
 
     def recovery(self):
         return {}
+
+    def change_role(self, request: shared_route.RequestData) -> shared_route.RouteResponse | dict:
+        print(request.body)
+        print(request)
+        change_role_dto = change_role.ChangeRoleDTO(
+            user_id=shared_user_id.UserId(value=request.body.get("user_id")),
+            role=request.body.get("role"),
+        )
+        print("valid dto", change_role_dto)
+        change_role.ChangeRoleCommand(dependencies=self.dependencies).execute(change_role_dto)
+        return shared_route.RouteResponse(
+            flash_message="Cambiado Satisfactoriamente el rol de usuario",
+            status_code=300,
+            redirection="user.list_users_get",
+        )

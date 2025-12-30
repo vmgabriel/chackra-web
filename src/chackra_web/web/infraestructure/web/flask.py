@@ -84,7 +84,8 @@ class FlaskAdapter(web_app.Adapter):
                 if isinstance(result, dict):
                     return flask.render_template(route.template, **result)
                 return flask.render_template(route.template, data=result)
-            return result
+            else:
+                return flask.jsonify(result)
 
         return wrapped
 

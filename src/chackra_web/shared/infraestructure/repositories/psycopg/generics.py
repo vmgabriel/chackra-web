@@ -187,3 +187,28 @@ class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
             total=total,
             entities=entities,
         )
+
+
+class PsycopgGenericDeleter(shared_behavior.DeleterBehavior[shared_behavior.ID]):
+    table_name: str
+    uow: shared_uow.UOW
+    serializer: psycopg_commons.SafeSerializer
+
+    def __init__(
+            self,
+            table_name: str,
+            uow: shared_uow.UOW,
+            serializer: psycopg_commons.SafeSerializer = psycopg_commons.BasicTypeSerializer()
+    ) -> None:
+        self.table_name = table_name
+        self.uow = uow
+        self.serializer = serializer
+
+    def delete(self, id: shared_behavior.ID) -> None:
+        query = f"UPDATE {self.table_name} SET active = false WHERE id = %s;"
+        with self.uow.session() as session:
+            try:
+                session.atomic_execute(query, (id.value,))
+                session.commit()
+            except psycopg.Error as e:
+                raise repository_exceptions.RepositoryError(f"Error executing query: {str(e)}")

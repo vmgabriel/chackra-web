@@ -1,6 +1,8 @@
 from chackra_web.auth.infraestructure.repositories.psycopg import (
     creator as psycopg_repository_creator,
-    finder as psycopg_repository_finder
+    finder as psycopg_repository_finder,
+    updater as psycopg_updater,
+    deleter as psycopg_deleter,
 )
 from chackra_web.auth.domain.models import auth as domain_auth
 from chackra_web.shared.domain.model.auth import auth_id as domain_auth_id
@@ -16,6 +18,8 @@ class AuthRepositoryFactory(repository_factory.RepositoryFactory):
                 repository=auth_repositories.AuthBaseRepository[domain_auth.AuthUser, domain_auth_id.AuthId],
                 creator=psycopg_repository_creator.PsycopgAuthCreatorRepository,
                 finder=psycopg_repository_finder.PsycopgAuthFinderRepository,
+                updater=psycopg_updater.PsycopgAuthUpdaterRepository,
+                deleter=psycopg_deleter.PsycopgAuthDeleterRepository
             )
         ],
     }

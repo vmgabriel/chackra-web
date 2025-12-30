@@ -2,6 +2,7 @@ from typing import Type
 
 from chackra_web.shared.domain.model.uow import uow as shared_uow
 from chackra_web.shared.domain.model.behavior import behavior as shared_behavior
+from chackra_web.shared.domain.model.user import user_id as domain_user_id
 from chackra_web.shared.infraestructure.repositories.psycopg import (
     commons as psycopg_commons
 )
@@ -17,11 +18,15 @@ SELECT * FROM {table_name} WHERE id = %s AND active = true;
 FIND_BY_EMAIL_QUERY = """
 SELECT * FROM {table_name} WHERE email = %s AND active = true;
 """
+FIND_BY_USER_ID_QUERY = """
+SELECT * FROM {table_name} WHERE user_id = %s AND active = true;
+"""
 
 
 class PsycopgAuthBaseFinderRepository(
     shared_behavior.FinderBehavior[shared_behavior.M, shared_behavior.ID],
     auth_behavior.EmailFinderBehavior[shared_behavior.M],
+    auth_behavior.UserIDFinderBehavior[shared_behavior.M],
 ):
     table_name: str
     uow: shared_uow.UOW
@@ -61,6 +66,17 @@ class PsycopgAuthBaseFinderRepository(
             model_class=self.model_class,
             serializer=self.serializer,
         )
+
+    def find_by_user_id(self, user_id: domain_user_id.UserId) -> shared_behavior.M | None:
+        query = FIND_BY_USER_ID_QUERY.format(table_name=self.table_name)
+        return psycopg_commons.execute_query(
+            query=query,
+            params=(user_id.value,),
+            uow=self.uow,
+            model_class=self.model_class,
+            serializer=self.serializer,
+        )
+
 
 
 class PsycopgAuthFinderRepository(PsycopgAuthBaseFinderRepository[domain_auth.AuthUser, domain_auth_id.AuthId]):

@@ -131,11 +131,6 @@
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal" data-user-id="{{ user.id }}">
-                                                <i class="bi bi-pencil me-2"></i>Editar
-                                            </a>
-                                        </li>
-                                        <li>
                                             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changeRoleModal" data-user-id="{{ user.id }}">
                                                 <i class="bi bi-person-gear me-2"></i>Cambiar rol
                                             </a>
@@ -200,14 +195,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="changeRoleForm">
-                    <input type="hidden" name="userId" id="roleUserId">
+                <form id="changeRoleForm" method="POST" action="{{ url_for('auth.change-role_post') }}">
+                    <input type="hidden" name="user_id" id="roleUserId">
                     <div class="mb-3">
                         <label class="form-label">Nuevo Rol</label>
-                        <select class="form-select" name="newRole" required>
-                            <option value="user">Usuario</option>
-                            <option value="editor">Editor</option>
-                            <option value="admin">Administrador</option>
+                        <select class="form-select" name="role" required>
+                            <option value="USER">Usuario</option>
+                            <option value="ADMIN">Administrador</option>
                         </select>
                     </div>
                 </form>
@@ -219,6 +213,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Modal Eliminar Usuario -->
 <div class="modal fade" id="deleteUserModal" tabindex="-1">
@@ -239,16 +234,11 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Búsqueda en tiempo real
-    const searchInput = document.getElementById('searchUser');
-    searchInput.addEventListener('input', function(e) {
-        // Implementar lógica de búsqueda
-    });
-
     // Seleccionar todos los checkboxes
     const selectAll = document.getElementById('selectAll');
     selectAll.addEventListener('change', function() {
@@ -269,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Manejo de roles
     document.getElementById('changeRoleModal').addEventListener('show.bs.modal', function(event) {
         const button = event.relatedTarget;
-        const userId = button.dataset.userId;
+        const userId = button.getAttribute('data-user-id');
         document.getElementById('roleUserId').value = userId;
     });
 
@@ -305,8 +295,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function deleteUser(userId) {
         try {
-            const response = await fetch(`/api/users/${userId}`, {
-                method: 'DELETE'
+            const response = await fetch("{{ url_for('user.delete_post') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ "user_id": userId })
             });
             if (!response.ok) throw new Error('Error al eliminar usuario');
             location.reload();
@@ -318,8 +312,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showToast(message, type) {
         // Implementar lógica de notificaciones
+        console.log(message, type);
     }
 });
 </script>
-{% endblock %}
 {% endblock %}

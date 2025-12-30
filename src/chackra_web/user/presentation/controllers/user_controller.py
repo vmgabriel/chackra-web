@@ -2,12 +2,14 @@
 from typing import List, Any
 
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
-from chackra_web.shared.applications import register_user
 
 from chackra_web.user.domain.models import exceptions as user_exceptions
 from chackra_web.auth.domain.models import exceptions as auth_exceptions
 
+from chackra_web.shared.domain.model.user import user_id as shared_user_id
+
 from chackra_web.user.application import get_by_id as user_get_by_id
+from chackra_web.shared.applications import register_user, delete_user
 
 
 class UserController(shared_controller.WebController):
@@ -26,6 +28,13 @@ class UserController(shared_controller.WebController):
                 methods=[shared_route.HttpMethod.POST],
                 name="user.register_save",
                 template="user/register.html"
+            ),
+            shared_route.RouteDefinition(
+                path="/users/delete",
+                handler=self.delete,
+                methods=[shared_route.HttpMethod.POST],
+                name="user.delete_post",
+                template="user.list.html"
             ),
             shared_route.RouteDefinition(
                 path="/users/me",
@@ -86,3 +95,14 @@ class UserController(shared_controller.WebController):
                 redirection="auth.home",
             )
         return {"title": "Perfil", "user": user, "user_data": current_user.model_dump()}
+
+    def delete(self, request: shared_route.RequestData) -> shared_route.RouteResponse:
+        to_delete = delete_user.DeleteUserDTO(
+            user_id=shared_user_id.UserId(value=request.body.get("user_id", "")),
+        )
+        delete_user.ApplicationDeleteUser(dependencies=self.dependencies).execute(to_delete)
+        return shared_route.RouteResponse(
+            flash_message="Usuario Eliminado Correctamente",
+            status_code=300,
+            redirection="user.list_users_get",
+        )

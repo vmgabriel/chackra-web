@@ -2,6 +2,7 @@ from chackra_web.user.infraestructure.repositories.psycopg import (
     creator as psycopg_repository_creator,
     finder as psycopg_repository_finder,
     lister as psycopg_repository_lister,
+    deleter as psycopg_repository_deleter,
 )
 from chackra_web.user.domain.models import user as domain_user
 from chackra_web.shared.domain.model.user import user_id as domain_user_id
@@ -18,6 +19,7 @@ class UserRepositoryFactory(repository_factory.RepositoryFactory):
                 creator=psycopg_repository_creator.PsycopgUserCreatorRepository,
                 finder=psycopg_repository_finder.PsycopgUserFinderRepository,
                 listener=psycopg_repository_lister.PsycopgUserListerRepository,
+                deleter=psycopg_repository_deleter.PsycopgUserDeleterRepository,
             )
         ],
     }

@@ -13,12 +13,14 @@ class UserBaseRepository(shared_repository.GenericRepository[shared_behavior.M, 
         creator: shared_behavior.CreatorBehavior[shared_behavior.M],
         finder: user_behavior.UserFinderBehavior[shared_behavior.M, shared_behavior.ID],
         listener: shared_behavior.ListerBehavior[shared_behavior.M],
+        deleter: shared_behavior.DeleterBehavior[shared_behavior.ID],
     ):
         super().__init__(dependencies, creator, finder)
         self._email_finder = finder
         self._username_finder = finder
         self._unique_username_email_finder = finder
         self._listener = listener
+        self._deleter = deleter
 
     def find_by_email(self, email: str) -> shared_behavior.M | None:
         return self._email_finder.find_by_email(email)
@@ -31,3 +33,6 @@ class UserBaseRepository(shared_repository.GenericRepository[shared_behavior.M, 
 
     def matching(self, pagination: shared_pagination.Pagination) -> shared_pagination.Paginator:
         return self._listener.matching(pagination)
+
+    def delete(self, id: shared_behavior.ID) -> None:
+        return self._deleter.delete(id)
