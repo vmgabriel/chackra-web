@@ -1,0 +1,41 @@
+<footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h5>Sobre Nosotros</h5>
+                    <p>Chackra Web es una plataforma moderna para la gestión eficiente de recursos y servicios web.</p>
+                </div>
+                <div class="footer-section">
+                    <h5>Enlaces Rápidos</h5>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('auth.home') }}">Inicio</a></li>
+                        <li><a href="/about">Acerca de</a></li>
+                        <li><a href="/contact">Contacto</a></li>
+                        {% if user %}
+                        <li><a href="{{ url_for('user.profile_get') }}">Perfil</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h5>Contacto</h5>
+                    <ul class="footer-links">
+                        <li><i class="bi bi-envelope"></i> info@chackraweb.com</li>
+                        <li><i class="bi bi-telephone"></i> +1 234 567 890</li>
+                        <li><i class="bi bi-geo-alt"></i> Ciudad, País</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h5>Síguenos</h5>
+                    <div class="footer-social">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Chackra Web. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>

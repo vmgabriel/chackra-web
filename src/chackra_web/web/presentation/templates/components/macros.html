@@ -1,0 +1,144 @@
+{# 
+    Macros Reutilizables
+    Componentes que se pueden utilizar en cualquier template
+#}
+
+{# Card Component #}
+{% macro card(title='', body='', footer='', card_class='', header_class='bg-primary text-white') %}
+<div class="card {{ card_class }} shadow-sm">
+    {% if title %}
+    <div class="card-header {{ header_class }}">
+        <h5 class="card-title mb-0">{{ title }}</h5>
+    </div>
+    {% endif %}
+    <div class="card-body">
+        {{ body }}
+        {{ caller() if caller }}
+    </div>
+    {% if footer %}
+    <div class="card-footer text-muted">
+        {{ footer }}
+    </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# Alert Component #}
+{% macro alert(message, type='info', dismissible=true, icon=true) %}
+    {% set icons = {
+        'success': 'check-circle-fill',
+        'danger': 'exclamation-triangle-fill',
+        'warning': 'exclamation-circle-fill',
+        'info': 'info-circle-fill'
+    } %}
+    
+    <div class="alert alert-{{ type }} {{ 'alert-dismissible fade show' if dismissible }} d-flex align-items-center" role="alert">
+        {% if icon %}
+            <i class="bi bi-{{ icons.get(type, 'info-circle-fill') }} me-2"></i>
+        {% endif %}
+        <div>{{ message }}</div>
+        {% if dismissible %}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{# Button Component #}
+{% macro button(text, type='button', btn_class='btn-primary', icon='', href='', size='', block=false) %}
+    {% set tag = 'a' if href else 'button' %}
+    {% set size_class = 'btn-' + size if size else '' %}
+    {% set block_class = 'w-100' if block else '' %}
+    
+    <{{ tag }} 
+        {% if tag == 'button' %}type="{{ type }}"{% endif %}
+        {% if href %}href="{{ href }}"{% endif %}
+        class="btn {{ btn_class }} {{ size_class }} {{ block_class }}">
+        {% if icon %}
+            <i class="bi bi-{{ icon }} me-1"></i>
+        {% endif %}
+        {{ text }}
+    </{{ tag }}>
+{% endmacro %}
+
+{# Badge Component #}
+{% macro badge(text, color='primary', pill=false) %}
+    <span class="badge bg-{{ color }} {{ 'rounded-pill' if pill }}">{{ text }}</span>
+{% endmacro %}
+
+{# Form Input Component #}
+{% macro input(name, label='', type='text', placeholder='', value='', required=false, help_text='') %}
+    <div class="mb-3">
+        {% if label %}
+            <label for="{{ name }}" class="form-label">
+                {{ label }}
+                {% if required %}<span class="text-danger">*</span>{% endif %}
+            </label>
+        {% endif %}
+        <input type="{{ type }}" 
+               class="form-control" 
+               id="{{ name }}" 
+               name="{{ name }}"
+               {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+               {% if value %}value="{{ value }}"{% endif %}
+               {% if required %}required{% endif %}>
+        {% if help_text %}
+            <div class="form-text">{{ help_text }}</div>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{# Modal Component #}
+{% macro modal(id, title, body='', footer='', size='', centered=false) %}
+    {% set size_class = 'modal-' + size if size else '' %}
+    {% set centered_class = 'modal-dialog-centered' if centered else '' %}
+    
+    <div class="modal fade" id="{{ id }}" tabindex="-1" aria-labelledby="{{ id }}Label" aria-hidden="true">
+        <div class="modal-dialog {{ size_class }} {{ centered_class }}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="{{ id }}Label">{{ title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ body }}
+                    {{ caller() if caller }}
+                </div>
+                {% if footer %}
+                <div class="modal-footer">
+                    {{ footer }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{# Breadcrumb Component #}
+{% macro breadcrumb(items) %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {% for item in items %}
+                <li class="breadcrumb-item {{ 'active' if loop.last }}" 
+                    {% if loop.last %}aria-current="page"{% endif %}>
+                    {% if not loop.last and item.url %}
+                        <a href="{{ item.url }}">{{ item.label }}</a>
+                    {% else %}
+                        {{ item.label }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ol>
+    </nav>
+{% endmacro %}
+
+{# Spinner Component #}
+{% macro spinner(size='', color='primary', text='Cargando...') %}
+    <div class="text-center">
+        <div class="spinner-border text-{{ color }} {{ 'spinner-border-' + size if size }}" role="status">
+            <span class="visually-hidden">{{ text }}</span>
+        </div>
+        {% if text %}
+            <p class="mt-2">{{ text }}</p>
+        {% endif %}
+    </div>
+{% endmacro %}

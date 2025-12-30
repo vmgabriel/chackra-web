@@ -1,0 +1,41 @@
+{# Flash Messages Component #}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+            {% for category, message in messages %}
+                {% set toast_class = {
+                    'success': 'bg-success',
+                    'danger': 'bg-danger',
+                    'warning': 'bg-warning',
+                    'info': 'bg-info'
+                }.get(category, 'bg-primary') %}
+                
+                {% set icon_class = {
+                    'success': 'bi-check-circle',
+                    'danger': 'bi-exclamation-triangle',
+                    'warning': 'bi-exclamation-circle',
+                    'info': 'bi-info-circle'
+                }.get(category, 'bi-info-circle') %}
+
+                <div class="toast align-items-center text-white border-0 {{ toast_class }}" 
+                     role="alert" 
+                     aria-live="assertive" 
+                     aria-atomic="true"
+                     data-bs-autohide="true"
+                     data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi {{ icon_class }} me-2"></i>
+                            {{ message }}
+                        </div>
+                        <button type="button" 
+                                class="btn-close btn-close-white me-2 m-auto" 
+                                data-bs-dismiss="toast" 
+                                aria-label="Cerrar">
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}

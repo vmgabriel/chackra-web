@@ -1,0 +1,39 @@
+{% if user %}
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasExampleLabel">Menu Principal</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="nav flex-column">
+      <a href=""
+         class="nav-link sidebar-link {% if request.endpoint == 'user.profile_get' %}active{% endif %}">
+        <i class="bi bi-cup-fill me-2"></i>
+        <span>Food</span>
+      </a>
+      <a href=""
+         class="nav-link sidebar-link {% if request.endpoint == 'user.profile_get' %}active{% endif %}">
+        <i class="bi bi-gem me-2"></i>
+        <span>Cash</span>
+      </a>
+
+      {% if user.role == 'ADMIN' %}
+      <a href="{{ url_for('user.list_users_get') }}"
+         class="nav-link sidebar-link {% if request.endpoint == 'user.list_users_get' %}active{% endif %}">
+        <i class="bi bi-people me-2"></i>
+        <span>Usuarios</span>
+      </a>
+
+      <a href="/settings"
+         class="nav-link sidebar-link {% if request.endpoint == 'settings' %}active{% endif %}">
+        <i class="bi bi-gear me-2"></i>
+        <span>Configuración</span>
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- Separador -->
+    <div class="border-top border-secondary my-3"></div>
+  </div>
+</div>
+{% endif %}
