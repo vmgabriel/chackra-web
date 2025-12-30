@@ -49,7 +49,7 @@ class PsycopgUserBaseFinderRepository(
 ):
     table_name: str
     uow: shared_uow.UOW
-    serializer: psycopg_commons.SafeSerializer = psycopg_commons.BasicTypeSerializer()
+    serializer: psycopg_commons.SafeSerializer
     model_class: Type[shared_behavior.M]
 
     def __init__(

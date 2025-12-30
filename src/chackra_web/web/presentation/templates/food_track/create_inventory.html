@@ -13,7 +13,16 @@
             Nuevo Item
         </div>
         <div class="card-body">
-            <form id="createInventoryForm" method="POST" action="" novalidate>
+            {% for error in errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span style="font-size: larger;font-weight: bold;">{{ error.title }}</span>
+                <p style="margin-left: 10px;">{{ error.description }}</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+
+            <form id="createInventoryForm" method="POST" action="{{ url_for('food_track.create_inventory_post') }}" novalidate>
                 <!-- Nombre -->
                 <div class="mb-3">
                     <label for="name" class="form-label">Nombre</label>
@@ -179,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    window.location.href = "";
+                    window.location.href = "{{ url_for('food_track.list_inventory_get') }}";
                 } else {
                     alert('Error al guardar: ' + data.message);
                 }

@@ -23,17 +23,18 @@ class InventoryItem(pydantic.BaseModel):
     deleted_at: datetime.datetime | None = None
 
     @staticmethod
-    def create(auth_user_data: BaseInventoryDTO) -> "InventoryItem":
+    def create(inv_data: BaseInventoryDTO) -> "InventoryItem":
         return InventoryItem(
             id=shared_inventory_id.InventoryID(value=str(uuid.uuid4())),
-            name=auth_user_data.name.lower(),
-            quantity=auth_user_data.quantity,
+            name=inv_data.name.lower(),
+            quantity=inv_data.quantity,
         )
 
     def model_dump(self, *args, **kwargs) -> dict:
         value = super().model_dump(*args, **kwargs)
+        print("my value - ", value)
         if "quantity" in value:
-            value["quantity_measure_unit"] = value["quantity"].measure_unit
-            value["quantity_value"] = value["quantity"].value
+            value["quantity_measure_unit"] = value["quantity"]["measure_unit"]
+            value["quantity_value"] = value["quantity"]["value"]
             value.pop("quantity")
         return value
