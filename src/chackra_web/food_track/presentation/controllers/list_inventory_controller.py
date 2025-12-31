@@ -3,7 +3,6 @@ from typing import List
 
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
 from chackra_web.shared.domain.model.pagination import pagination as shared_pagination
-from chackra_web.shared.domain.model.pagination import pagination as shared_pagination
 
 from chackra_web.food_track.application import list_inventory_item as application_list_inventory_item
 
