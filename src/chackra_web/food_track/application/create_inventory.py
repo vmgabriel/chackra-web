@@ -18,7 +18,10 @@ class CreateInventoryDTO(pydantic.BaseModel):
 class CreateInventoryCommand:
     uow: shared_uow.UOW
     logger: shared_logger.LogAdapter
-    inventory_repository:  inventory_repositories.InventoryRepository[model_inventory.InventoryItem, shared_inventory_id.InventoryID]
+    inventory_repository:  inventory_repositories.InventoryRepository[
+        model_inventory.InventoryItem,
+        shared_inventory_id.InventoryID
+    ]
 
     def __init__(self, dependencies: domain_dependencies.ExtendedControllerDependencies):
         self.uow = dependencies.uow
