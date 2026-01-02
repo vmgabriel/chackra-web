@@ -33,7 +33,6 @@ class DeleteAuthCommand:
             user_id=delete_user_dto.user_id,
             auth_repository=self.auth_repository
         )
-        print("auth_entity - ", auth_entity)
         if not auth_entity:
             return None
 

@@ -35,7 +35,6 @@ class ListCommand:
         if filters := list_user_matching_dto.pagination.filters:
             filters.inject_all_to_prefix("tu")
             if search_specification := filters.find_by_attribute("search"):
-                print("search - ", search_specification)
                 name_like_specification = self.specification_builder.build(
                     "name",
                     "ilike",

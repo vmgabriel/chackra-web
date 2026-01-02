@@ -87,6 +87,20 @@ class AboutWebController(shared_controller.WebController):
         ]
 
 
+class HealthCheckController(shared_controller.WebController):
+    def health(self):
+        return {"status": "ok"}
+
+    def get_routes(self) -> list[shared_route.RouteDefinition]:
+        return [
+            shared_route.RouteDefinition(
+                path="/health",
+                handler=self.health,
+                methods=[shared_route.HttpMethod.GET],
+                name="health",
+            ),
+        ]
+
 def get_configuration() -> shared_configuration.Configuration:
     factory_configuration = infraestructure_configuration_factory.ConfigurationFactory(env="DEV")
     return factory_configuration.build()
@@ -149,9 +163,9 @@ def inject_controllers(
         web.add_controller(controller(dependencies=dependencies))
 
 
-def create_app() -> object:
-    configuration = get_configuration()
+configuration = get_configuration()
 
+def create_app() -> object:
     log = get_logger(configuration)
 
     uow = get_uow(configuration, log)
@@ -214,6 +228,7 @@ def create_app() -> object:
         HomeWebController,
         ContactWebController,
         AboutWebController,
+        HealthCheckController,
 
         auth_controller.AuthController,
         user_controller.UserController,
@@ -230,7 +245,7 @@ app = create_app()
 
 
 def main():
-    app.run(debug=True)
+    app.run(debug=True, port=configuration.port, host=configuration.host)
 
 
 if __name__ == "__main__":

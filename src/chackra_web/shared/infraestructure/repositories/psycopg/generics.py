@@ -151,11 +151,7 @@ class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
         paginator += f"{limit_sql} {offset_sql}"
 
         count_query = self.MATCHING_COUNT_QUERY.format(table_name=self.table_name, specificator=filters)
-        print("count_query - ", count_query)
         data_query = self.MATCHING_QUERY.format(table_name=self.table_name, specificator=filters, paginator=paginator)
-        print("data_query - ", data_query)
-
-        print("filters_data - ", filters_data)
 
         entities = []
         with self.uow.session() as session:
@@ -164,7 +160,6 @@ class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
                 count_row = count_result.fetchone()
                 total = count_row[0] if count_row else 0
 
-                print("total - ", total)
                 result = session.atomic_execute(data_query, filters_data)
                 rows = result.fetchall()
 

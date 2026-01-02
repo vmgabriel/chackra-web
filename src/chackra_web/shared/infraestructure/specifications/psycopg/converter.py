@@ -7,7 +7,6 @@ from chackra_web.shared.domain.model.specifications import specifications  as sh
 class PsycopgConvertersSpecification(shared_specifications.ConvertersSpecification):
     @staticmethod
     def equal(attribute: str, value: Any, prefix: str | None = None) -> Tuple[str, tuple]:
-        print("prefix - ", prefix)
         with_prefix = f"{prefix}." if prefix else ""
         if isinstance(value, str) and value.lower() in ("true", "false"):
             return f"{with_prefix}{attribute} = %b", (value.lower() == "true",)

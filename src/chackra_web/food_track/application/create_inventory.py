@@ -39,7 +39,6 @@ class CreateInventoryCommand:
         )
 
         inventory_exists = self.inventory_repository.find_by_name(name=create_inventory_dto.name.lower())
-        print("inventory_exists - ", inventory_exists)
         if inventory_exists:
             raise inventory_exceptions.InventoryItemExistsException()
 

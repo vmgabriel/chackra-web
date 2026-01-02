@@ -48,3 +48,8 @@ class User(pydantic.BaseModel):
         self.active = False
         self.updated_at = datetime.datetime.now()
         self.deleted_at = datetime.datetime.now()
+
+    def model_dump(self, *args, **kwargs) -> dict:
+        values = super().model_dump(*args, **kwargs)
+        values.pop("auth_role")
+        return values

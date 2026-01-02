@@ -32,7 +32,6 @@ class InventoryItem(pydantic.BaseModel):
 
     def model_dump(self, *args, **kwargs) -> dict:
         value = super().model_dump(*args, **kwargs)
-        print("my value - ", value)
         if "quantity" in value:
             value["quantity_measure_unit"] = value["quantity"]["measure_unit"]
             value["quantity_value"] = value["quantity"]["value"]

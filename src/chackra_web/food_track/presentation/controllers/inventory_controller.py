@@ -42,7 +42,6 @@ class InventoryController(shared_controller.WebController):
             user: shared_route.Session,
             request: shared_route.RequestData
     ) -> shared_route.RouteResponse | dict:
-        print("Inventory - ", request.body)
 
         try:
             create_inventory.CreateInventoryCommand(dependencies=self.dependencies).execute(

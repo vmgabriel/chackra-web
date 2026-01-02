@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Leer los secretos
+DB_USER=$(cat $POSTGRES_USER_FILE)
+DB_PASSWORD=$(cat $POSTGRES_PASSWORD_FILE)
+
+# Construir DATABASE_URL
+export DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"

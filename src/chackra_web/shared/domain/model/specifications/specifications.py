@@ -42,7 +42,6 @@ class BaseSpecification(AbstractSpecification):
         super().__init__(attribute, value, sql_converter, prefix)
 
     def to_sql(self) -> tuple[str, tuple]:
-        print(f"self.prefix - {self.prefix}")
         return self._sql_converter(self.attribute, self.value, self.prefix)
 
     def find_by_attribute(self, attribute: str) -> AbstractSpecification | None:
@@ -60,7 +59,6 @@ class BaseSpecification(AbstractSpecification):
         return None
 
     def inject_all_to_prefix(self, prefix: str) -> None:
-        print("injecting specification")
         self.set_prefix(prefix)
 
 
@@ -98,7 +96,6 @@ class CompositeSpecification(AbstractSpecification, abc.ABC):
         return None
 
     def inject_all_to_prefix(self, prefix: str) -> None:
-        print("injecting and/or")
         if isinstance(self.left, (AndSpecification, OrSpecification)):
             self.left.inject_all_to_prefix(prefix)
         else:

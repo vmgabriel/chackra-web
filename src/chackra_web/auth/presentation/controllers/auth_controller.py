@@ -94,7 +94,6 @@ class AuthController(shared_controller.WebController):
             )
 
     def logout(self, user: shared_route.Session):
-        print("user - ", user)
         return shared_route.RouteResponse(
             flash_message="Logout hecho correctamente",
             status_code=300,
@@ -112,13 +111,10 @@ class AuthController(shared_controller.WebController):
         return {}
 
     def change_role(self, request: shared_route.RequestData) -> shared_route.RouteResponse | dict:
-        print(request.body)
-        print(request)
         change_role_dto = change_role.ChangeRoleDTO(
             user_id=shared_user_id.UserId(value=request.body.get("user_id")),
             role=request.body.get("role"),
         )
-        print("valid dto", change_role_dto)
         change_role.ChangeRoleCommand(dependencies=self.dependencies).execute(change_role_dto)
         return shared_route.RouteResponse(
             flash_message="Cambiado Satisfactoriamente el rol de usuario",

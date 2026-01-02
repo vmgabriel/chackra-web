@@ -1,4 +1,4 @@
-.PHONY: install run test clean build dev help
+.PHONY: install run test clean build dev help docker-build docker-up docker-down
 
 # Variables
 PYTHON = python3
@@ -40,3 +40,21 @@ clean:
 
 build:
 	$(HATCH) build
+
+# Nuevos comandos Docker
+docker-build:
+	docker-compose build
+
+docker-up:
+	docker-compose up -d
+
+docker-down:
+	docker-compose down
+
+docker-logs:
+	docker-compose logs -f
+
+docker-ps:
+	docker-compose ps
+
+# ... resto del Makefile existente
