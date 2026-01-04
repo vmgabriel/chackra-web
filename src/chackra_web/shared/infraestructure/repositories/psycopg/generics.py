@@ -16,9 +16,6 @@ INSERT INTO {table_name}({fields})
   RETURNING *
 ;
 """
-FIND_BY_ID_QUERY = """
-SELECT * FROM {table_name} WHERE id = %s AND active = true;
-"""
 MATCHING_QUERY = """
 SELECT * FROM {table_name} {specificator} {paginator};
 """
@@ -83,28 +80,35 @@ class PsycopgGenericCreator(shared_behavior.CreatorBehavior[shared_behavior.M]):
 
 
 class PsycopgGenericFinder(shared_behavior.FinderBehavior[shared_behavior.M, shared_behavior.ID]):
+    FIND_BY_ID_QUERY = """
+    SELECT * FROM {table_name} WHERE id = %s AND active = true;
+    """
+
     table_name: str
     uow: shared_uow.UOW
     serializer: psycopg_commons.SafeSerializer
+    model_class: Type[shared_behavior.M]
 
     def __init__(
             self,
             table_name: str,
             uow: shared_uow.UOW,
-            serializer: psycopg_commons.SafeSerializer = psycopg_commons.BasicTypeSerializer()
+            model_class: Type[shared_behavior.M],
+            serializer: psycopg_commons.SafeSerializer = psycopg_commons.BasicTypeSerializer(),
     ) -> None:
         self.table_name = table_name
         self.uow = uow
         self.serializer = serializer
+        self.model_class = model_class
 
 
     def find_by_id(self, id: shared_behavior.ID) -> shared_behavior.M | None:
-        query = FIND_BY_ID_QUERY.format(table_name=self.table_name)
+        query = self.FIND_BY_ID_QUERY.format(table_name=self.table_name)
         return psycopg_commons.execute_query(
             query=query,
             params=(id.value,),
             uow=self.uow,
-            model_class=Type[shared_behavior.M],
+            model_class=self.model_class,
             serializer=self.serializer,
         )
 

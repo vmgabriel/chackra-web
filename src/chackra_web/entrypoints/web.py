@@ -15,7 +15,11 @@ from chackra_web.shared.domain.model.repository import builder as shared_builder
 
 from chackra_web.auth.presentation.controllers import auth_controller
 from chackra_web.user.presentation.controllers import user_controller, list_users_controller
-from chackra_web.food_track.presentation.controllers import list_inventory_controller, inventory_controller
+from chackra_web.food_track.presentation.controllers import (
+    list_inventory_controller,
+    inventory_controller, home as food_track_home
+)
+from chackra_web.food_track.presentation.controllers.to_buy import list as to_buy_list_controller
 
 from chackra_web.web.infraestructure.configuration import factory as infraestructure_configuration_factory
 from chackra_web.web.infraestructure.web import factory as infraestructure_web_factory
@@ -260,8 +264,11 @@ def create_app() -> object:
         auth_controller.AuthController,
         user_controller.UserController,
         list_users_controller.UserController,
+        # Food track
         list_inventory_controller.ListInventoryController,
         inventory_controller.InventoryController,
+        food_track_home.FoodTrackHomeController,
+        to_buy_list_controller.ListToBuyController,
     ]
     inject_controllers(web, extended_dependencies, controllers)
 

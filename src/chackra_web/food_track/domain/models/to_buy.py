@@ -1,0 +1,74 @@
+import pydantic
+import datetime
+import uuid
+
+from chackra_web.shared.domain.model.food_track import to_buy as to_buy_id
+from chackra_web.shared.domain.model.quantity import quantity as shared_quantity
+
+from chackra_web.food_track.domain.models import exceptions as food_track_exceptions
+
+
+class CreateFoodTrackToBuyItemDTO(pydantic.BaseModel):
+    name: str
+    quantity: shared_quantity.Quantity
+    comment: str
+
+
+class CreateFoodTrackToBuyDTO(pydantic.BaseModel):
+    title: str
+    description: str
+    is_bought: bool
+
+
+class FoodTrackToBuyItem(pydantic.BaseModel):
+    id: to_buy_id.FoodTrackToBuyId
+    name: str
+    quantity: shared_quantity.Quantity
+    comment: str
+
+    active: bool = True
+    created_at: datetime.datetime = datetime.datetime.now()
+    updated_at: datetime.datetime = datetime.datetime.now()
+    deleted_at: datetime.datetime | None = None
+
+    @staticmethod
+    def create(create_dto: CreateFoodTrackToBuyItemDTO) -> "FoodTrackToBuyItem":
+        return FoodTrackToBuyItem(
+            id=to_buy_id.FoodTrackToBuyId(value=str(uuid.uuid4())),
+            name=create_dto.name.lower(),
+            quantity=create_dto.quantity,
+            comment=create_dto.comment,
+        )
+
+    def __eq__(self, other: "FoodTrackToBuyItem") -> bool:
+        if not isinstance(other, FoodTrackToBuyItem):
+            return False
+        return self.name == other.name or self.id == other.id
+
+
+class FoodTrackToBuy(pydantic.BaseModel):
+    id: to_buy_id.FoodTrackToBuyId
+    title: str
+    description: str
+    is_bought: bool
+    items: list[FoodTrackToBuyItem]
+
+    active: bool = True
+    created_at: datetime.datetime = datetime.datetime.now()
+    updated_at: datetime.datetime = datetime.datetime.now()
+    deleted_at: datetime.datetime | None = None
+
+    @staticmethod
+    def create(create_dto: CreateFoodTrackToBuyDTO) -> "FoodTrackToBuy":
+        return FoodTrackToBuy(
+            id=to_buy_id.FoodTrackToBuyId(value=str(uuid.uuid4())),
+            title=create_dto.title,
+            description=create_dto.description,
+            is_bought=create_dto.is_bought,
+            items=[]
+        )
+
+    def add_item(self, item: FoodTrackToBuyItem) -> None:
+        if any(in_item == item for in_item in self.items):
+            raise food_track_exceptions.ToBuyItemHasAlreadyRegisteredException()
+        self.items.append(item)
