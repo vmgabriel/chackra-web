@@ -1,0 +1,122 @@
+
+{% extends "base.html" %}
+
+{% block title %}Página No Encontrada - Chackra Web{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row justify-content-center min-vh-75 align-items-center py-5">
+        <div class="col-md-8 text-center">
+            <div class="error-container">
+                <!-- Número de error -->
+                <h1 class="display-1 fw-bold text-primary mb-4">404</h1>
+
+                <!-- Icono -->
+                <div class="mb-4">
+                    <i class="bi bi-question-circle text-primary" style="font-size: 5rem;"></i>
+                </div>
+
+                <!-- Mensaje de error -->
+                <h2 class="display-6 mb-3">¡Oops! Página No Encontrada</h2>
+                <p class="lead text-muted mb-4">
+                    Lo sentimos, la página que estás buscando no existe o ha sido movida.
+                </p>
+
+                <!-- Sugerencias -->
+                <div class="suggestions mb-4">
+                    <p class="mb-3">Puedes intentar:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-return-left me-2"></i>
+                            Verificar la URL ingresada
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-house me-2"></i>
+                            Volver a la página principal
+                        </li>
+                        <li>
+                            <i class="bi bi-search me-2"></i>
+                            Usar la barra de navegación para encontrar lo que buscas
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="{{ url_for('auth.home') }}" class="btn btn-primary btn-lg px-4 me-sm-3">
+                        <i class="bi bi-house-door me-2"></i>
+                        Ir al Inicio
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-secondary btn-lg px-4">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Volver Atrás
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .min-vh-75 {
+        min-height: 75vh;
+    }
+
+    .error-container {
+        background: #ffffff;
+        border-radius: 1rem;
+        padding: 3rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .suggestions {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .suggestions ul li {
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .suggestions ul li:hover {
+        background-color: rgba(var(--bs-primary-rgb), 0.1);
+    }
+
+    /* Animación del icono */
+    .bi-question-circle {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .error-container {
+            padding: 2rem;
+        }
+
+        .display-1 {
+            font-size: 4rem;
+        }
+
+        .display-6 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}

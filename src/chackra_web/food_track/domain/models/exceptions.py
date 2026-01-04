@@ -5,6 +5,8 @@ import enum
 
 class ExceptionCodeError(enum.StrEnum):
     INVENTORY_ITEM_HAS_ALREADY_REGISTERED = "inventory_item_has_already_registered"
+    INVENTORY_ITEM_NOT_FOUND = "inventory_item_not_found"
+    INVENTORY_ITEM_HAS_ALREADY_DELETED = "inventory_item_has_already_deleted"
 
 
 class InventoryItemExistsException(shared_exception.SystemException):
@@ -15,3 +17,23 @@ class InventoryItemExistsException(shared_exception.SystemException):
             code=str(ExceptionCodeError.INVENTORY_ITEM_HAS_ALREADY_REGISTERED.value),
         )
         super().__init__(message=message, status_code=400)
+
+
+class InventoryItemNotExistsException(shared_exception.SystemException):
+    def __init__(self) -> None:
+        message = shared_exception.ExceptionMessage(
+            title="El item no existe en el inventario",
+            description="Se requiere la existencia del inventory item",
+            code=str(ExceptionCodeError.INVENTORY_ITEM_NOT_FOUND.value),
+        )
+        super().__init__(message=message, status_code=404)
+
+
+class InventoryItemHasAlreadyDeletedException(shared_exception.SystemException):
+    def __init__(self) -> None:
+        message = shared_exception.ExceptionMessage(
+            title="El Item del inventario ya ha sido borrado",
+            description="No se requiere eliminar, ya esta eliminado",
+            code=str(ExceptionCodeError.INVENTORY_ITEM_HAS_ALREADY_DELETED.value),
+        )
+        super().__init__(message=message, status_code=404)

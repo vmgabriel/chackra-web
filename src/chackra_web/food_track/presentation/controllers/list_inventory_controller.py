@@ -4,7 +4,7 @@ from typing import List
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
 from chackra_web.shared.domain.model.pagination import pagination as shared_pagination
 
-from chackra_web.food_track.application import list_inventory_item as application_list_inventory_item
+from chackra_web.food_track.application.inventory import list as inventory_list
 
 from chackra_web.auth.domain.services.middlewares import login_required
 
@@ -27,10 +27,10 @@ class ListInventoryController(shared_controller.WebController):
             pagination: shared_pagination.Pagination,
             user: shared_route.Session
     ) -> dict:
-        paginator = application_list_inventory_item.ListInventoryItemCommand(
+        paginator = inventory_list.ListInventoryItemCommand(
             dependencies=self.dependencies
         ).execute(
-            list_inventory_item_matching_dto=application_list_inventory_item.ListInventoryItemMatchingDTO(
+            list_inventory_item_matching_dto=inventory_list.ListInventoryItemMatchingDTO(
                 pagination=pagination
             )
         )

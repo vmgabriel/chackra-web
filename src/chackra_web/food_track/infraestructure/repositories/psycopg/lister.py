@@ -13,4 +13,5 @@ class PsycopgInventoryItemListerRepository(psycopg_generics.PsycopgGenericLister
             uow=uow,
             serializer=psycopg_food_track_commons.InventorySerializer(),
             model_class=domain_inventory.InventoryItem,
+            default_filters="active = true",
         )

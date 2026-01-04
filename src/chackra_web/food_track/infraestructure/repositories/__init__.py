@@ -2,6 +2,7 @@ from chackra_web.food_track.infraestructure.repositories.psycopg import (
     creator as psycopg_repository_creator,
     finder as psycopg_repository_finder,
     lister as psycopg_repository_lister,
+    updater as psycopg_repository_updater,
 )
 from chackra_web.food_track.domain.models import inventory as domain_inventory
 from chackra_web.shared.domain.model.food_track import inventory_id as domain_inventory_id
@@ -21,6 +22,7 @@ class InventoryRepositoryFactory(repository_factory.RepositoryFactory):
                 creator=psycopg_repository_creator.PsycopgInventoryCreatorRepository,
                 finder=psycopg_repository_finder.PsycopgInventoryFinderRepository,
                 listener=psycopg_repository_lister.PsycopgInventoryItemListerRepository,
+                updater=psycopg_repository_updater.PsycopgInventoryItemUpdaterRepository,
             )
         ],
     }

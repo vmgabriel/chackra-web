@@ -34,6 +34,14 @@ class AuthController(shared_controller.WebController):
                 middleware=[login_required.login_required(roles=["ADMIN", "USER"])],
             ),
             shared_route.RouteDefinition(
+                path="/home/not-found",
+                handler=self.not_found,
+                methods=[shared_route.HttpMethod.GET],
+                name="auth.not_found",
+                template="components/not_found.html",
+                middleware=[login_required.login_required(roles=["ADMIN", "USER"])],
+            ),
+            shared_route.RouteDefinition(
                 path="/login/recovery",
                 handler=self.recovery,
                 methods=[shared_route.HttpMethod.GET],
@@ -121,3 +129,8 @@ class AuthController(shared_controller.WebController):
             status_code=300,
             redirection="user.list_users_get",
         )
+
+    def not_found(self, user: shared_route.Session) -> dict:
+        return {
+            "user": user
+        }
