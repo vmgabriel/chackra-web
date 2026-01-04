@@ -1,6 +1,9 @@
 import abc
 import enum
+
+import flask
 import pydantic
+import dataclasses
 
 from chackra_web.shared.domain.model.specifications import specifications as shared_specifications
 
@@ -57,11 +60,12 @@ class Pagination(abc.ABC):
         raise NotImplementedError()
 
 
-class Paginator(pydantic.BaseModel):
+@dataclasses.dataclass
+class Paginator:
     page_size: int
     page: int
     total: int
-    entities: list[object] = pydantic.Field(default_factory=list)
+    entities: list[object] = dataclasses.field(default_factory=list)
 
     @property
     def start(self) -> int:
@@ -103,3 +107,19 @@ class Paginator(pydantic.BaseModel):
             response.append(current_page)
         return response
 
+
+class PaginatorExtended(Paginator):
+    headers: dict[str, str] = dataclasses.field(default_factory=dict)
+    update_url: str | None = None
+    delete_url: str | None = None
+    title: str = ""
+    message_delete: str = ""
+    title_delete: str = ""
+    current_endpoint: str = ""
+    filter_convertion: str = ""
+    list_convertion: str = ""
+    filters: list[str] = dataclasses.field(default_factory=list)
+
+    @staticmethod
+    def from_paginator(paginator: Paginator) -> 'PaginatorExtended':
+        return PaginatorExtended(**dataclasses.asdict(paginator))

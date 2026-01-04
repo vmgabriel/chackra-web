@@ -40,12 +40,16 @@ class Adapter(abc.ABC):
             pagination_builder: shared_pagination_builder.PaginationBuilder,
             to_specification_builder: shared_specification_conversion.ToSpecifications,
             to_pagination_builder: shared_pagination_conversion.ToConversion,
+            processers_handlers: list[Callable] | None = None
     ) -> None:
+        processers_handlers = processers_handlers or []
         self.app = app
         self.auth_repository = auth_repository
         self.pagination_builder = pagination_builder
         self.to_specification_builder = to_specification_builder
         self.to_pagination_builder = to_pagination_builder
+        for handler in processers_handlers:
+            self.inject_processers_handler(handler)
 
     @abc.abstractmethod
     def configure(self, config: shared_configuration.Configuration) -> None:
@@ -77,6 +81,10 @@ class Adapter(abc.ABC):
 
     @abc.abstractmethod
     def to_request_pagination(self, request: object, route: shared_route.RouteDefinition) -> shared_pagination.Pagination:
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def inject_processers_handler(self, handler: Callable) -> None:
         raise NotImplementedError()
 
 

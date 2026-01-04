@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, Callable
 
 from chackra_web.web.domain.web import app as domain_web_app
 
@@ -30,6 +30,9 @@ from chackra_web.shared.infraestructure.convertion_specification import (
 from chackra_web.shared.infraestructure.convertion_pagination import (
     factory as infraestructure_convertion_pagination_factory
 )
+from chackra_web.shared.infraestructure.handlers import factory as infraestructure_handler_factory
+from chackra_web.food_track.infraestructure.converter import factory as food_track_converter_factory
+from chackra_web.user.infraestructure.converter import factory as user_converter_factory
 
 from chackra_web.user.infraestructure import migrations as user_migrations, repositories as user_repositories
 from chackra_web.auth.infraestructure import migrations as auth_migrations, repositories as auth_repositories
@@ -101,17 +104,23 @@ class HealthCheckController(shared_controller.WebController):
             ),
         ]
 
+
 def get_configuration() -> shared_configuration.Configuration:
     factory_configuration = infraestructure_configuration_factory.ConfigurationFactory(env="DEV")
     return factory_configuration.build()
 
 
 def get_web_app(
-        configuration: shared_configuration.Configuration,
-        dependencies: shared_extended_dependencies.ExtendedControllerDependencies
+    configuration: shared_configuration.Configuration,
+    dependencies: shared_extended_dependencies.ExtendedControllerDependencies,
+    processers_handler: list[Callable] | None = None,
 ) -> domain_web_app.WebAppFactory:
     factory_web = infraestructure_web_factory.WebApplicationFactory()
-    return factory_web.build(configuration=configuration, dependencies=dependencies)
+    return factory_web.build(
+        configuration=configuration,
+        dependencies=dependencies,
+        processers_handlers=processers_handler
+    )
 
 
 def get_logger(configuration: shared_configuration.Configuration) -> shared_logger.LogAdapter:
@@ -163,7 +172,23 @@ def inject_controllers(
         web.add_controller(controller(dependencies=dependencies))
 
 
+def build_converters_handlers(
+    configuration: shared_configuration.Configuration,
+) -> list[Callable]:
+    converters_factories = [
+        food_track_converter_factory.get_converter(configuration=configuration),
+        user_converter_factory.get_converter(configuration=configuration),
+    ]
+    for converter_factory in converters_factories:
+        for name, in_converter in converter_factory.items():
+            infraestructure_handler_factory.inject_converters(name=name, converter=in_converter)
+
+    handlers = infraestructure_handler_factory.get_handlers(configuration=configuration)
+    return handlers
+
+
 configuration = get_configuration()
+
 
 def create_app() -> object:
     log = get_logger(configuration)
@@ -222,7 +247,9 @@ def create_app() -> object:
         to_pagination_builder=to_conversation_handler,
     )
 
-    web = get_web_app(configuration, extended_dependencies)
+    handlers = build_converters_handlers(configuration=configuration)
+
+    web = get_web_app(configuration, extended_dependencies, handlers)
 
     controllers = [
         HomeWebController,

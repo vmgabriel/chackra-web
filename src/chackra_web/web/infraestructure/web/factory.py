@@ -1,4 +1,4 @@
-from typing import Type, TypeVar
+from typing import Type, TypeVar, Callable
 
 from chackra_web.shared.domain.model.configuration import configuration as shared_configuration
 from chackra_web.web.domain.web import app as web_app
@@ -28,7 +28,8 @@ class WebApplicationFactory:
     def build(
             self,
             configuration: shared_configuration.Configuration,
-            dependencies: shared_extended_dependencies.ExtendedControllerDependencies
+            dependencies: shared_extended_dependencies.ExtendedControllerDependencies,
+            processers_handlers: list[Callable] | None = None
     ) -> T:
         web_app_factory_value = getattr(configuration, self.name_configuration_attribute, "flask").lower()
 
@@ -39,6 +40,7 @@ class WebApplicationFactory:
             pagination_builder=dependencies.paginator_builder,
             to_specification_builder=dependencies.to_specification_builder,
             to_pagination_builder=dependencies.to_pagination_builder,
+            processers_handlers=processers_handlers,
         )
         adapter.configure(configuration)
 

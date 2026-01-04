@@ -28,11 +28,11 @@ class FlaskAdapter(web_app.Adapter):
             pagination_builder: shared_pagination_builder.PaginationBuilder,
             to_specification_builder: shared_specification_conversion.ToSpecifications,
             to_pagination_builder: shared_pagination_conversion.ToConversion,
+            processers_handlers: list[Callable] | None = None
     ) -> None:
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
         template_dir = os.path.join(base_dir, "presentation", "templates")
         static_dir = os.path.join(base_dir, "presentation", "static")
-
 
         _flask_app = flask.Flask(
             __name__,
@@ -46,7 +46,8 @@ class FlaskAdapter(web_app.Adapter):
             auth_repository,
             pagination_builder,
             to_specification_builder,
-            to_pagination_builder
+            to_pagination_builder,
+            processers_handlers
         )
 
     def _wrap_handler(self, route: shared_route.RouteDefinition) -> Callable:
@@ -82,6 +83,14 @@ class FlaskAdapter(web_app.Adapter):
 
             if route.template:
                 if isinstance(result, dict):
+                    if (
+                            "paginator" in result and
+                            isinstance(result.get("paginator"), shared_pagination.PaginatorExtended)
+                    ):
+                        if result.get("paginator").delete_url:
+                            result["paginator"].delete_url = flask.url_for(
+                                result["paginator"].delete_url, **flask.request.args.to_dict()
+                            )
                     return flask.render_template(route.template, **result)
                 return flask.render_template(route.template, data=result)
             else:
@@ -158,6 +167,8 @@ class FlaskAdapter(web_app.Adapter):
             order_by=orders,
         )
 
+    def inject_processers_handler(self, handler: Callable) -> None:
+        self.app.jinja_env.filters[handler.__name__] = handler
 
     def build(self) -> object:
         return self.app

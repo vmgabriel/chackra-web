@@ -61,7 +61,7 @@
 {% endmacro %}
 
 {# Badge Component #}
-{% macro badge(text, color='primary', pill=false) %}
+    {% macro badge(text, color='primary', pill=false) %}
     <span class="badge bg-{{ color }} {{ 'rounded-pill' if pill }}">{{ text }}</span>
 {% endmacro %}
 

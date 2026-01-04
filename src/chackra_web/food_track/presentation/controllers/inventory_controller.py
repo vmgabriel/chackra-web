@@ -30,6 +30,21 @@ class InventoryController(shared_controller.WebController):
                 middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
                 getters_allowed=[],
             ),
+            shared_route.RouteDefinition(
+                path="/inventory/items/delete",
+                handler=self.delete_inventory_post,
+                methods=[shared_route.HttpMethod.POST],
+                name="food_track.delete_inventory_post",
+                middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
+            ),
+            shared_route.RouteDefinition(
+                path="/inventory/items/<id>/edit",
+                handler=self.edit_inventory_item_get,
+                methods=[shared_route.HttpMethod.GET],
+                name="food_track.edit_inventory_item_get",
+                template="food_track/create_inventory.html",
+                middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
+            ),
         ]
 
     def create_get(self, user: shared_route.Session) -> dict:
@@ -70,3 +85,12 @@ class InventoryController(shared_controller.WebController):
             status_code=300,
             redirection="food_track.list_inventory_get",
         )
+
+    def delete_inventory_post(self) -> dict:
+        return {}
+
+    def edit_inventory_item_get(self, id: str, user: shared_route.Session) -> dict:
+        print(f"id {id}")
+        return {
+            "user": user,
+        }

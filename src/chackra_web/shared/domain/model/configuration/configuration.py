@@ -14,6 +14,7 @@ class Configuration:
         self.port = int(os.getenv('FLASK_PORT', '8000'))
         self.flask_env = os.getenv('FLASK_ENV', 'production')
         self.secret_key = os.getenv('FLASK_SECRET_KEY', 'default-secret-key')
+        self.debug_level = os.getenv('DEBUG_LEVEL', 'INFO')
 
         # Database Configuration
         self.postgres_host = os.getenv('POSTGRES_HOST', 'localhost')
@@ -33,7 +34,8 @@ class Configuration:
         self.pagination_adapter = os.getenv('PAGINATION_ADAPTER', 'psycopg')
         self.to_specification_adapter = os.getenv('TO_SPECIFICATION_ADAPTER', 'flask')
         self.to_convertion_adapter = os.getenv('TO_CONVERTION_ADAPTER', 'flask')
-        self.debug_level = os.getenv('DEBUG_LEVEL', 'INFO')
+        self.handler_adapter = os.getenv('HANDLER_ADAPTER', 'flask')
+        self.converter_adapter = os.getenv('CONVERTER_ADAPTER', 'flask')
 
     def inject(self, variables: dict[str, Any]):
         for key, value in variables.items():

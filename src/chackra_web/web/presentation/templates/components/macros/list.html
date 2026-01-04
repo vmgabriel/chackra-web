@@ -1,0 +1,172 @@
+{#
+    List Component
+    This apply to use with integration
+#}
+
+
+{# Card Component #}
+{% macro list(paginator) %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table me-1"></i>
+        {{ paginator.title }}
+    </div>
+    <div class="card-body">
+        <!-- Filtros -->
+        <form method="GET" action="" class="mb-4">
+            <div class="row g-3">
+                {% for filter_type in paginator.filters %}
+                <div class="col-md-2">
+                    {{ request.args | to_html(filter_type, paginator.filter_convertion) }}
+                </div>
+                {% endfor %}
+
+                <!-- Botón de búsqueda -->
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Tabla con Data -->
+        <table class="table table-striped table-hover">
+            <thead><tr>
+                {% for _, header_title in paginator.headers.items() %}
+                <th>{{ header_title }}</th>
+                {% endfor %}
+                <th>Acciones</th>
+            </tr></thead>
+            <tbody>
+            {% for entity in paginator.entities %}
+            <tr>
+                {% for header_name, _ in paginator.headers.items() %}
+                <td>{{ entity | to_html(header_name, paginator.list_convertion) }}</td>
+                {% endfor %}
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            Acciones
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% if paginator.update_url %}
+                            <li>
+                                <a
+                                        class="dropdown-item"
+                                        href="{{ paginator.update_url | dynamic_url(id=entity.id) }}"
+                                >
+                                    <i class="bi bi-person-gear me-2"></i>Editar
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            {% if paginator.delete_url %}
+                            <li>
+                                <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" data-entity-id="{{ entity.id }}">
+                                    <i class="bi bi-trash me-2"></i>Eliminar
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center">No hay items en el inventario</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Paginación -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="d-flex align-items-center">
+                <select class="form-select me-2 w-auto" id="perPage">
+                    <option value="10">10 por página</option>
+                    <option value="25">25 por página</option>
+                    <option value="50">50 por página</option>
+                    <option value="100">100 por página</option>
+                </select>
+                <span class="text-muted">Mostrando {{ paginator.start }} - {{ paginator.end }} de {{ paginator.total }}</span>
+            </div>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item {% if not paginator.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ paginator.current_endpoint | dynamic_url(page=paginator.prev_page) }}">Anterior</a>
+                    </li>
+                    {% for page in paginator.pages %}
+                    <li class="page-item {% if page == paginator.page %}active{% endif %}">
+                        <a class="page-link" href="{{ paginator.current_endpoint | dynamic_url(page=paginator.page) }}">{{ page }}</a>
+                    </li>
+                    {% endfor %}
+                    <li class="page-item {% if not paginator.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ paginator.current_endpoint | dynamic_url(page=paginator.next_page) }}">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+{% if paginator.delete_url %}
+<!-- Modal Eliminar Usuario -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ paginator.title_delete }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ paginator.message_delete }}</p>
+                <input type="hidden" id="deleteId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Delete
+        document.getElementById("deleteModal").addEventListener("show.bs.modal", (event) => {
+            const button = event.relatedTarget;
+            document.getElementById("deleteId").value = button.dataset.entityId;
+        });
+
+        document.getElementById("confirmDelete").addEventListener("click", () => {
+            const currentId = document.getElementById("deleteId").value;
+            deleteEntity(currentId);
+        });
+
+        async function deleteEntity(currentId) {
+            try {
+                const response = await fetch("{{ paginator.delete_url }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ "id": currentId })
+                });
+                if (!response.ok) throw new Error('Error al eliminar entity');
+                location.reload();
+            } catch (error) {
+                showToast('Error al eliminar enttiy', 'error');
+                console.error(error);
+            }
+        }
+
+        function showToast(message, type) {
+            // Implementar lógica de notificaciones
+            console.log(message, type);
+        }
+    });
+</script>
+{% endif %}
+{% endmacro %}
