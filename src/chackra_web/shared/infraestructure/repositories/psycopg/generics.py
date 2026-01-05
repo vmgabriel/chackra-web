@@ -112,7 +112,7 @@ class PsycopgGenericFinder(shared_behavior.FinderBehavior[shared_behavior.M, sha
 
 class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
     MATCHING_QUERY = """
-    SELECT jsonb_agg(list_json) AS all_lists
+    SELECT COALESCE(jsonb_agg(list_json), '[]'::jsonb) AS all_lists
     FROM (
         SELECT
             row_to_json(ct.*)::jsonb AS list_json
