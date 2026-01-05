@@ -42,7 +42,7 @@ class ListToBuyController(shared_controller.WebController):
             "¿Estás seguro de que deseas eliminar esta lista de compras? Esta acción no se puede deshacer."
         )
         paginator_extended.title_delete = "Eliminar Lista de Compras"
-        paginator_extended.delete_url = "food_track.delete_inventory_post"
+        paginator_extended.delete_url = "food_track.delete_to_buy_post"
         paginator_extended.update_url = "food_track.edit_inventory_item_get"
         paginator_extended.current_endpoint = "food_track.list_inventory_get"
         paginator_extended.filter_convertion = "filter_to_buy_lists"

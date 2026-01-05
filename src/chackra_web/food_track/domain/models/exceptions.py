@@ -7,7 +7,9 @@ class ExceptionCodeError(enum.StrEnum):
     INVENTORY_ITEM_HAS_ALREADY_REGISTERED = "inventory_item_has_already_registered"
     INVENTORY_ITEM_NOT_FOUND = "inventory_item_not_found"
     INVENTORY_ITEM_HAS_ALREADY_DELETED = "inventory_item_has_already_deleted"
-    TO_BUY_ITEM_HAS_ALREADY_REGISTERED = "to_boy_item_has_already_registered"
+    TO_BUY_ITEM_HAS_ALREADY_REGISTERED = "to_buy_item_has_already_registered"
+    TO_BUY_ITEM_HAS_ALREADY_DELETED = "to_buy_item_has_already_deleted"
+    TO_BUY_ITEM_NOT_FOUND = "to_buy_item_not_found"
 
 
 class InventoryItemExistsException(shared_exception.SystemException):
@@ -48,3 +50,23 @@ class ToBuyItemHasAlreadyRegisteredException(shared_exception.SystemException):
             code=str(ExceptionCodeError.TO_BUY_ITEM_HAS_ALREADY_REGISTERED.value),
         )
         super().__init__(message=message, status_code=400)
+
+
+class ToBuyListHasAlreadyDeletedException(shared_exception.SystemException):
+    def __init__(self) -> None:
+        message = shared_exception.ExceptionMessage(
+            title="La lista de compras ya no existe",
+            description="la lista de compras ya no existe",
+            code=str(ExceptionCodeError.TO_BUY_ITEM_HAS_ALREADY_DELETED.value),
+        )
+        super().__init__(message=message, status_code=404)
+
+
+class ToBuyListNotFoundException(shared_exception.SystemException):
+    def __init__(self) -> None:
+        message = shared_exception.ExceptionMessage(
+            title="La lista de compras no existe",
+            description="la lista de compras no existe",
+            code=str(ExceptionCodeError.TO_BUY_ITEM_NOT_FOUND.value),
+        )
+        super().__init__(message=message, status_code=404)

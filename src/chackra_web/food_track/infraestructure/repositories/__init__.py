@@ -38,6 +38,7 @@ class InventoryRepositoryFactory(repository_factory.RepositoryFactory):
                 creator=psycopg_repository_creator.PsycopgToBuyCreatorRepository,
                 finder=psycopg_repository_finder.PsycopgToBuyListFinderRepository,
                 listener=psycopg_repository_lister.PsycopgToBuyListerRepository,
+                updater=psycopg_repository_updater.PsycopgToBuyListUpdaterRepository,
             )
         ],
     }

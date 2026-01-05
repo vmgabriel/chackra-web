@@ -68,6 +68,17 @@ class FoodTrackToBuy(pydantic.BaseModel):
             items=[]
         )
 
+    def model_dump(self, *args, **kwargs) -> dict:
+        value = super().model_dump(*args, **kwargs)
+        if "items" in value:
+            value.pop("items")
+        return value
+
+    def delete(self) -> None:
+        self.updated_at = datetime.datetime.now()
+        self.deleted_at = datetime.datetime.now()
+        self.active = False
+
     def add_item(self, item: FoodTrackToBuyItem) -> None:
         if any(in_item == item for in_item in self.items):
             raise food_track_exceptions.ToBuyItemHasAlreadyRegisteredException()

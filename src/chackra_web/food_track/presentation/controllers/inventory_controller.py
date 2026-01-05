@@ -66,10 +66,8 @@ class InventoryController(shared_controller.WebController):
 
     def create_post(
             self,
-            user: shared_route.Session,
             request: shared_route.RequestData
     ) -> shared_route.RouteResponse | dict:
-
         try:
             inventory_item_create.CreateInventoryCommand(dependencies=self.dependencies).execute(
                 create_inventory_dto=inventory_item_create.CreateInventoryDTO(
@@ -82,7 +80,6 @@ class InventoryController(shared_controller.WebController):
             )
         except inventory_exceptions.InventoryItemExistsException:
             return {
-                "user": user,
                 "errors": [
                     {
                         "title": "Item ya esta en el inventario",
@@ -91,7 +88,6 @@ class InventoryController(shared_controller.WebController):
                 ]
             }
 
-
         return shared_route.RouteResponse(
             flash_message="Inventario Item Creado Correctamente",
             status_code=300,
@@ -99,9 +95,8 @@ class InventoryController(shared_controller.WebController):
         )
 
     def delete_inventory_post(
-            self,
-            request: shared_route.RequestData,
-            user: shared_route.Session
+        self,
+        request: shared_route.RequestData,
     ) -> dict:
         current_id = request.body.get("id")
         if not current_id:
