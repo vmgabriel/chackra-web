@@ -19,7 +19,10 @@ from chackra_web.food_track.presentation.controllers import (
     list_inventory_controller,
     inventory_controller, home as food_track_home
 )
-from chackra_web.food_track.presentation.controllers.to_buy import list as to_buy_list_controller
+from chackra_web.food_track.presentation.controllers.to_buy import (
+    list as to_buy_list_controller,
+    entity as to_buy_entity_controller
+)
 
 from chackra_web.web.infraestructure.configuration import factory as infraestructure_configuration_factory
 from chackra_web.web.infraestructure.web import factory as infraestructure_web_factory
@@ -269,6 +272,7 @@ def create_app() -> object:
         inventory_controller.InventoryController,
         food_track_home.FoodTrackHomeController,
         to_buy_list_controller.ListToBuyController,
+        to_buy_entity_controller.ToBuyListController,
     ]
     inject_controllers(web, extended_dependencies, controllers)
 

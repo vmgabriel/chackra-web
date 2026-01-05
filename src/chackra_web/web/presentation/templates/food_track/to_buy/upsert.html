@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Food Track|{{ "Editar" if item else "Crear" }} Lista de Compras - Chackra Web{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">{{ "Editar" if item else "Crear" }} Lista de Compras</h1>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas {{ 'fa-edit' if item else 'fa-plus-circle' }} me-1"></i>
+            {{ "Editar" if item else "Nueva" }} Lista de Compras
+        </div>
+        <div class="card-body">
+            {% for error in errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span style="font-size: larger;font-weight: bold;">{{ error.title }}</span>
+                <p style="margin-left: 10px;">{{ error.description }}</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+
+            <form id="toBuyForm" method="POST"
+                  action="{{ url_for('food_track.edit_inventory_post', id=item.id) if item else url_for('food_track.create_inventory_post') }}"
+                  novalidate>
+                <!-- Title -->
+                <div class="mb-3">
+                    <label for="title" class="form-label">Titulo</label>
+                    <input type="text"
+                           class="form-control"
+                           id="title"
+                           name="title"
+                           required
+                           minlength="3"
+                           maxlength="50"
+                           value="{{ item.title if item else '' }}">
+                    <div class="invalid-feedback" id="nameError"></div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label for="description" class="form-label">Descripcion</label>
+                    <textarea
+                            class="form-control"
+                            id="description"
+                            name="description"
+                            required
+                            minlength="3"
+                            maxlength="50"
+                    >
+                        {{ item.description if item else '' }}
+                    </textarea>
+                    <div class="invalid-feedback" id="descriptionError"></div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> {{ "Actualizar" if item else "Guardar" }}
+                    </button>
+                    <a href="{{ url_for('food_track.list_inventory_get') }}" class="btn btn-secondary ms-2">
+                        <i class="fas fa-times me-1"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('toBuyForm');
+    const titleInput = document.getElementById('title');
+    const descriptionInput = document.getElementById('description');
+
+    // Validation Function Handler
+    function validateForm() {
+        let isValid = true;
+
+        // Validate Title
+        if (!titleInput.value.trim()) {
+            showError(titleInput, 'El Titulo es requerido');
+            isValid = false;
+        } else if (titleInput.value.length < 3) {
+            showError(titleInput, 'El Titulo debe tener al menos 3 caracteres');
+            isValid = false;
+        } else if (titleInput.value.length > 50) {
+            showError(titleInput, 'El Titulo no puede exceder 50 caracteres');
+            isValid = false;
+        } else {
+            clearError(titleInput);
+        }
+
+        if (!descriptionInput.value.trim()) {
+            showError(descriptionInput, 'La Descripcion es requerido');
+            isValid = false;
+        } else if (descriptionInput.value.length < 3) {
+            showError(descriptionInput, 'La Descripcion debe tener al menos 3 caracteres');
+            isValid = false;
+        } else if (descriptionInput.value.length > 50) {
+            showError(descriptionInput, 'La Descripcion no puede exceder 50 caracteres');
+            isValid = false;
+        } else {
+            clearError(descriptionInput);
+        }
+
+        return isValid;
+    }
+
+    function showError(element, message) {
+        element.classList.add('is-invalid');
+        const errorDiv = element.nextElementSibling;
+        errorDiv.textContent = message;
+    }
+
+    function clearError(element) {
+        element.classList.remove('is-invalid');
+        const errorDiv = element.nextElementSibling;
+        errorDiv.textContent = '';
+    }
+
+    titleInput.addEventListener('input', () => {
+        if (titleInput.value.trim()) {
+            clearError(titleInput);
+        }
+    });
+
+    quantityInput.addEventListener('input', () => {
+        if (quantityInput.value && parseFloat(quantityInput.value) >= 0) {
+            clearError(quantityInput);
+        }
+    });
+
+    measureUnitInput.addEventListener('change', () => {
+        if (measureUnitInput.value) {
+            clearError(measureUnitInput);
+        }
+    });
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        if (validateForm()) {
+            const formData = {
+                title: titleInput.value.trim(),
+                description: descriptionInput.value.trim(),
+            };
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = "{{ url_for('food_track.to_buy_list_get') }}";
+                } else {
+                    alert('Error al guardar: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al procesar la solicitud');
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
