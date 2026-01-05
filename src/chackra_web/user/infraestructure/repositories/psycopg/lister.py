@@ -9,13 +9,15 @@ from chackra_web.user.infraestructure.repositories.psycopg import commons as psy
 
 class PsycopgUserListerRepository(psycopg_generics.PsycopgGenericLister[domain_user.User]):
     MATCHING_QUERY = """
-    SELECT
-    tu.*, ta.auth_role
-    FROM {table_name} as tu
-    LEFT JOIN tbl_auth as ta ON ta.user_id = tu.id
-    {specificator} 
-    {paginator}
-    ;
+    SELECT jsonb_agg(list_json) AS all_lists
+    FROM (
+        SELECT
+        row_to_json(tu.*)::jsonb || jsonb_build_object('auth_role', ta.auth_role) AS list_json
+        FROM {table_name} as tu
+        LEFT JOIN tbl_auth as ta ON ta.user_id = tu.id
+        {specificator}
+        {paginator}
+    ) AS subquery;
     """
     MATCHING_COUNT_QUERY = """
     SELECT COUNT(tu.*) FROM {table_name} as tu {specificator};

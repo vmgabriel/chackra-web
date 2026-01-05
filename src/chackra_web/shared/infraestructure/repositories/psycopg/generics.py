@@ -16,9 +16,6 @@ INSERT INTO {table_name}({fields})
   RETURNING *
 ;
 """
-MATCHING_QUERY = """
-SELECT * FROM {table_name} {specificator} {paginator};
-"""
 MATCHING_COUNT_QUERY = """
 SELECT COUNT(*) FROM {table_name} {specificator};
 """
@@ -115,7 +112,14 @@ class PsycopgGenericFinder(shared_behavior.FinderBehavior[shared_behavior.M, sha
 
 class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
     MATCHING_QUERY = """
-    SELECT * FROM {table_name} {specificator} {paginator};
+    SELECT jsonb_agg(list_json) AS all_lists
+    FROM (
+        SELECT
+            row_to_json(ct.*)::jsonb AS list_json
+        FROM {table_name} as ct
+        {specificator}
+        {paginator}
+    ) AS subquery;
     """
     MATCHING_COUNT_QUERY = """
     SELECT COUNT(*) FROM {table_name} {specificator};
@@ -174,17 +178,15 @@ class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
                 total = count_row[0] if count_row else 0
 
                 result = session.atomic_execute(data_query, filters_data)
-                rows = result.fetchall()
-
-                column_names = [desc[0] for desc in result.description]
+                rows = result.fetchone()[0]
+                print("rows - ", rows)
                 for row in rows:
-                    db_data = dict(zip(column_names, row))
-                    db_data["id"] = {"value": db_data["id"]}
-                    for k, v in db_data.items():
+                    row["id"] = {"value": row["id"]}
+                    for k, v in row.items():
                         if k.endswith("_id"):
-                            db_data[k] = {"value": v}
+                            row[k] = {"value": v}
 
-                    entities.append(self.serializer.from_primitive(db_data, self.model_class))
+                    entities.append(self.serializer.from_primitive(row, self.model_class))
 
             except psycopg.Error as e:
                 raise repository_exceptions.RepositoryError(f"Error executing query: {str(e)}")

@@ -42,6 +42,8 @@ class BaseSpecification(AbstractSpecification):
         super().__init__(attribute, value, sql_converter, prefix)
 
     def to_sql(self) -> tuple[str, tuple]:
+        if not self.prefix:
+            self.prefix = "cb"
         return self._sql_converter(self.attribute, self.value, self.prefix)
 
     def find_by_attribute(self, attribute: str) -> AbstractSpecification | None:
@@ -57,6 +59,9 @@ class BaseSpecification(AbstractSpecification):
         if self.attribute == attribute:
             return to_replace
         return None
+
+    def has_prefix(self) -> bool:
+        return self.prefix is not None
 
     def inject_all_to_prefix(self, prefix: str) -> None:
         self.set_prefix(prefix)
