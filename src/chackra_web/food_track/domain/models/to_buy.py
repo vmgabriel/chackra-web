@@ -20,6 +20,12 @@ class CreateFoodTrackToBuyDTO(pydantic.BaseModel):
     is_bought: bool
 
 
+class UpdateFoodTrackToBuyDTO(pydantic.BaseModel):
+    title: str
+    description: str
+    is_bought: bool
+
+
 class FoodTrackToBuyItem(pydantic.BaseModel):
     id: to_buy_id.FoodTrackToBuyId
     name: str
@@ -83,3 +89,11 @@ class FoodTrackToBuy(pydantic.BaseModel):
         if any(in_item == item for in_item in self.items):
             raise food_track_exceptions.ToBuyItemHasAlreadyRegisteredException()
         self.items.append(item)
+
+    def update(self, to_update: UpdateFoodTrackToBuyDTO) -> "FoodTrackToBuy":
+        self.is_bought = to_update.is_bought
+        self.title = to_update.title
+        self.description = to_update.description
+
+        self.updated_at = datetime.datetime.now()
+        return self

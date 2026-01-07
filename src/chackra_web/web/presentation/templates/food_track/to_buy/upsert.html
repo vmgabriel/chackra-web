@@ -22,7 +22,7 @@
             {% endfor %}
 
             <form id="toBuyForm" method="POST"
-                  action="{{ url_for('food_track.edit_inventory_post', id=item.id) if item else url_for('food_track.create_to_buy_post') }}"
+                  action="{{ url_for('food_track.update_to_buy_post', id=item.id) if item else url_for('food_track.create_to_buy_post') }}"
                   novalidate>
                 <!-- Title -->
                 <div class="mb-3">
@@ -52,6 +52,35 @@
                     </textarea>
                     <div class="invalid-feedback" id="descriptionError"></div>
                 </div>
+
+                {% if item %}
+                <!-- Esta comprado -->
+                <div class="mb-3">
+                    <label class="form-label">Estado de Compra</label>
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               type="radio"
+                               name="is_bought"
+                               id="bought"
+                               value="false"
+                               {{ 'checked' if item and not item.is_bought else 'checked' }}>
+                        <label class="form-check-label" for="bought">
+                            <span class="badge bg-success">Comprado</span>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               type="radio"
+                               name="is_bought"
+                               id="not_bought"
+                               value="true"
+                               {{ 'checked' if item and item.is_bought else '' }}>
+                        <label class="form-check-label" for="not_bought">
+                            <span class="badge bg-danger">No comprado</span>
+                        </label>
+                    </div>
+                </div>
+                {% endif %}
 
                 <!-- Buttons -->
                 <div class="mt-4">
@@ -147,6 +176,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: titleInput.value.trim(),
                 description: descriptionInput.value.trim(),
             };
+
+            {% if item %}
+            formData.is_bought = document.querySelector('input[name="is_bought"]:checked').value === 'true';
+            {% endif %}
 
             fetch(form.action, {
                 method: 'POST',

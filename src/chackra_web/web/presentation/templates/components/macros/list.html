@@ -43,7 +43,13 @@
             {% for entity in paginator.entities %}
             <tr>
                 {% for header_name, _ in paginator.headers.items() %}
-                <td>{{ entity | to_html(header_name, paginator.list_convertion) }}</td>
+                <td>
+                    {% if loop.first and paginator.show_url %}
+                        <a href="{{ paginator.show_url | dynamic_url(id=entity.id) }}">{{ entity | to_html(header_name, paginator.list_convertion) }}</a>
+                    {%else%}
+                        {{ entity | to_html(header_name, paginator.list_convertion) }}
+                    {% endif %}
+                </td>
                 {% endfor %}
                 <td>
                     <div class="dropdown">

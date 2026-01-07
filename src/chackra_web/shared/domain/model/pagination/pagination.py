@@ -112,6 +112,7 @@ class PaginatorExtended(Paginator):
     headers: dict[str, str] = dataclasses.field(default_factory=dict)
     update_url: str | None = None
     delete_url: str | None = None
+    show_url: str | None = None
     title: str = ""
     message_delete: str = ""
     title_delete: str = ""

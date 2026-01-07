@@ -2,7 +2,6 @@ import pydantic
 
 from chackra_web.food_track.domain.models import (
     inventory as model_inventory,
-    exceptions as inventory_exceptions,
     repositories as inventory_repositories
 )
 

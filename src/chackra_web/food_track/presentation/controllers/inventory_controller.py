@@ -149,7 +149,6 @@ class InventoryController(shared_controller.WebController):
             self,
             id: str,
             request: shared_route.RequestData,
-            user: shared_route.Session
     ) -> dict | shared_route.RouteResponse:
         try:
             inventory_item_update.UpdateInventoryItemCommand(
@@ -165,7 +164,6 @@ class InventoryController(shared_controller.WebController):
             )
         except ValueError as e:
             return {
-                "user": user,
                 "errors": [
                     {
                         "title": "Body not valid",
