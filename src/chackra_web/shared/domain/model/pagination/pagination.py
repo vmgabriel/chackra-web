@@ -119,6 +119,8 @@ class PaginatorExtended(Paginator):
     current_endpoint: str = ""
     filter_convertion: str = ""
     list_convertion: str = ""
+    url_current_keys: dict[str, str] = dataclasses.field(default_factory=dict)
+    url_keys: dict[str, str] | None = None
     filters: list[str] = dataclasses.field(default_factory=list)
 
     @staticmethod

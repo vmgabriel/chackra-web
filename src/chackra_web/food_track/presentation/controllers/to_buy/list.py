@@ -45,6 +45,7 @@ class ListToBuyController(shared_controller.WebController):
         paginator_extended.delete_url = "food_track.delete_to_buy_post"
         paginator_extended.update_url = "food_track.update_to_buy_get"
         paginator_extended.show_url = "food_track.show_to_buy_list_items_get"
+        paginator_extended.url_current_keys = {}
         paginator_extended.current_endpoint = "food_track.to_buy_list_get"
         paginator_extended.filter_convertion = "filter_to_buy_lists"
         paginator_extended.list_convertion = "list_to_buy_lists"

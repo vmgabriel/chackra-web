@@ -83,14 +83,6 @@ class FlaskAdapter(web_app.Adapter):
 
             if route.template:
                 if isinstance(result, dict):
-                    if (
-                            "paginator" in result and
-                            isinstance(result.get("paginator"), shared_pagination.PaginatorExtended)
-                    ):
-                        if result.get("paginator").delete_url:
-                            result["paginator"].delete_url = flask.url_for(
-                                result["paginator"].delete_url, **flask.request.args.to_dict()
-                            )
                     return flask.render_template(route.template, **result)
                 return flask.render_template(route.template, data=result)
             else:
