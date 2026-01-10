@@ -272,6 +272,7 @@ def create_app() -> object:
         inventory_controller.InventoryController,
         food_track_home.FoodTrackHomeController,
         to_buy_list_controller.ListToBuyController,
+        to_buy_list_controller.ListToBuyItemController,
         to_buy_entity_controller.ToBuyListController,
     ]
     inject_controllers(web, extended_dependencies, controllers)

@@ -39,6 +39,16 @@ class InventoryRepositoryFactory(repository_factory.RepositoryFactory):
                 finder=psycopg_repository_finder.PsycopgToBuyListFinderRepository,
                 listener=psycopg_repository_lister.PsycopgToBuyListerRepository,
                 updater=psycopg_repository_updater.PsycopgToBuyListUpdaterRepository,
+            ),
+            repository_builder.PreDefinitionRepository(
+                repository=food_track_repositories.ToBuyItemListRepository[
+                    domain_to_buy.FoodTrackToBuyItem,
+                    domain_to_buy_id.FoodTrackItemToBuyId,
+                ],
+                creator=psycopg_repository_creator.PsycopgToBuyItemCreatorRepository,
+                finder=psycopg_repository_finder.PsycopgToBuyItemFinderRepository,
+                listener=psycopg_repository_lister.PsycopgToBuyItemListerRepository,
+                updater=psycopg_repository_updater.PsycopgToBuyItemUpdaterRepository,
             )
         ],
     }

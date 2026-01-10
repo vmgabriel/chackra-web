@@ -89,3 +89,15 @@ class PsycopgToBuyListFinderRepository(
             model_class=domain_to_buy.FoodTrackToBuy,
             serializer=psycopg_inventory_commons.ToBuyListSerializer()
         )
+
+
+class PsycopgToBuyItemFinderRepository(
+    psycopg_generics.PsycopgGenericFinder[shared_behavior.M, shared_behavior.ID],
+):
+    def __init__(self, uow: shared_uow.UOW) -> None:
+        super().__init__(
+            table_name=psycopg_inventory_commons.TO_BUY_ITEM_NAME,
+            uow=uow,
+            model_class=domain_to_buy.FoodTrackToBuyItem,
+            serializer=psycopg_inventory_commons.ToBuyItemSerializer(),
+        )

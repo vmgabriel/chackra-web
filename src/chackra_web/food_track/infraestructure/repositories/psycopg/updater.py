@@ -35,3 +35,18 @@ class PsycopgToBuyListUpdaterRepository(
             model_class=domain_to_buy.FoodTrackToBuy,
             serializer=psycopg_food_track_commons.ToBuyListSerializer(),
         )
+
+class PsycopgToBuyItemUpdaterRepository(
+    psycopg_generics.PsycopgGenericUpdaterRepository[
+        domain_to_buy.FoodTrackToBuyItem,
+        shared_to_buy_id.FoodTrackItemToBuyId,
+    ]
+):
+    def __init__(self, uow: shared_uow.UOW) -> None:
+        super().__init__(
+            table_name=psycopg_food_track_commons.TO_BUY_ITEM_NAME,
+            uow=uow,
+            model_class=domain_to_buy.FoodTrackToBuyItem,
+            serializer=psycopg_food_track_commons.ToBuyItemSerializer(),
+        )
+

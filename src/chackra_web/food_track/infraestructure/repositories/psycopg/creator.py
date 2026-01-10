@@ -20,3 +20,12 @@ class PsycopgToBuyCreatorRepository(psycopg_generics.PsycopgGenericCreator[domai
             uow=uow,
             serializer=psycopg_inventory_commons.ToBuyListSerializer(),
         )
+
+
+class PsycopgToBuyItemCreatorRepository(psycopg_generics.PsycopgGenericCreator[domain_to_buy.FoodTrackToBuyItem]):
+    def __init__(self, uow: shared_uow.UOW) -> None:
+        super().__init__(
+            table_name=psycopg_inventory_commons.TO_BUY_ITEM_NAME,
+            uow=uow,
+            serializer=psycopg_inventory_commons.ToBuyItemSerializer(),
+        )

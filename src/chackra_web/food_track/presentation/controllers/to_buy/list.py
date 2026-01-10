@@ -44,7 +44,7 @@ class ListToBuyController(shared_controller.WebController):
         paginator_extended.title_delete = "Eliminar Lista de Compras"
         paginator_extended.delete_url = "food_track.delete_to_buy_post"
         paginator_extended.update_url = "food_track.update_to_buy_get"
-        paginator_extended.show_url = "food_track.show_to_buy_list_items_get"
+        paginator_extended.show_url = "food_track.to_buy_items_get"
         paginator_extended.url_current_keys = {}
         paginator_extended.current_endpoint = "food_track.to_buy_list_get"
         paginator_extended.filter_convertion = "filter_to_buy_lists"
@@ -52,6 +52,58 @@ class ListToBuyController(shared_controller.WebController):
         paginator_extended.filters = ["search", "is_bought"]
 
         return {
+            "paginator": paginator_extended,
+            "user": user,
+        }
+
+
+
+class ListToBuyItemController(shared_controller.WebController):
+    def get_routes(self) -> List[shared_route.RouteDefinition]:
+        return [
+            shared_route.RouteDefinition(
+                path="/to-buy/<id>/items",
+                handler=self.list_items_in_to_buy_get,
+                methods=[shared_route.HttpMethod.GET],
+                name="food_track.to_buy_items_get",
+                template="food_track/to_buy/items/list.html",
+                middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
+                getters_allowed=["search", ],
+            ),
+        ]
+
+    def list_items_in_to_buy_get(
+            self,
+            id: str,
+            pagination: shared_pagination.Pagination,
+            user: shared_route.Session
+    ) -> dict | shared_route.RouteResponse:
+        paginator = to_buy_lister.ToBuyItemListCommand(
+            dependencies=self.dependencies
+        ).execute(
+            list_to_buy_items_matching_dto=to_buy_lister.ListToBuyItemsMatchingDTO(
+                pagination=pagination
+            )
+        )
+
+        paginator_extended = shared_pagination.PaginatorExtended.from_paginator(paginator)
+        paginator_extended.headers = {"name": "Nombre", "quantity": "Cantidad", "comment": "Comentario"}
+        paginator_extended.title = "Lista de elementos de compras"
+        paginator_extended.message_delete = (
+            "¿Estás seguro de que deseas eliminar este producto de la lista de compras? Esta acción no se puede deshacer."
+        )
+        paginator_extended.title_delete = "Eliminar Producto de la lista de compras"
+        paginator_extended.delete_url = "food_track.delete_to_buy_post"
+        paginator_extended.update_url = "food_track.update_to_buy_get"
+        paginator_extended.show_url = "food_track.show_to_buy_list_items_get"
+        paginator_extended.url_current_keys = {}
+        paginator_extended.current_endpoint = "food_track.to_buy_list_get"
+        paginator_extended.filter_convertion = "filter_to_buy_lists"
+        paginator_extended.list_convertion = "list_to_buy_lists"
+        paginator_extended.filters = ["search", "name"]
+
+        return {
+            "to_buy_list": {"name": "Lista de Compras"},
             "paginator": paginator_extended,
             "user": user,
         }

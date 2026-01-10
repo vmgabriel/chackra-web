@@ -54,3 +54,23 @@ class ToBuyListRepository(shared_repository.GenericRepository[shared_behavior.M,
 
     def update(self, id: shared_behavior.ID, entity: shared_behavior.M) -> shared_behavior.M:
         return self._updater.update(id, entity)
+
+
+class ToBuyItemListRepository(shared_repository.GenericRepository[shared_behavior.M, shared_behavior.ID]):
+    def __init__(
+            self,
+            dependencies: shared_dependencies.ControllerDependencies,
+            creator: shared_behavior.CreatorBehavior[shared_behavior.M],
+            finder: food_track_behavior.InventoryFinderBehavior[shared_behavior.M, shared_behavior.ID],
+            listener: shared_behavior.ListerBehavior[shared_behavior.M],
+            updater: shared_behavior.UpdaterBehavior[shared_behavior.M, shared_behavior.ID],
+    ) -> None:
+        super().__init__(dependencies, creator, finder)
+        self._listener = listener
+        self._updater = updater
+
+    def matching(self, pagination: shared_pagination.Pagination) -> shared_pagination.Paginator:
+        return self._listener.matching(pagination)
+
+    def update(self, id: shared_behavior.ID, entity: shared_behavior.M) -> shared_behavior.M:
+        return self._updater.update(id, entity)

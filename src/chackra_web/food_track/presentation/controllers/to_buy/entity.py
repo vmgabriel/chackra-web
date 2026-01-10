@@ -57,13 +57,6 @@ class ToBuyListController(shared_controller.WebController):
                 name="food_track.update_to_buy_post",
                 middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
             ),
-            shared_route.RouteDefinition(
-                path="/to_buy_list/<id>/items",
-                handler=self.show_to_buy_list_get,
-                methods=[shared_route.HttpMethod.GET],
-                name="food_track.show_to_buy_list_items_get",
-                middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
-            )
         ]
 
     def create_to_buy_get(self, user: shared_route.Session) -> dict:
@@ -176,7 +169,4 @@ class ToBuyListController(shared_controller.WebController):
                 redirection="auth.not_found",
                 flash_message="Lista de Compras No Encontrado",
             )
-
-    def show_to_buy_list_get(self, id: str) -> dict | shared_route.RouteResponse:
-        return {"id": id}
 
