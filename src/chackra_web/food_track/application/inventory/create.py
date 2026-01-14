@@ -1,7 +1,7 @@
 import pydantic
 
 from chackra_web.food_track.domain.models import (
-    inventory as model_inventory,
+    inventory as domain_inventory,
     exceptions as inventory_exceptions,
     repositories as inventory_repositories
 )
@@ -22,7 +22,7 @@ class CreateInventoryCommand:
     uow: shared_uow.UOW
     logger: shared_logger.LogAdapter
     inventory_repository:  inventory_repositories.InventoryRepository[
-        model_inventory.InventoryItem,
+        domain_inventory.InventoryItem,
         shared_inventory_id.InventoryID
     ]
 
@@ -30,7 +30,7 @@ class CreateInventoryCommand:
         self.uow = dependencies.uow
         self.logger = dependencies.logger
         self.inventory_repository = dependencies.repository_store.build(
-            inventory_repositories.InventoryRepository[model_inventory.InventoryItem, shared_inventory_id.InventoryID]
+            inventory_repositories.InventoryRepository[domain_inventory.InventoryItem, shared_inventory_id.InventoryID]
         )
 
     def execute(self, create_inventory_dto: CreateInventoryDTO) -> domain_inventory.InventoryItem:

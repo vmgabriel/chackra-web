@@ -21,7 +21,7 @@ from chackra_web.food_track.application.inventory import get_by_id as inventory_
 
 
 class UpdateToBuyListRequestDTO(pydantic.BaseModel):
-    id: str
+    id: st
     title: str
     description: str
     is_bought: bool
