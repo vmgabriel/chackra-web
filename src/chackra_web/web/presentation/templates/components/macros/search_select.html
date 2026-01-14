@@ -1,4 +1,4 @@
-{% macro search_select_async(name, label, api_url, placeholder="Buscar...", required=false, min_length=2) %}
+{% macro search_select_async(name, label, api_url, value=None, initial_display=None, placeholder="Buscar...", required=false, min_length=2) %}
 {#
   parameters:
     - name: Name of Hidden Field (ex. "product_id")
@@ -7,23 +7,26 @@
                 → will be added ?search=QUERY automatically
     - placeholder: Helper Text
     - min_length: minimum characters before finding (by default 2)
+    - value: preselected item ID (ej. "prod-123")
+    - initial_display: Item Name
 #}
 
 <div class="search-select-async" data-name="{{ name }}" data-api-url="{{ api_url }}" data-min-length="{{ min_length }}">
   <label for="{{ name }}_input">{{ label }}</label>
-  <input
-    type="text"
-    id="{{ name }}_input"
-    class="search-input"
-    placeholder="{{ placeholder }}"
-    autocomplete="off"
-    {% if required %}required{% endif %}
+  <input type="text"
+         id="{{ name }}_input"
+         class="search-input"
+         placeholder="{{ placeholder }}"
+         autocomplete="off"
+         {% if required %}required{% endif %}
+         value="{{ initial_display or '' }}"
+         {% if value %}data-initial-id="{{ value }}"{% endif %}
   />
   <input
     type="hidden"
     name="{{ name }}"
     id="{{ name }}"
-    value=""
+    value="{{ value or '' }}"
     {% if required %}required{% endif %}
   />
   <ul class="search-results" id="{{ name }}_results"></ul>
@@ -40,9 +43,14 @@
 
   const apiUrl = container.dataset.apiUrl;
   const minLength = parseInt(container.dataset.minLength, 10);
+  const initialId = input.dataset.initialId || null;
+
   let abortController = null;
 
-  let selectedId = null;
+  // Si hay un valor inicial, aseguramos que el hidden input esté sincronizado
+  if (initialId) {
+    hiddenInput.value = initialId;
+  }
 
   input.addEventListener('input', async () => {
     const query = input.value.trim();
@@ -100,7 +108,6 @@
         li.addEventListener('click', () => {
           input.value = item.name || item.title || String(item.id);
           hiddenInput.value = item.id;
-          selectedId = item.id;
           resultsList.style.display = 'none';
           input.blur();
         });

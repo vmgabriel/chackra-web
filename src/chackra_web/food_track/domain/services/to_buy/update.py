@@ -19,3 +19,18 @@ def update_to_buy_list(
         raise food_track_exceptions.ToBuyListNotFoundException()
 
     return to_buy_list_repository.update(id=id, entity=to_buy_list.update(changes))
+
+
+def update_to_buy_item(
+        id: shared_to_buy_id.FoodTrackItemToBuyId,
+        changes: model_to_buy.UpdateFoodTrackToBuyItemDTO,
+        to_buy_items_repository: food_track_repositories.ToBuyItemListRepository[
+            model_to_buy.FoodTrackToBuyItem,
+            shared_to_buy_id.FoodTrackItemToBuyId,
+        ]
+) -> model_to_buy.FoodTrackToBuyItem:
+    to_buy_item = to_buy_get_by_id_service.get_item_by_id(id=id, to_buy_items_repository=to_buy_items_repository)
+    if not to_buy_item:
+        raise food_track_exceptions.ToBuyItemNotExistsException()
+
+    return to_buy_items_repository.update(id=id, entity=to_buy_item.update(changes=changes))

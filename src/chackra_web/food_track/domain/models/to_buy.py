@@ -28,6 +28,14 @@ class UpdateFoodTrackToBuyDTO(pydantic.BaseModel):
     is_bought: bool
 
 
+class UpdateFoodTrackToBuyItemDTO(pydantic.BaseModel):
+    name: str
+    quantity: shared_quantity.Quantity
+    comment: str
+    to_buy_id: to_buy_id.FoodTrackToBuyId
+    inventory_id: shared_inventory_id.InventoryID
+
+
 class FoodTrackToBuyItem(pydantic.BaseModel):
     id: to_buy_id.FoodTrackItemToBuyId
     to_buy_id: to_buy_id.FoodTrackToBuyId
@@ -56,6 +64,15 @@ class FoodTrackToBuyItem(pydantic.BaseModel):
         self.updated_at = datetime.datetime.now()
         self.deleted_at = datetime.datetime.now()
         self.active = False
+
+    def update(self, changes: UpdateFoodTrackToBuyItemDTO) -> "FoodTrackToBuyItem":
+        self.name = changes.name
+        self.quantity = changes.quantity
+        self.comment = changes.comment
+        self.to_buy_id = changes.to_buy_id
+        self.inventory_id = changes.inventory_id
+        self.updated_at = datetime.datetime.now()
+        return self
 
     def __eq__(self, other: "FoodTrackToBuyItem") -> bool:
         if not isinstance(other, FoodTrackToBuyItem):

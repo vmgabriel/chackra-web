@@ -17,7 +17,7 @@ def dynamic_url(
         values = {}
         for attribute_name, attributes_path in attributes.items():
             if isinstance(entity, pydantic.BaseModel):
-                values[attribute_name] = getattr(entity, attributes_path, "")
+                values[attribute_name] = str(getattr(entity, attributes_path, ""))
             if isinstance(entity, dict):
                 values[attribute_name] = entity.get(attribute_name, "")
         values.update(kwargs)

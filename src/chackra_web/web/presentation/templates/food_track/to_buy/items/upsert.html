@@ -24,7 +24,7 @@
 
             <form id="toBuyItemForm"
                   method="POST"
-                  action="{{ url_for('food_track.update_to_buy_post', id=item.id) if item else url_for('food_track.create_to_buy_item_post', to_buy_id=to_buy_id) }}"
+                  action="{{ url_for('food_track.edit_to_buy_item_post', to_buy_id=item.to_buy_id, id=item.id) if item else url_for('food_track.create_to_buy_item_post', to_buy_id=to_buy_id) }}"
                   novalidate
             >
                 {{ search_select_async(
@@ -33,7 +33,9 @@
                     api_url=url_for('food_track.list_inventory_item_search_get'),
                     placeholder="Escribe para buscar producto...",
                     required=True,
-                    min_length=3
+                    min_length=3,
+                    value=item.inventory_id if item else '',
+                    initial_display=item.name if item else '',
                 ) }}
 
                 <!-- Comment -->
@@ -89,7 +91,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save me-1"></i> {{ "Actualizar" if item else "Guardar" }}
                     </button>
-                    <a href="{{ url_for('food_track.to_buy_list_get') }}" class="btn btn-secondary ms-2">
+                    <a href="{{ url_for('food_track.to_buy_items_get', id=item.to_buy_id) }}" class="btn btn-secondary ms-2">
                         <i class="fas fa-times me-1"></i> Cancelar
                     </a>
                 </div>

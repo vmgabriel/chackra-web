@@ -202,6 +202,23 @@ class ToBuyItemController(shared_controller.WebController):
                 middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
                 getters_allowed=[],
             ),
+            shared_route.RouteDefinition(
+                path="/to_buy/<to_buy_id>/items/<id>/edit",
+                handler=self.edit_to_buy_item_get,
+                methods=[shared_route.HttpMethod.GET],
+                name="food_track.edit_to_buy_item_get",
+                template="food_track/to_buy/items/upsert.html",
+                middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
+                getters_allowed=[],
+            ),
+            shared_route.RouteDefinition(
+                path="/to_buy/<to_buy_id>/items/<id>/edit",
+                handler=self.edit_to_buy_item_post,
+                methods=[shared_route.HttpMethod.POST],
+                name="food_track.edit_to_buy_item_post",
+                middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
+                getters_allowed=[],
+            ),
         ]
 
     def create_to_buy_item_get(
@@ -287,3 +304,73 @@ class ToBuyItemController(shared_controller.WebController):
         return {
             "message": "ok",
         }
+
+    def edit_to_buy_item_get(
+            self,
+            to_buy_id: str,
+            id: str,
+            user: shared_route.Session,
+    ) -> dict | shared_route.RouteResponse:
+        try:
+            to_buy_item = application_to_buy_get_by_id.GetByIdToBuyItemCommand(
+                dependencies=self.dependencies
+            ).execute(
+                application_to_buy_get_by_id.GetByIdToBuyItemDTO(id=id)
+            )
+            return {
+                "item": to_buy_item,
+                "user": user,
+            }
+        except domain_exceptions.ToBuyItemNotExistsException:
+            return shared_route.RouteResponse(
+                status_code=404,
+                redirection="auth.not_found",
+                flash_message="Item no encontrado",
+            )
+
+    def edit_to_buy_item_post(
+            self,
+            to_buy_id: str,
+            id: str,
+            request: shared_route.RequestData,
+    ) -> dict | shared_route.RouteResponse:
+        print("to_buy_id - ", to_buy_id)
+        print("id - ", id)
+        print("request - ", request.body)
+        try:
+            application_to_buy_update.UpdateToBuyItemCommand(
+                dependencies=self.dependencies
+            ).execute(
+                application_to_buy_update.UpdateToBuyItemRequestDTO(
+                    to_buy_item_id=id,
+                    to_buy_id=to_buy_id,
+                    inventory_id=request.body.get("inventory_id"),
+                    comment=request.body.get("comment").strip() if request.body.get("comment") else None,
+                    quantity=shared_quantity.Quantity(
+                        value=float(request.body.get("quantity_value", "")),
+                        measure_unit=request.body.get("quantity_measure_unit", "")
+                    )
+                )
+            )
+        except ValueError as e:
+            return {
+                "errors": [
+                    {
+                        "title": "Body not valid",
+                        "description": str(e),
+                    }
+                ]
+            }
+        except (domain_exceptions.ToBuyItemNotExistsException, domain_exceptions.InventoryItemNotExistsException):
+            return shared_route.RouteResponse(
+                status_code=404,
+                redirection="auth.not_found",
+                flash_message="To Buy Item not found",
+            )
+        return shared_route.RouteResponse(
+            flash_message="To buy list Updated",
+            status_code=300,
+            redirection="food_track.to_buy_items_get",
+            redirection_variables={"id": to_buy_id},
+        )
+

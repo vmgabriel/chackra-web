@@ -48,3 +48,38 @@ class GetByIdToBuyListCommand:
             raise food_track_exceptions.ToBuyListNotFoundException()
 
         return to_buy_list
+
+
+class GetByIdToBuyItemDTO(pydantic.BaseModel):
+    id: str
+
+
+class GetByIdToBuyItemCommand:
+    uow: shared_uow.UOW
+    logger: shared_logger.LogAdapter
+    to_buy_items_repository: inventory_repositories.ToBuyItemListRepository[
+        model_to_buy.FoodTrackToBuyItem,
+        shared_to_buy_id.FoodTrackItemToBuyId,
+    ]
+
+    def __init__(self, dependencies: domain_dependencies.ExtendedControllerDependencies):
+        self.uow = dependencies.uow
+        self.logger = dependencies.logger
+
+        self.to_buy_items_repository = dependencies.repository_store.build(
+            inventory_repositories.ToBuyItemListRepository[
+                model_to_buy.FoodTrackToBuyItem,
+                shared_to_buy_id.FoodTrackItemToBuyId,
+            ]
+        )
+
+    def execute(self, get_by_id: GetByIdToBuyItemDTO) -> model_to_buy.FoodTrackToBuyItem:
+        to_buy_item_id = shared_to_buy_id.FoodTrackItemToBuyId(value=get_by_id.id)
+        to_buy_item = get_by_id_service.get_item_by_id(
+            id=to_buy_item_id,
+            to_buy_items_repository=self.to_buy_items_repository
+        )
+        if not to_buy_item:
+            raise food_track_exceptions.ToBuyItemNotExistsException()
+
+        return to_buy_item

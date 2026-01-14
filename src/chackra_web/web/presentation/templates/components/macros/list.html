@@ -45,7 +45,7 @@
                 {% for header_name, _ in paginator.headers.items() %}
                 <td>
                     {% if loop.first and paginator.show_url %}
-                        <a href="{{ paginator.show_url | dynamic_url(entity, url_keys) }}">{{ entity | to_html(header_name, paginator.list_convertion) }}</a>
+                        <a href="{{ paginator.show_url | dynamic_url(entity, paginator.url_keys) }}">{{ entity | to_html(header_name, paginator.list_convertion) }}</a>
                     {%else%}
                         {{ entity | to_html(header_name, paginator.list_convertion) }}
                     {% endif %}
@@ -61,7 +61,7 @@
                             <li>
                                 <a
                                         class="dropdown-item"
-                                        href="{{ paginator.update_url | dynamic_url(entity, url_keys) }}"
+                                        href="{{ paginator.update_url | dynamic_url(entity, paginator.url_keys) }}"
                                 >
                                     <i class="bi bi-person-gear me-2"></i>Editar
                                 </a>
