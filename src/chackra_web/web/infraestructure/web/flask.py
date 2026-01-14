@@ -79,7 +79,7 @@ class FlaskAdapter(web_app.Adapter):
                     flask.g.auth_user = None
 
                 flask.flash(result.flash_message, "info")
-                return flask.redirect(flask.url_for(result.redirection))
+                return flask.redirect(flask.url_for(result.redirection, **result.redirection_variables))
 
             if route.template:
                 if isinstance(result, dict):

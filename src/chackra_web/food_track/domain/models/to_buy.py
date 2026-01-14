@@ -2,7 +2,7 @@ import pydantic
 import datetime
 import uuid
 
-from chackra_web.shared.domain.model.food_track import to_buy as to_buy_id
+from chackra_web.shared.domain.model.food_track import to_buy as to_buy_id, inventory_id as shared_inventory_id
 from chackra_web.shared.domain.model.quantity import quantity as shared_quantity
 
 from chackra_web.food_track.domain.models import exceptions as food_track_exceptions
@@ -10,8 +10,10 @@ from chackra_web.food_track.domain.models import exceptions as food_track_except
 
 class CreateFoodTrackToBuyItemDTO(pydantic.BaseModel):
     name: str
-    quantity: shared_quantity.Quantity
     comment: str
+    quantity: shared_quantity.Quantity
+    to_buy_id: to_buy_id.FoodTrackToBuyId
+    inventory_id: shared_inventory_id.InventoryID
 
 
 class CreateFoodTrackToBuyDTO(pydantic.BaseModel):
@@ -27,7 +29,9 @@ class UpdateFoodTrackToBuyDTO(pydantic.BaseModel):
 
 
 class FoodTrackToBuyItem(pydantic.BaseModel):
-    id: to_buy_id.FoodTrackToBuyId
+    id: to_buy_id.FoodTrackItemToBuyId
+    to_buy_id: to_buy_id.FoodTrackToBuyId
+    inventory_id: shared_inventory_id.InventoryID
     name: str
     quantity: shared_quantity.Quantity
     comment: str
@@ -40,7 +44,9 @@ class FoodTrackToBuyItem(pydantic.BaseModel):
     @staticmethod
     def create(create_dto: CreateFoodTrackToBuyItemDTO) -> "FoodTrackToBuyItem":
         return FoodTrackToBuyItem(
-            id=to_buy_id.FoodTrackToBuyId(value=str(uuid.uuid4())),
+            id=to_buy_id.FoodTrackItemToBuyId(value=str(uuid.uuid4())),
+            to_buy_id=create_dto.to_buy_id,
+            inventory_id=create_dto.inventory_id,
             name=create_dto.name.lower(),
             quantity=create_dto.quantity,
             comment=create_dto.comment,
@@ -50,6 +56,14 @@ class FoodTrackToBuyItem(pydantic.BaseModel):
         if not isinstance(other, FoodTrackToBuyItem):
             return False
         return self.name == other.name or self.id == other.id
+
+    def model_dump(self, *args, **kwargs) -> dict:
+        value = super().model_dump(*args, **kwargs)
+        if "quantity" in value:
+            value["quantity_measure_unit"] = value["quantity"]["measure_unit"]
+            value["quantity_value"] = value["quantity"]["value"]
+            value.pop("quantity")
+        return value
 
 
 class FoodTrackToBuy(pydantic.BaseModel):

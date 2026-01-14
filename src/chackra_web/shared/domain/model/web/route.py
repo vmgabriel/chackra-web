@@ -63,6 +63,7 @@ class RouteResponse(pydantic.BaseModel):
     status_code: int
     redirection: str
     flash_message: str
+    redirection_variables: dict[str, str] = pydantic.Field(default_factory=dict)
     session: Session | None = None
 
 

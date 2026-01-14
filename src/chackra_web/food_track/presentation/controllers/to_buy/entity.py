@@ -2,6 +2,7 @@
 from typing import List
 
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
+from chackra_web.shared.domain.model.quantity import quantity as shared_quantity
 
 from chackra_web.auth.domain.services.middlewares import login_required
 
@@ -12,6 +13,7 @@ from chackra_web.food_track.application.to_buy import (
     update as application_to_buy_update,
     get_by_id as application_to_buy_get_by_id,
 )
+from chackra_web.food_track.application import adding_item_into_to_buy_list
 
 
 class ToBuyListController(shared_controller.WebController):
@@ -170,3 +172,74 @@ class ToBuyListController(shared_controller.WebController):
                 flash_message="Lista de Compras No Encontrado",
             )
 
+
+class ToBuyItemController(shared_controller.WebController):
+    def get_routes(self) -> List[shared_route.RouteDefinition]:
+        return [
+            shared_route.RouteDefinition(
+                path="/to_buy/<to_buy_id>/create",
+                handler=self.create_to_buy_item_get,
+                methods=[shared_route.HttpMethod.GET],
+                name="food_track.create_to_buy_item_get",
+                template="food_track/to_buy/items/upsert.html",
+                middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
+                getters_allowed=[],
+            ),
+            shared_route.RouteDefinition(
+                path="/to_buy/<to_buy_id>/create",
+                handler=self.create_to_buy_item_post,
+                methods=[shared_route.HttpMethod.POST],
+                    name="food_track.create_to_buy_item_post",
+                template="food_track/to_buy/upsert.html",
+                middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
+                getters_allowed=[],
+            ),
+        ]
+
+    def create_to_buy_item_get(
+            self,
+            to_buy_id: str,
+            user: shared_route.Session,
+    ) -> dict | shared_route.RouteResponse:
+        print(to_buy_id)
+        return {
+            "to_buy_id": to_buy_id,
+            "user": user,
+        }
+
+    def create_to_buy_item_post(
+        self,
+        to_buy_id: str,
+        request: shared_route.RequestData,
+    ) -> dict | shared_route.RouteResponse:
+        print("request - ", request.body)
+
+        try:
+            adding_item_into_to_buy_list.AddingItemIntoToBuyListCommand(dependencies=self.dependencies).execute(
+                adding_item_into_to_buy_list_dto=adding_item_into_to_buy_list.AddingItemIntoToBuyListDTO(
+                    to_buy_id=to_buy_id,
+                    inventory_id=request.body.get("inventory_id"),
+                    comment=request.body.get("comment"),
+                    quantity=shared_quantity.Quantity(
+                        value=float(request.body.get("quantity_value", "")),
+                        measure_unit=request.body.get("quantity_measure_unit", "")
+                    ),
+                )
+            )
+        except domain_exceptions.InventoryItemNotExistsException:
+            return {
+                "errors": [
+                    {
+                        "title": "Inventory item not found",
+                        "description": "Item del inventario no encontrado",
+                    }
+                ]
+            }
+
+
+        return shared_route.RouteResponse(
+            flash_message="Item de la Lista de Compras creado Correctamente",
+            status_code=300,
+            redirection="food_track.to_buy_items_get",
+            redirection_variables={"id": to_buy_id}
+        )

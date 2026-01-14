@@ -5,12 +5,15 @@
 
 {% block content %}
 <div class="container-fluid px-4">
-    <h1 class="mt-4">{{ to_buy_list.name }}</h1>
+    <h1 class="mt-4">{{ to_buy_list.title }} - {{to_buy_list.id}}</h1>
 
     <!-- Create New Button -->
     <div class="mb-4">
-        <a href="{{ url_for('food_track.create_to_buy_get') }}" class="btn btn-primary">
+        <a href="{{ url_for('food_track.create_to_buy_item_get', to_buy_id=to_buy_list.id) }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Agregar nuevo Item
+        </a>
+        <a href="{{ url_for('food_track.create_to_buy_item_get', to_buy_id=to_buy_list.id) }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Crear nuevo Item
         </a>
     </div>
 

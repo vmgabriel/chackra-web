@@ -274,6 +274,7 @@ def create_app() -> object:
         to_buy_list_controller.ListToBuyController,
         to_buy_list_controller.ListToBuyItemController,
         to_buy_entity_controller.ToBuyListController,
+        to_buy_entity_controller.ToBuyItemController,
     ]
     inject_controllers(web, extended_dependencies, controllers)
 

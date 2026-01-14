@@ -1,7 +1,10 @@
 import pydantic
 
-from chackra_web.food_track.domain.models import inventory as model_inventory, exceptions as inventory_exceptions
-from chackra_web.food_track.domain.models import inventory as domain_inventory, repositories as inventory_repositories
+from chackra_web.food_track.domain.models import (
+    inventory as model_inventory,
+    exceptions as inventory_exceptions,
+    repositories as inventory_repositories
+)
 
 from chackra_web.shared.domain.model.food_track import inventory_id as shared_inventory_id
 from chackra_web.shared.domain.model import extended_dependencies as domain_dependencies

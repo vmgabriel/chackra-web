@@ -40,10 +40,13 @@ class PsycopgGenericCreator(shared_behavior.CreatorBehavior[shared_behavior.M]):
         try:
             entity_data = entity.model_dump(exclude_none=True, exclude=("id",))
             entity_data["id"] = entity.id.value
+            print("entity_data", entity_data)
             for k, v in entity_data.items():
                 if k.endswith("_id") and isinstance(v, dict) and "value" in v:
                     entity_data[k] = v["value"]
+            print("entity_data 2", entity_data)
             safe_data = self.serializer.to_primitive(entity_data)
+            print("entity_data 3", entity_data)
         except ValueError as e:
             raise ValueError(f"Cannot safely serialize entity: {e}")
 
@@ -147,10 +150,15 @@ class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
 
     def matching(self, pagination: shared_pagination.Pagination) -> shared_pagination.Paginator:
         filters_data: tuple = tuple()
-        filters: str = "WHERE " + self.default_filters if self.default_filters else ""
+        filters = ""
         if pagination.filters:
-            filters, filters_data = pagination.filters.to_sql()
-            filters = f" {filters}" if filters else f"WHERE {filters}"
+            curr_filters, filters_data = pagination.filters.to_sql()
+            filters += f" {curr_filters} " if curr_filters else ""
+
+        filters = "WHERE " + filters if filters else ""
+        if self.default_filters:
+            filters += f" AND {self.default_filters} " if filters else ""
+        print("filters - ", filters)
 
         order_by_conversation = [ordered.to_sql() for ordered in pagination.order_by if ordered]
 

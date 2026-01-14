@@ -271,3 +271,31 @@ body {
 .navbar-buttons-started {
     margin-right: 2rem;
 }
+
+
+.search-select { margin-bottom: 1rem; }
+.search-select label { display: block; margin-bottom: 0.25rem; font-weight: bold; }
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.search-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-top: none;
+  max-height: 150px;
+  overflow-y: auto;
+  background: white;
+  display: none;
+}
+.search-results li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+.search-results li:hover {
+  background-color: #f0f0f0;
+}

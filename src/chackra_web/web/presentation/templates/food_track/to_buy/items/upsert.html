@@ -1,15 +1,16 @@
 {% extends "base.html" %}
+{% from "components/macros/search_select.html" import search_select_async %}
 
-{% block title %}Food Track|{{ "Editar" if item else "Crear" }} Inventario - Chackra Web{% endblock %}
+{% block title %}Food Track|{{ "Editar" if item else "Crear" }} Item de Lista de Compras - Chackra Web{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-4">
-    <h1 class="mt-4">{{ "Editar" if item else "Crear" }} Item de Inventario</h1>
+    <h1 class="mt-4">{{ "Editar" if item else "Crear" }} Item de Lista de Compras</h1>
 
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas {{ 'fa-edit' if item else 'fa-plus-circle' }} me-1"></i>
-            {{ "Editar" if item else "Nuevo" }} Item
+            {{ "Editar" if item else "Nueva" }} Item de Lista de Compras
         </div>
         <div class="card-body">
             {% for error in errors %}
@@ -21,24 +22,36 @@
             </div>
             {% endfor %}
 
-            <form id="inventoryForm" method="POST" 
-                  action="{{ url_for('food_track.edit_inventory_post', id=item.id) if item else url_for('food_track.create_inventory_post') }}" 
-                  novalidate>
-                <!-- Nombre -->
+            <form id="toBuyItemForm"
+                  method="POST"
+                  action="{{ url_for('food_track.update_to_buy_post', id=item.id) if item else url_for('food_track.create_to_buy_item_post', to_buy_id=to_buy_id) }}"
+                  novalidate
+            >
+                {{ search_select_async(
+                    name="inventory_id",
+                    label="Producto del Inventario",
+                    api_url=url_for('food_track.list_inventory_item_search_get'),
+                    placeholder="Escribe para buscar producto...",
+                    required=True,
+                    min_length=3
+                ) }}
+
+                <!-- Comment -->
                 <div class="mb-3">
-                    <label for="name" class="form-label">Nombre</label>
-                    <input type="text"
-                           class="form-control"
-                           id="name"
-                           name="name"
-                           required
-                           minlength="3"
-                           maxlength="50"
-                           value="{{ item.name if item else '' }}">
-                    <div class="invalid-feedback" id="nameError"></div>
+                    <label for="comment" class="form-label">Comentario</label>
+                    <textarea
+                            class="form-control"
+                            id="comment"
+                            name="comment"
+                            required
+                            minlength="3"
+                    >
+                        {{ item.comment if item else '' }}
+                    </textarea>
+                    <div class="invalid-feedback" id="commentError"></div>
                 </div>
 
-                <!-- Cantidad -->
+                <!-- Quantity -->
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="quantity_value" class="form-label">Cantidad</label>
@@ -60,8 +73,9 @@
                                 required>
                             <option value="">Seleccione una unidad</option>
                             {% for unit in ["UNIT", "KG", "gr", "L", "ML"] %}
-                                <option value="{{ unit }}" 
-                                        {{ 'selected' if item and item.quantity.measure_unit == unit else '' }}>
+                                <option value="{{ unit }}"
+                                        {{ 'selected' if item and item.quantity.measure_unit == unit else '' }}
+                                >
                                     {{ unit }}
                                 </option>
                             {% endfor %}
@@ -70,41 +84,12 @@
                     </div>
                 </div>
 
-                {% if item %}
-                <!-- Estado de Disponibilidad -->
-                <div class="mb-3">
-                    <label class="form-label">Estado de Disponibilidad</label>
-                    <div class="form-check">
-                        <input class="form-check-input"
-                               type="radio"
-                               name="is_sold_out"
-                               id="available"
-                               value="false"
-                               {{ 'checked' if item and not item.is_sold_out else 'checked' }}>
-                        <label class="form-check-label" for="available">
-                            <span class="badge bg-success">Disponible</span>
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input"
-                               type="radio"
-                               name="is_sold_out"
-                               id="not_available"
-                               value="true"
-                               {{ 'checked' if item and item.is_sold_out else '' }}>
-                        <label class="form-check-label" for="not_available">
-                            <span class="badge bg-danger">No Disponible</span>
-                        </label>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Botones -->
+                <!-- Buttons -->
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save me-1"></i> {{ "Actualizar" if item else "Guardar" }}
                     </button>
-                    <a href="{{ url_for('food_track.list_inventory_get') }}" class="btn btn-secondary ms-2">
+                    <a href="{{ url_for('food_track.to_buy_list_get') }}" class="btn btn-secondary ms-2">
                         <i class="fas fa-times me-1"></i> Cancelar
                     </a>
                 </div>
@@ -117,27 +102,26 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('inventoryForm');
-    const nameInput = document.getElementById('name');
+    const form = document.getElementById('toBuyItemForm');
+    const commentInput = document.getElementById('comment');
     const quantityInput = document.getElementById('quantity_value');
     const measureUnitInput = document.getElementById('quantity_measure_unit');
 
-    // Función de validación
+    // Validation Function Handler
     function validateForm() {
         let isValid = true;
 
-        // Validate Name
-        if (!nameInput.value.trim()) {
-            showError(nameInput, 'El nombre es requerido');
+        if (!commentInput.value.trim()) {
+            showError(commentInput, 'El Comentario es requerido');
             isValid = false;
-        } else if (nameInput.value.length < 3) {
-            showError(nameInput, 'El nombre debe tener al menos 3 caracteres');
+        } else if (commentInput.value.length < 3) {
+            showError(commentInput, 'El Comentario debe tener al menos 3 caracteres');
             isValid = false;
-        } else if (nameInput.value.length > 50) {
-            showError(nameInput, 'El nombre no puede exceder 50 caracteres');
+        } else if (commentInput.value.length > 150) {
+            showError(commentInput, 'El Comentario no puede exceder 150 caracteres');
             isValid = false;
         } else {
-            clearError(nameInput);
+            clearError(commentInput);
         }
 
         // Validate Quantity
@@ -151,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
             clearError(quantityInput);
         }
 
-        // Validar unidad de medida
+        // Validate Unit Measure
         if (!measureUnitInput.value) {
             showError(measureUnitInput, 'Debe seleccionar una unidad de medida');
             isValid = false;
@@ -162,24 +146,21 @@ document.addEventListener('DOMContentLoaded', function() {
         return isValid;
     }
 
-    // Función para mostrar errores
     function showError(element, message) {
         element.classList.add('is-invalid');
         const errorDiv = element.nextElementSibling;
         errorDiv.textContent = message;
     }
 
-    // Función para limpiar errores
     function clearError(element) {
         element.classList.remove('is-invalid');
         const errorDiv = element.nextElementSibling;
         errorDiv.textContent = '';
     }
 
-    // Event listeners para validación en tiempo real
-    nameInput.addEventListener('input', () => {
-        if (nameInput.value.trim()) {
-            clearError(nameInput);
+    commentInput.addEventListener('input', () => {
+        if (commentInput.value.trim()) {
+            clearError(commentInput);
         }
     });
 
@@ -195,23 +176,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Manejo del envío del formulario
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
         if (validateForm()) {
             const formData = {
-                name: nameInput.value.trim(),
+                commentInput: commentInput.value.trim(),
                 quantity: {
                     value: parseFloat(quantityInput.value),
                     measure_unit: measureUnitInput.value
                 },
             };
-            {% if item %}
-            formData.is_sold_out = document.querySelector('input[name="is_sold_out"]:checked').value === 'true';
-            {% endif %}
 
-            // Enviar formulario
             fetch(form.action, {
                 method: 'POST',
                 headers: {
@@ -222,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    window.location.href = "{{ url_for('food_track.list_inventory_get') }}";
+                    window.location.href = "{{ url_for('food_track.to_buy_list_get') }}";
                 } else {
                     alert('Error al guardar: ' + data.message);
                 }

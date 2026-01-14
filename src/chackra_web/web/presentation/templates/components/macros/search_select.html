@@ -1,0 +1,129 @@
+{% macro search_select_async(name, label, api_url, placeholder="Buscar...", required=false, min_length=2) %}
+{#
+  parameters:
+    - name: Name of Hidden Field (ex. "product_id")
+    - label: visible tag
+    - api_url: URL base de la API (ej. "/api/products/search")
+                → will be added ?search=QUERY automatically
+    - placeholder: Helper Text
+    - min_length: minimum characters before finding (by default 2)
+#}
+
+<div class="search-select-async" data-name="{{ name }}" data-api-url="{{ api_url }}" data-min-length="{{ min_length }}">
+  <label for="{{ name }}_input">{{ label }}</label>
+  <input
+    type="text"
+    id="{{ name }}_input"
+    class="search-input"
+    placeholder="{{ placeholder }}"
+    autocomplete="off"
+    {% if required %}required{% endif %}
+  />
+  <input
+    type="hidden"
+    name="{{ name }}"
+    id="{{ name }}"
+    value=""
+    {% if required %}required{% endif %}
+  />
+  <ul class="search-results" id="{{ name }}_results"></ul>
+  <div class="search-loading" style="display:none;">Finding...</div>
+</div>
+
+<script>
+(function() {
+  const container = document.querySelector('.search-select-async[data-name="{{ name }}"]');
+  const input = container.querySelector('.search-input');
+  const hiddenInput = container.querySelector('input[type="hidden"]');
+  const resultsList = container.querySelector('.search-results');
+  const loadingEl = container.querySelector('.search-loading');
+
+  const apiUrl = container.dataset.apiUrl;
+  const minLength = parseInt(container.dataset.minLength, 10);
+  let abortController = null;
+
+  let selectedId = null;
+
+  input.addEventListener('input', async () => {
+    const query = input.value.trim();
+    resultsList.innerHTML = '';
+
+    // Clear section if user erase all
+    if (!query) {
+      hiddenInput.value = '';
+      resultsList.style.display = 'none';
+      return;
+    }
+
+    // With minimum characters
+    if (query.length < minLength) {
+      resultsList.style.display = 'none';
+      return;
+    }
+
+    // Cancel previous request
+    if (abortController) {
+      abortController.abort();
+    }
+    abortController = new AbortController();
+
+    try {
+      loadingEl.style.display = 'block';
+      resultsList.style.display = 'none';
+
+      const response = await fetch(`${apiUrl}?search=${encodeURIComponent(query)}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        signal: abortController.signal
+      });
+
+      if (!response.ok) throw new Error('API error');
+
+      const response_payload = await response.json();
+
+      // We Suppose that the API return { data: [...] } or directly [...]
+      const payload = response_payload["payload"] || {};
+      const results = payload["entities"] || [];
+
+      loadingEl.style.display = 'none';
+
+      if (results.length === 0) {
+        resultsList.style.display = 'none';
+        return;
+      }
+
+      resultsList.innerHTML = '';
+      results.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item.name || item.title || String(item.id);
+        li.dataset.id = item.id;
+        li.addEventListener('click', () => {
+          input.value = item.name || item.title || String(item.id);
+          hiddenInput.value = item.id;
+          selectedId = item.id;
+          resultsList.style.display = 'none';
+          input.blur();
+        });
+        resultsList.appendChild(li);
+      });
+
+      resultsList.style.display = 'block';
+
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Search error:', error);
+        loadingEl.style.display = 'none';
+        resultsList.style.display = 'none';
+      }
+    }
+  });
+
+  // Close results
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) {
+      resultsList.style.display = 'none';
+    }
+  });
+})();
+</script>
+{% endmacro %}

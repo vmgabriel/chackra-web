@@ -4,7 +4,7 @@ from typing import List
 from chackra_web.shared.domain.model.web import controller as shared_controller, route as shared_route
 from chackra_web.shared.domain.model.pagination import pagination as shared_pagination
 
-from chackra_web.food_track.application.to_buy import list_lister as to_buy_lister
+from chackra_web.food_track.application.to_buy import list_lister as to_buy_lister, get_by_id as application_get_by_id
 
 from chackra_web.auth.domain.services.middlewares import login_required
 
@@ -86,6 +86,10 @@ class ListToBuyItemController(shared_controller.WebController):
             )
         )
 
+        current_list_to_buy = application_get_by_id.GetByIdToBuyListCommand(self.dependencies).execute(
+            get_by_id=application_get_by_id.GetByIdToBuyListIdDTO(id=id)
+        )
+
         paginator_extended = shared_pagination.PaginatorExtended.from_paginator(paginator)
         paginator_extended.headers = {"name": "Nombre", "quantity": "Cantidad", "comment": "Comentario"}
         paginator_extended.title = "Lista de elementos de compras"
@@ -103,7 +107,7 @@ class ListToBuyItemController(shared_controller.WebController):
         paginator_extended.filters = ["search", "name"]
 
         return {
-            "to_buy_list": {"name": "Lista de Compras"},
+            "to_buy_list": current_list_to_buy,
             "paginator": paginator_extended,
             "user": user,
         }

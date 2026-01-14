@@ -20,6 +20,14 @@ class ListInventoryController(shared_controller.WebController):
                 middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
                 getters_allowed=["search", "state"],
             ),
+            shared_route.RouteDefinition(
+                path="/inventory/items/search",
+                handler=self.list_inventory_item_search_get,
+                methods=[shared_route.HttpMethod.GET],
+                name="food_track.list_inventory_item_search_get",
+                middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
+                getters_allowed=["search"],
+            )
         ]
 
     def list_inventory(
@@ -52,4 +60,29 @@ class ListInventoryController(shared_controller.WebController):
         return {
             "paginator": paginator_extended,
             "user": user,
+        }
+
+    def list_inventory_item_search_get(
+            self,
+            pagination: shared_pagination.Pagination,
+            user: shared_route.Session
+    ) -> dict:
+        entities = inventory_list.SearchInventoryItemCommand(
+            dependencies=self.dependencies
+        ).execute(list_inventory_item_matching_dto=inventory_list.SearchInventoryItemMatchingDTO(
+            pagination=pagination
+        ))
+
+        print("entities", entities)
+
+        return {
+            "payload": {
+                "user": user.user_id,
+                "entities": [{
+                        "name": entity.name,
+                        "id": str(entity.id)
+                    } for entity in getattr(entities, "entities", [])
+                ],
+            },
+            "errors": [],
         }
