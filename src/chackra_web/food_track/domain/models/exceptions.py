@@ -70,3 +70,23 @@ class ToBuyListNotFoundException(shared_exception.SystemException):
             code=str(ExceptionCodeError.TO_BUY_ITEM_NOT_FOUND.value),
         )
         super().__init__(message=message, status_code=404)
+
+
+class ToBuyItemHasAlreadyDeletedException(shared_exception.SystemException):
+    def __init__(self) -> None:
+        message = shared_exception.ExceptionMessage(
+            title="El Item de la lista de compras ya ha sido borrado",
+            description="No se requiere eliminar, ya esta eliminado",
+            code=str(ExceptionCodeError.TO_BUY_ITEM_HAS_ALREADY_DELETED.value),
+        )
+        super().__init__(message=message, status_code=400)
+
+
+class ToBuyItemNotExistsException(shared_exception.SystemException):
+    def __init__(self) -> None:
+        message = shared_exception.ExceptionMessage(
+            title="El Item de la lista de compras no existe",
+            description="No se ha encontrado el item en la lista de compras",
+            code=str(ExceptionCodeError.TO_BUY_ITEM_HAS_ALREADY_DELETED.value),
+        )
+        super().__init__(message=message, status_code=404)

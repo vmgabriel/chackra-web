@@ -10,3 +10,13 @@ def get_by_id(
     ]
 ) -> model_to_buy.FoodTrackToBuy | None:
     return to_buy_list_repository.find_by_id(id)
+
+
+def get_item_by_id(
+    id: shared_to_buy_id.FoodTrackItemToBuyId,
+    to_buy_items_repository: food_track_repositories.ToBuyItemListRepository[
+        model_to_buy.FoodTrackToBuyItem,
+        shared_to_buy_id.FoodTrackItemToBuyId
+    ]
+) -> model_to_buy.FoodTrackToBuyItem | None:
+    return to_buy_items_repository.find_by_id(id)

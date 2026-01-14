@@ -189,8 +189,16 @@ class ToBuyItemController(shared_controller.WebController):
                 path="/to_buy/<to_buy_id>/create",
                 handler=self.create_to_buy_item_post,
                 methods=[shared_route.HttpMethod.POST],
-                    name="food_track.create_to_buy_item_post",
+                name="food_track.create_to_buy_item_post",
                 template="food_track/to_buy/upsert.html",
+                middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
+                getters_allowed=[],
+            ),
+            shared_route.RouteDefinition(
+                path="/to_buy/<to_buy_id>/delete",
+                handler=self.delete_to_buy_item_post,
+                methods=[shared_route.HttpMethod.POST],
+                name="food_track.delete_to_buy_item_post",
                 middleware=[login_required.login_required(roles=["USER", "ADMIN"])],
                 getters_allowed=[],
             ),
@@ -243,3 +251,39 @@ class ToBuyItemController(shared_controller.WebController):
             redirection="food_track.to_buy_items_get",
             redirection_variables={"id": to_buy_id}
         )
+
+    def delete_to_buy_item_post(
+            self,
+            to_buy_id: str,
+            request: shared_route.RequestData,
+    ) -> dict | shared_route.RouteResponse:
+        current_id = request.body.get("id")
+        print("current_id - ", current_id)
+        print("to_buy_id - ", to_buy_id)
+
+        if not current_id:
+            return {
+                "errors": [
+                    {
+                        "title": "ID Requerido",
+                        "description": "El id del item es requerido",
+                    }
+                ]
+            }
+        try:
+            application_to_buy_delete.DeleteToBuyItemCommand(dependencies=self.dependencies).execute(
+                delete_request=application_to_buy_delete.DeleteToBuyItemDTO(id=current_id)
+            )
+        except domain_exceptions.ToBuyItemNotExistsException:
+            return {
+                "errors": [
+                    {
+                        "title": "Item de la Lista de Compras no encontrado",
+                        "description": "Item de la lista de compras no encontrado, posiblemente ya fue eliminado",
+                    }
+                ]
+            }
+
+        return {
+            "message": "ok",
+        }

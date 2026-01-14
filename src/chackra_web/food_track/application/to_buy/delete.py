@@ -45,3 +45,36 @@ class DeleteToBuyListCommand:
         except food_tracking_exceptions.ToBuyListHasAlreadyDeletedException:
             self.logger.info("To Buy List '{}' has already been deleted".format(delete_request.id))
             return None
+
+
+class DeleteToBuyItemDTO(pydantic.BaseModel):
+    id: str
+
+
+class DeleteToBuyItemCommand:
+    uow: shared_uow.UOW
+    logger: shared_logger.LogAdapter
+    to_buy_items_repository: inventory_repositories.ToBuyItemListRepository[
+        model_to_buy.FoodTrackToBuyItem,
+        shared_to_buy_id.FoodTrackItemToBuyId,
+    ]
+
+    def __init__(self, dependencies: domain_dependencies.ExtendedControllerDependencies):
+        self.uow = dependencies.uow
+        self.logger = dependencies.logger
+        self.to_buy_items_repository = dependencies.repository_store.build(
+            inventory_repositories.ToBuyItemListRepository[
+                model_to_buy.FoodTrackToBuyItem,
+                shared_to_buy_id.FoodTrackItemToBuyId,
+            ]
+        )
+
+    def execute(self, delete_request: DeleteToBuyItemDTO) -> None:
+        try:
+            to_buy_delete.delete_to_buy_item(
+                id=shared_to_buy_id.FoodTrackItemToBuyId(value=delete_request.id),
+                to_buy_items_repository=self.to_buy_items_repository
+            )
+        except food_tracking_exceptions.ToBuyItemHasAlreadyDeletedException:
+            self.logger.info("To Buy List Item '{}' has already been deleted".format(delete_request.id))
+            return None

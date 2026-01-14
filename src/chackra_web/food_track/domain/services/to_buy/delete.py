@@ -15,10 +15,26 @@ def delete_to_buy_list(
         shared_to_buy_id.FoodTrackToBuyId
     ]
 ) -> None:
-    to_buy_item = to_buy_get_by_id.get_by_id(id=id, to_buy_list_repository=to_buy_list_repository)
-    if not to_buy_item:
+    to_buy_list = to_buy_get_by_id.get_by_id(id=id, to_buy_list_repository=to_buy_list_repository)
+    if not to_buy_list:
         raise food_track_exceptions.ToBuyListNotFoundException()
+
+    to_buy_list.delete()
+
+    to_buy_list_repository.update(id=id, entity=to_buy_list)
+
+
+def delete_to_buy_item(
+    id: shared_to_buy_id.FoodTrackItemToBuyId,
+    to_buy_items_repository: food_track_repositories.ToBuyItemListRepository[
+        model_to_buy.FoodTrackToBuyItem,
+        shared_to_buy_id.FoodTrackItemToBuyId
+    ]
+) -> None:
+    to_buy_item = to_buy_get_by_id.get_item_by_id(id=id, to_buy_items_repository=to_buy_items_repository)
+    if not to_buy_item:
+        raise food_track_exceptions.ToBuyItemNotExistsException()
 
     to_buy_item.delete()
 
-    to_buy_list_repository.update(id=id, entity=to_buy_item)
+    to_buy_items_repository.update(id=id, entity=to_buy_item)

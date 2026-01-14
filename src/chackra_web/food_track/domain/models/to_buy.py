@@ -52,6 +52,11 @@ class FoodTrackToBuyItem(pydantic.BaseModel):
             comment=create_dto.comment,
         )
 
+    def delete(self) -> None:
+        self.updated_at = datetime.datetime.now()
+        self.deleted_at = datetime.datetime.now()
+        self.active = False
+
     def __eq__(self, other: "FoodTrackToBuyItem") -> bool:
         if not isinstance(other, FoodTrackToBuyItem):
             return False
