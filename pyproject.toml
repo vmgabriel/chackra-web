@@ -42,6 +42,7 @@ Source = "https://github.com/Gabriel Vargas/chackra-web"
 [project.scripts]
 run-server = "chackra_web.entrypoints.web:main"
 run-worker = "chackra_web.entrypoints.task_worker:main"
+run-schedule-worker = "chackra_web.entrypoints.task_schedule_worker:main"
 
 [tool.hatch.version]
 path = "src/chackra_web/__about__.py"
@@ -75,3 +76,4 @@ exclude_lines = [
 [tool.hatch.envs.default.scripts]
 web = "python -m chackra_web.entrypoints.web"
 worker = "python -m chackra_web.entrypoints.task_worker"
+schedule-worker = "python -m chackra_web.entrypoints.task_schedule_worker"

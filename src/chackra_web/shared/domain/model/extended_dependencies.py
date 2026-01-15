@@ -50,3 +50,6 @@ class ExtendedControllerDependencies(shared_dependencies.ControllerDependencies)
         if self._task_queue_adapter is None:
             raise ValueError("Task queue adapter not injected")
         return self._task_queue_adapter.get_app_instance()
+
+    def inject_periodic_builder_into_task_queue(self, periodic_task_base: shared_task_base.PeriodicTaskProxyBuilder) -> None:
+        self._task_queue_adapter.add_periodic_task_builder(periodic_task_base)

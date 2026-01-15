@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Any, Type
+
 import abc
+import dataclasses
 
 from chackra_web.shared.domain.model import extended_dependencies as shared_dependencies
 
@@ -14,6 +16,46 @@ class Task(abc.ABC):
             dependencies: shared_dependencies.ExtendedControllerDependencies | None = None,
             **kwargs
     ) -> Any:
+        raise NotImplementedError()
+
+
+@dataclasses.dataclass
+class PeriodicTask:
+    name: str
+    task: Task
+    schedule: dict[str, Any]
+    kwargs: dict[str, Any]
+
+
+class ConverterPeriodicTask(abc.ABC):
+    name_main_function: str | None = None
+
+    @abc.abstractmethod
+    def to_entry(self, periodic_task: PeriodicTask) -> tuple:
+        raise NotImplementedError()
+
+    def inject_name_main_function(self, name_main_function: str) -> None:
+        self.name_main_function = name_main_function
+
+
+class PeriodicTaskProxyBuilder(abc.ABC):
+    periodic_tasks: list[PeriodicTask]
+    converter: ConverterPeriodicTask
+    name_main_function: str | None = None
+
+    def __init__(self, converter: ConverterPeriodicTask) -> None:
+        self.periodic_tasks = []
+        self.converter = converter
+
+    def append(self, periodic_task: PeriodicTask) -> None:
+        self.periodic_tasks.append(periodic_task)
+
+    def inject_name_main_function(self, name_main_function: str) -> None:
+        self.name_main_function = name_main_function
+        self.converter.inject_name_main_function(name_main_function)
+
+    @abc.abstractmethod
+    def build_schedule(self) -> dict:
         raise NotImplementedError()
 
 
@@ -48,12 +90,17 @@ class TaskQueueAdapterApp(TaskQueueAdapter, abc.ABC):
     registries: dict[str, TaskRegistry]
 
     dependencies: shared_dependencies.ExtendedControllerDependencies
+    periodic_task_builder: PeriodicTaskProxyBuilder | None = None
 
     def __init__(self, dependencies: shared_dependencies.ExtendedControllerDependencies) -> None:
         self.dependencies = dependencies
 
     @abc.abstractmethod
     def _setup(self) -> None:
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def _update_configuration(self) -> None:
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -64,3 +111,6 @@ class TaskQueueAdapterApp(TaskQueueAdapter, abc.ABC):
         if registry.namespace in self.registries:
             raise ValueError(f"Registry {registry.namespace} already registered")
         self.registries[registry.namespace] = registry
+
+    def add_periodic_task_builder(self, periodic_task_builder: PeriodicTaskProxyBuilder) -> None:
+        self.periodic_task_builder = periodic_task_builder

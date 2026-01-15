@@ -7,6 +7,9 @@ load_dotenv()
 
 class Configuration:
     def __init__(self):
+        # Global configuration
+        self.timezone = os.getenv('TIMEZONE', 'America/Colombia/Bogota')
+
         # Web Server Configuration
         self.title = os.getenv('APP_TITLE', 'Chackra_Web')
         self.debug = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
@@ -41,6 +44,7 @@ class Configuration:
         self.handler_adapter = os.getenv('HANDLER_ADAPTER', 'flask')
         self.converter_adapter = os.getenv('CONVERTER_ADAPTER', 'flask')
         self.task_adapter = os.getenv('TASK_ADAPTER', 'celery')
+        self.periodic_task_adapter = os.getenv('PERIODIC_TASK_ADAPTER', 'celery')
         self.broker_adapter = os.getenv('BROKER_ADAPTER', 'redis')
 
     def inject(self, variables: dict[str, Any]):

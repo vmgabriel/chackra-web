@@ -13,3 +13,11 @@ def get_task_port(
         return celery_port.CeleryPortApp(dependencies=dependencies)
 
     raise NotImplementedError()
+
+
+def get_periodic_tasks(configuration: shared_configuration) -> shared_task_model.PeriodicTaskProxyBuilder:
+    if configuration.periodic_task_adapter == "celery":
+        return celery_port.CeleryPeriodicTaskProxyBuilder(
+            converter=celery_port.CeleryConverterPeriodicTask(),
+        )
+    raise NotImplementedError()
