@@ -10,6 +10,7 @@ from chackra_web.shared.domain.model.pagination import (
     builder as shared_pagination,
     conversion as shared_pagination_conversion
 )
+from chackra_web.shared.domain.model.tasks import base as shared_task_base
 
 
 @dataclasses.dataclass
@@ -19,6 +20,8 @@ class ExtendedControllerDependencies(shared_dependencies.ControllerDependencies)
     paginator_builder: shared_pagination.PaginationBuilder
     to_specification_builder: shared_specifications_conversion.ToSpecifications
     to_pagination_builder: shared_pagination_conversion.ToConversion
+
+    _task_queue_adapter: shared_task_base.TaskQueueAdapterApp | None = None
 
     @staticmethod
     def from_dependencies(
@@ -39,3 +42,11 @@ class ExtendedControllerDependencies(shared_dependencies.ControllerDependencies)
             to_specification_builder=to_specification_builder,
             to_pagination_builder=to_pagination_builder,
         )
+
+    def inject_task_queue_adapter(self, task_queue_adapter: shared_task_base.TaskQueueAdapterApp) -> None:
+        self._task_queue_adapter = task_queue_adapter
+
+    def get_task_queue_instance(self) -> object:
+        if self._task_queue_adapter is None:
+            raise ValueError("Task queue adapter not injected")
+        return self._task_queue_adapter.get_app_instance()

@@ -24,6 +24,10 @@ class Configuration:
         self.postgres_password = os.getenv('POSTGRES_PASSWORD', 'rider')
         self.postgres_dbname = os.getenv('POSTGRES_DBNAME', 'chackra_db')
 
+        # Redis Configuration
+        self.redis_host = os.getenv('REDIS_HOST', 'localhost')
+        self.redis_port = int(os.getenv('REDIS_PORT', '6379'))
+
         # Adapters Configuration
         self.uow_adapter = os.getenv('UOW_ADAPTER', 'psycopg')
         self.web_adapter = os.getenv('WEB_ADAPTER', 'flask')
@@ -36,6 +40,8 @@ class Configuration:
         self.to_convertion_adapter = os.getenv('TO_CONVERTION_ADAPTER', 'flask')
         self.handler_adapter = os.getenv('HANDLER_ADAPTER', 'flask')
         self.converter_adapter = os.getenv('CONVERTER_ADAPTER', 'flask')
+        self.task_adapter = os.getenv('TASK_ADAPTER', 'celery')
+        self.broker_adapter = os.getenv('BROKER_ADAPTER', 'redis')
 
     def inject(self, variables: dict[str, Any]):
         for key, value in variables.items():
@@ -48,3 +54,8 @@ class Configuration:
             "host": self.host,
             "port": self.port,
         }
+
+    def broker_url(self) -> str:
+        if self.broker_adapter == "redis":
+            return f"redis://{self.redis_host}:{self.redis_port}"
+        raise NotImplementedError()

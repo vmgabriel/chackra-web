@@ -30,6 +30,8 @@ dependencies = [
   "psycopg[binary] >= 3.2.9",
   "bcrypt>=5.0.0",
   "python-dotenv>=1.0.0",
+  "celery>=5.6.2",
+  "redis>=7.1.0",
 ]
 
 [project.urls]
@@ -39,7 +41,7 @@ Source = "https://github.com/Gabriel Vargas/chackra-web"
 
 [project.scripts]
 run-server = "chackra_web.entrypoints.web:main"
-
+run-worker = "chackra_web.entrypoints.task_worker:main"
 
 [tool.hatch.version]
 path = "src/chackra_web/__about__.py"
@@ -69,3 +71,7 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+
+[tool.hatch.envs.default.scripts]
+web = "python -m chackra_web.entrypoints.web"
+worker = "python -m chackra_web.entrypoints.task_worker"
