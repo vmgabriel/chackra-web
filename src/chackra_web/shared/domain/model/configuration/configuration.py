@@ -31,6 +31,11 @@ class Configuration:
         self.redis_host = os.getenv('REDIS_HOST', 'localhost')
         self.redis_port = int(os.getenv('REDIS_PORT', '6379'))
 
+        # LLM configuration
+        self.model_name = os.getenv('MODEL_NAME', 'llama3:8b')
+        self.model_temperature = float(os.getenv('MODEL_TEMPERATURE', '0.7'))
+        self.ollama_url = os.getenv('OLLAMA_URL', 'http://localhost:11434')
+
         # Adapters Configuration
         self.uow_adapter = os.getenv('UOW_ADAPTER', 'psycopg')
         self.web_adapter = os.getenv('WEB_ADAPTER', 'flask')
@@ -46,6 +51,7 @@ class Configuration:
         self.task_adapter = os.getenv('TASK_ADAPTER', 'celery')
         self.periodic_task_adapter = os.getenv('PERIODIC_TASK_ADAPTER', 'celery')
         self.broker_adapter = os.getenv('BROKER_ADAPTER', 'redis')
+        self.llm_adapter = os.getenv('LLM_ADAPTER', 'ollama')
 
     def inject(self, variables: dict[str, Any]):
         for key, value in variables.items():

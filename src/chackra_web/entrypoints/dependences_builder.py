@@ -37,6 +37,7 @@ from chackra_web.food_track.infraestructure import (
     repositories as food_track_repositories
 )
 from chackra_web.shared.infraestructure import tasks as infraestructure_task
+from chackra_web.shared.infraestructure import llm as infraestructure_llm
 
 def get_configuration() -> shared_configuration.Configuration:
     factory_configuration = infraestructure_configuration_factory.ConfigurationFactory(env="DEV")
@@ -171,6 +172,8 @@ def get_extended_dependences() -> shared_extended_dependencies.ExtendedControlle
         logger=log
     )
 
+    llm_adapter = infraestructure_llm.get_llm_adapter(configuration=configuration)
+
     extended_dependencies = shared_extended_dependencies.ExtendedControllerDependencies.from_dependencies(
         controller_dependencies=dependencies,
         repository_store=repositories_store,
@@ -178,6 +181,7 @@ def get_extended_dependences() -> shared_extended_dependencies.ExtendedControlle
         paginator_builder=pagination_builder,
         to_specification_builder=to_specification_builder,
         to_pagination_builder=to_conversation_handler,
+        llm_adapter=llm_adapter,
     )
 
     task_queue_port = infraestructure_task.get_task_port(configuration=configuration, dependencies=extended_dependencies)
