@@ -36,6 +36,11 @@ class Configuration:
         self.model_temperature = float(os.getenv('MODEL_TEMPERATURE', '0.7'))
         self.ollama_url = os.getenv('OLLAMA_URL', 'http://localhost:11434')
 
+        # Notification Configuration
+        self.notification_token = os.getenv('NOTIFICATION_TOKEN', '')
+        self.current_channel_id = os.getenv('TELEGRAM_CHANNEL_ID', '')
+        self.notification_timeout = int(os.getenv('NOTIFICATION_TIMEOUT', '10'))
+
         # Adapters Configuration
         self.uow_adapter = os.getenv('UOW_ADAPTER', 'psycopg')
         self.web_adapter = os.getenv('WEB_ADAPTER', 'flask')
@@ -52,6 +57,7 @@ class Configuration:
         self.periodic_task_adapter = os.getenv('PERIODIC_TASK_ADAPTER', 'celery')
         self.broker_adapter = os.getenv('BROKER_ADAPTER', 'redis')
         self.llm_adapter = os.getenv('LLM_ADAPTER', 'ollama')
+        self.notification_adapter = os.getenv('NOTIFICATION_ADAPTER', 'telegram')
 
     def inject(self, variables: dict[str, Any]):
         for key, value in variables.items():

@@ -12,6 +12,7 @@ from chackra_web.shared.domain.model.pagination import (
 )
 from chackra_web.shared.domain.model.tasks import base as shared_task_base
 from chackra_web.shared.domain.model.llm import base as shared_llm_base
+from chackra_web.shared.domain.model.notifications import base as shared_notification_base
 
 
 @dataclasses.dataclass
@@ -22,6 +23,7 @@ class ExtendedControllerDependencies(shared_dependencies.ControllerDependencies)
     to_specification_builder: shared_specifications_conversion.ToSpecifications
     to_pagination_builder: shared_pagination_conversion.ToConversion
     llm_adapter: shared_llm_base.GenericLLMPort
+    notification_adapter: shared_notification_base.NotificationPort
 
     _task_queue_adapter: shared_task_base.TaskQueueAdapterApp | None = None
 
@@ -33,7 +35,8 @@ class ExtendedControllerDependencies(shared_dependencies.ControllerDependencies)
         paginator_builder: shared_pagination.PaginationBuilder,
         to_specification_builder: shared_specifications_conversion.ToSpecifications,
         to_pagination_builder: shared_pagination_conversion.ToConversion,
-        llm_adapter: shared_llm_base.GenericLLMPort
+        llm_adapter: shared_llm_base.GenericLLMPort,
+        notification_adapter: shared_notification_base.NotificationPort
     ) -> "ExtendedControllerDependencies":
         return ExtendedControllerDependencies(
             configuration=controller_dependencies.configuration,
@@ -45,6 +48,7 @@ class ExtendedControllerDependencies(shared_dependencies.ControllerDependencies)
             to_specification_builder=to_specification_builder,
             to_pagination_builder=to_pagination_builder,
             llm_adapter=llm_adapter,
+            notification_adapter=notification_adapter,
         )
 
     def inject_task_queue_adapter(self, task_queue_adapter: shared_task_base.TaskQueueAdapterApp) -> None:
