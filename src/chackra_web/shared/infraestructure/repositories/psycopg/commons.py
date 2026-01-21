@@ -30,17 +30,20 @@ class BasicTypeSerializer(SafeSerializer):
         decimal.Decimal, uuid.UUID, id_model.BaseId,
         pydantic.BaseModel, enum.Enum
     )
+    EXTENDED_SAFE_TYPES = (
+        dict, list, datetime.time, datetime.date
+    )
 
     def _is_safe_dict(self, value: dict) -> bool:
         return all(
             isinstance(k, str) and
-            isinstance(v, self.SAFE_TYPES + (dict, list))
+            isinstance(v, self.SAFE_TYPES + self.EXTENDED_SAFE_TYPES)
             for k, v in value.items()
         )
 
     def _is_safe_list(self, value: list) -> bool:
         return all(
-            isinstance(v, self.SAFE_TYPES + (dict, list))
+            isinstance(v, self.SAFE_TYPES + self.EXTENDED_SAFE_TYPES)
             for v in value
         )
 
@@ -59,6 +62,10 @@ class BasicTypeSerializer(SafeSerializer):
             return value.value
         elif isinstance(value, datetime.datetime):
             return value.isoformat()
+        elif isinstance(value, datetime.date):
+            return value.strftime("%Y-%m-%d")
+        elif isinstance(value, datetime.time):
+            return value.strftime("%H:%M")
         elif isinstance(value, uuid.UUID):
             return str(value)
         elif isinstance(value, decimal.Decimal):

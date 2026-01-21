@@ -73,8 +73,6 @@ class ListInventoryController(shared_controller.WebController):
             pagination=pagination
         ))
 
-        print("entities", entities)
-
         return {
             "payload": {
                 "user": user.user_id,

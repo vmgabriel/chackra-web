@@ -41,6 +41,9 @@ class GenericLLMPort(abc.ABC, Generic[T, U]):
     - U: tipo de la respuesta esperada (pydantic model)
     """
 
+    def __init__(self, configuration: shared_configuration.Configuration) -> None:
+        self.configuration = configuration
+
     @abc.abstractmethod
     def invoke(
         self,

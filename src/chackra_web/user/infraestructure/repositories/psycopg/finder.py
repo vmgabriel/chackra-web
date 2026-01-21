@@ -6,8 +6,8 @@ from chackra_web.shared.infraestructure.repositories.psycopg import (
     commons as psycopg_commons
 )
 from chackra_web.user.domain.models import behavior as user_behavior
-from chackra_web.user.domain.models import user as domain_user
-from chackra_web.shared.domain.model.user import user_id as domain_user_id
+from chackra_web.user.domain.models import user as domain_user, additional_user as domain_additional_user
+from chackra_web.shared.domain.model.user import user_id as domain_user_id, additional_user_id as domain_additional_user_id
 from chackra_web.user.infraestructure.repositories.psycopg import commons as psycopg_user_commons
 
 
@@ -39,7 +39,11 @@ FROM {table_name} as tu
 LEFT JOIN tbl_auth as ta ON ta.user_id = tu.id
 WHERE tu.username = %s OR tu.email = %s;
 """
-
+FIND_BY_USER_ID_QUERY = """
+SELECT tau.*
+FROM {table_name} as tau
+WHERE tau.user_id = %s AND tau.active = true;
+"""
 
 class PsycopgUserBaseFinderRepository(
     shared_behavior.FinderBehavior[shared_behavior.M, shared_behavior.ID],
@@ -114,4 +118,52 @@ class PsycopgUserFinderRepository(PsycopgUserBaseFinderRepository[domain_user.Us
             uow=uow,
             model_class=domain_user.User,
             serializer=psycopg_commons.BasicTypeSerializer()
+        )
+
+
+class PsycopgAdditionalUserBaseFinderRepository(
+    shared_behavior.FinderBehavior[shared_behavior.M, shared_behavior.ID],
+    user_behavior.UserIdFinderBehavior[shared_behavior.M],
+):
+    table_name: str
+    uow: shared_uow.UOW
+    serializer: psycopg_commons.SafeSerializer
+    model_class: Type[shared_behavior.M]
+
+    def __init__(
+            self,
+            table_name: str,
+            uow: shared_uow.UOW,
+            model_class: Type[shared_behavior.M],
+            serializer: psycopg_commons.SafeSerializer = psycopg_commons.BasicTypeSerializer(),
+    ) -> None:
+        super().__init__(uow)
+        self.table_name = table_name
+        self.uow = uow
+        self.serializer = serializer
+        self.model_class = model_class
+
+    def find_by_user_id(self, user_id: domain_user_id.UserId) -> shared_behavior.M | None:
+        query = FIND_BY_USER_ID_QUERY.format(table_name=self.table_name)
+        return psycopg_commons.execute_query(
+            query=query,
+            params=(user_id.value,),
+            uow=self.uow,
+            model_class=self.model_class,
+            serializer=self.serializer,
+        )
+
+
+class PsycopgAdditionalUserFinderRepository(
+    PsycopgAdditionalUserBaseFinderRepository[
+        domain_additional_user.UserAdditionalInformation,
+        domain_additional_user_id.AdditionalUserId
+    ]
+):
+    def __init__(self, uow: shared_uow.UOW) -> None:
+        super().__init__(
+            table_name=psycopg_user_commons.ADDITIONAL_TABLE_NAME,
+            uow=uow,
+            model_class=domain_additional_user.UserAdditionalInformation,
+            serializer=psycopg_user_commons.AdditionalInformationUserSerializer()
         )

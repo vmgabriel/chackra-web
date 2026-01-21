@@ -1,0 +1,525 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Chackra Web{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">User Settings</h1>
+    <form id="settingsForm" action="{{ url_for('user.settings_me_post') }}" method="post" novalidate>
+
+        <!-- Error Messages -->
+        {% if errors %}
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Validation Errors:</strong>
+            <ul class="mb-0 mt-2">
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <!-- User Details -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5>User Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="birthDate" class="form-label">Birth Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="birthDate" name="birth_date" required
+                           value="{{ entity.birth_date.strftime('%Y-%m-%d') if entity and entity.birth_date else '' }}">
+                    <div class="invalid-feedback" id="birthDateError"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="gender" class="form-label">Gender <span class="text-danger">*</span></label>
+                    <select class="form-select" id="gender" name="genre" required>
+                        <option value="">Select gender</option>
+                        <option value="Male" {% if entity and entity.genre == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if entity and entity.genre == 'Female' %}selected{% endif %}>Female</option>
+                    </select>
+                    <div class="invalid-feedback" id="genderError"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="country" class="form-label">Country</label>
+                    <input type="text" class="form-control" id="country" name="country" minlength="2" maxlength="50"
+                           value="{{ entity.country if entity and entity.country else '' }}">
+                    <div class="invalid-feedback" id="countryError"></div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="height" class="form-label">Height (cm)</label>
+                        <input type="number" class="form-control" id="height" name="height" min="50" max="300" step="1"
+                               value="{{ '%g'|format(entity.height) if entity and entity.height else '' }}">
+                        <div class="invalid-feedback" id="heightError"></div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="weight" class="form-label">Weight (kg)</label>
+                        <input type="number" class="form-control" id="weight" name="weight" min="10" max="300" step="0.1"
+                               value="{{ '%g'|format(entity.weight) if entity and entity.weight else '' }}">
+                        <div class="invalid-feedback" id="weightError"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profession Details -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5>Profession Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="profession" class="form-label">Profession</label>
+                    <input type="text" class="form-control" id="profession" name="profession" minlength="2" maxlength="100"
+                           value="{{ entity.profession if entity and entity.profession else '' }}">
+                    <div class="invalid-feedback" id="professionError"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Work Schedule</label>
+                    <div class="mb-2 text-muted small">Indicate start and end time for each day:</div>
+                    {% for day_en, day_es in [("monday", "Lunes"), ("tuesday", "Martes"), ("wednesday", "Miércoles"), ("thursday", "Jueves"), ("friday", "Viernes"), ("saturday", "Sábado"), ("sunday", "Domingo")] %}
+                    {% set work_schedule = entity.work_schedule if entity else {} %}
+                    <div class="row align-items-center mb-2">
+                        <div class="col-md-2">{{ day_es }}</div>
+                        <div class="col-md-5">
+                            <input type="time" class="form-control" name="{{ day_en }}_start" id="{{ day_en }}_start"
+                                    value="{{ work_schedule_strings[day_en].start if work_schedule_strings and work_schedule_strings.get(day_en) else '' }}">
+                        </div>
+                        <div class="col-md-5">
+                            <input type="time" class="form-control" name="{{ day_en }}_end" id="{{ day_en }}_end"
+                                    value="{{ work_schedule_strings[day_en].end if work_schedule_strings and work_schedule_strings.get(day_en) else '' }}">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Details -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5>Health Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="healthDifficulties" class="form-label">Health Difficulties</label>
+                    <textarea class="form-control" id="healthDifficulties" name="health_difficulties" rows="3" minlength="0" maxlength="500">{{ entity.health_difficulties if entity and entity.health_difficulties else '' }}</textarea>
+                    <div class="invalid-feedback" id="healthDifficultiesError"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="allergenicProducts" class="form-label">Allergenic Products</label>
+                    <textarea class="form-control" id="allergenicProducts" name="allergenic_products" rows="3" minlength="0" maxlength="500">{{ entity.allergenic_products if entity and entity.allergenic_products else '' }}</textarea>
+                    <div class="invalid-feedback" id="allergenicProductsError"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Lifestyle</label>
+                    {% set lifestyle_map = {
+                        'Very Atletic': '5',
+                        'Atletic': '4',
+                        'Balance': '3',
+                        'Sedentary': '2',
+                        'Very Sedentary': '1'
+                    } %}
+                    {% set lifestyle_value = lifestyle_map.get(entity.lifestyle, '3') if entity and entity.lifestyle else '3' %}
+                    <input type="range" class="form-range" id="lifestyle" name="lifestyle_slider" min="1" max="5"
+                           value="{{ lifestyle_value }}">
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span>1 - Very Sedentary</span>
+                        <span>3 - Balanced</span>
+                        <span>5 - Very Athletic</span>
+                    </div>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="withOven" name="with_oven" value="true"
+                           {% if entity and entity.with_oven %}checked{% endif %}>
+                    <label class="form-check-label" for="withOven">Do you have an oven?</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Meals per day</label>
+                    {% set foods_list = entity.foods if entity and entity.foods else [] %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="breakfast" name="comidas[]" value="Desayuno"
+                               {% if 'Desayuno' in foods_list %}checked{% endif %}>
+                        <label class="form-check-label" for="breakfast">Breakfast</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="midMorning" name="comidas[]" value="Media-Mañana"
+                               {% if 'Media-Mañana' in foods_list %}checked{% endif %}>
+                        <label class="form-check-label" for="midMorning">Mid Morning</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="lunch" name="comidas[]" value="Almuerzo"
+                               {% if 'Almuerzo' in foods_list %}checked{% endif %}>
+                        <label class="form-check-label" for="lunch">Lunch</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="afternoonSnack" name="comidas[]" value="Merienda"
+                               {% if 'Merienda' in foods_list %}checked{% endif %}>
+                        <label class="form-check-label" for="afternoonSnack">Afternoon Snack</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="dinner" name="comidas[]" value="Cena"
+                               {% if 'Cena' in foods_list %}checked{% endif %}>
+                        <label class="form-check-label" for="dinner">Dinner</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label for="wakeUpTime" class="form-label">Wake Up Time</label>
+                        <input type="time" class="form-control" id="wakeUpTime" name="wake_up_time"
+                               value="{{ sleep_phase_strings.start if sleep_phase_strings else '' }}">
+                        <div class="invalid-feedback" id="wakeUpTimeError"></div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label for="sleepTime" class="form-label">Sleep Time</label>
+                        <input type="time" class="form-control" id="sleepTime" name="sleep_time"
+                                value="{{ sleep_phase_strings.end if sleep_phase_strings else '' }}">
+                        <div class="invalid-feedback" id="sleepTimeError"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="mt-4 d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary me-2">
+                <i class="bi bi-save me-1"></i> Save Changes
+            </button>
+            <button type="reset" class="btn btn-secondary">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('settingsForm');
+
+    const birthDate = document.getElementById('birthDate');
+    const gender = document.getElementById('gender');
+    const country = document.getElementById('country');
+    const height = document.getElementById('height');
+    const weight = document.getElementById('weight');
+    const profession = document.getElementById('profession');
+    const healthDifficulties = document.getElementById('healthDifficulties');
+    const allergenicProducts = document.getElementById('allergenicProducts');
+    const wakeUpTime = document.getElementById('wakeUpTime');
+    const sleepTime = document.getElementById('sleepTime');
+
+    function validateBirthDate() {
+        if (!birthDate.value) {
+            showError(birthDate, 'Birth date is required');
+            return false;
+        }
+
+        const birthDateVal = new Date(birthDate.value);
+        const today = new Date();
+        let age = today.getFullYear() - birthDateVal.getFullYear();
+        const monthDiff = today.getMonth() - birthDateVal.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDateVal.getDate())) {
+            age--;
+        }
+
+        if (age < 13) {
+            showError(birthDate, 'You must be at least 13 years old');
+            return false;
+        }
+
+        if (age > 120) {
+            showError(birthDate, 'Age cannot be greater than 120 years');
+            return false;
+        }
+
+        clearError(birthDate);
+        return true;
+    }
+
+    function validateGender() {
+        if (!gender.value) {
+            showError(gender, 'Please select a gender');
+            return false;
+        }
+        clearError(gender);
+        return true;
+    }
+
+    function validateCountry() {
+        if (country.value.trim()) {
+            if (country.value.length < 2) {
+                showError(country, 'Country must have at least 2 characters');
+                return false;
+            }
+            if (country.value.length > 50) {
+                showError(country, 'Country cannot exceed 50 characters');
+                return false;
+            }
+        }
+        clearError(country);
+        return true;
+    }
+
+    function validateHeight() {
+        if (height.value && height.value !== '') {
+            const heightVal = parseFloat(height.value);
+            if (heightVal < 50 || heightVal > 300) {
+                showError(height, 'Height must be between 50 and 300 cm');
+                return false;
+            }
+        }
+        clearError(height);
+        return true;
+    }
+
+    function validateWeight() {
+        if (weight.value && weight.value !== '') {
+            const weightVal = parseFloat(weight.value);
+            if (weightVal < 10 || weightVal > 300) {
+                showError(weight, 'Weight must be between 10 and 300 kg');
+                return false;
+            }
+        }
+        clearError(weight);
+        return true;
+    }
+
+    function validateProfession() {
+        if (profession.value.trim()) {
+            if (profession.value.length < 2) {
+                showError(profession, 'Profession must have at least 2 characters');
+                return false;
+            }
+            if (profession.value.length > 100) {
+                showError(profession, 'Profession cannot exceed 100 characters');
+                return false;
+            }
+        }
+        clearError(profession);
+        return true;
+    }
+
+    function validateHealthDifficulties() {
+        if (healthDifficulties.value.trim().length > 500) {
+            showError(healthDifficulties, 'Health difficulties cannot exceed 500 characters');
+            return false;
+        }
+        clearError(healthDifficulties);
+        return true;
+    }
+
+    function validateAllergenicProducts() {
+        if (allergenicProducts.value.trim().length > 500) {
+            showError(allergenicProducts, 'Allergenic products cannot exceed 500 characters');
+            return false;
+        }
+        clearError(allergenicProducts);
+        return true;
+    }
+
+    function validateSleepSchedule() {
+        let isValid = true;
+
+        if (wakeUpTime.value && sleepTime.value) {
+            const wakeUp = wakeUpTime.value.split(':').map(Number);
+            const sleep = sleepTime.value.split(':').map(Number);
+
+            const wakeUpMinutes = wakeUp[0] * 60 + wakeUp[1];
+            const sleepMinutes = sleep[0] * 60 + sleep[1];
+
+            let sleepHours;
+            if (sleepMinutes > wakeUpMinutes) {
+                sleepHours = (24 * 60 - sleepMinutes + wakeUpMinutes) / 60;
+            } else {
+                sleepHours = (wakeUpMinutes - sleepMinutes) / 60;
+            }
+
+            if (sleepHours < 4 || sleepHours > 12) {
+                showError(wakeUpTime, 'Sleep hours must be between 4 and 12 hours');
+                showError(sleepTime, 'Sleep hours must be between 4 and 12 hours');
+                isValid = false;
+            } else {
+                clearError(wakeUpTime);
+                clearError(sleepTime);
+            }
+        } else if (wakeUpTime.value || sleepTime.value) {
+            if (!wakeUpTime.value) {
+                showError(wakeUpTime, 'You must specify both sleep times');
+                isValid = false;
+            }
+            if (!sleepTime.value) {
+                showError(sleepTime, 'You must specify both sleep times');
+                isValid = false;
+            }
+        } else {
+            clearError(wakeUpTime);
+            clearError(sleepTime);
+        }
+
+        return isValid;
+    }
+
+    function showError(element, message) {
+        element.classList.add('is-invalid');
+        const errorDiv = element.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+            errorDiv.textContent = message;
+        }
+    }
+
+    function clearError(element) {
+        element.classList.remove('is-invalid');
+        const errorDiv = element.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+            errorDiv.textContent = '';
+        }
+    }
+
+    birthDate.addEventListener('change', validateBirthDate);
+    gender.addEventListener('change', validateGender);
+    country.addEventListener('input', () => {
+        if (country.value.trim().length >= 2) {
+            clearError(country);
+        }
+    });
+    height.addEventListener('input', () => {
+        if (height.value && parseFloat(height.value) >= 50 && parseFloat(height.value) <= 300) {
+            clearError(height);
+        }
+    });
+    weight.addEventListener('input', () => {
+        if (weight.value && parseFloat(weight.value) >= 10 && parseFloat(weight.value) <= 300) {
+            clearError(weight);
+        }
+    });
+    profession.addEventListener('input', () => {
+        if (profession.value.trim().length >= 2) {
+            clearError(profession);
+        }
+    });
+    healthDifficulties.addEventListener('input', validateHealthDifficulties);
+    allergenicProducts.addEventListener('input', validateAllergenicProducts);
+    wakeUpTime.addEventListener('change', validateSleepSchedule);
+    sleepTime.addEventListener('change', validateSleepSchedule);
+
+    function validateForm() {
+        let isValid = true;
+
+        if (!validateBirthDate()) isValid = false;
+        if (!validateGender()) isValid = false;
+        if (!validateCountry()) isValid = false;
+        if (!validateHeight()) isValid = false;
+        if (!validateWeight()) isValid = false;
+        if (!validateProfession()) isValid = false;
+        if (!validateHealthDifficulties()) isValid = false;
+        if (!validateAllergenicProducts()) isValid = false;
+        if (!validateSleepSchedule()) isValid = false;
+
+        return isValid;
+    }
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        if (validateForm()) {
+            const formData = new FormData(form);
+            const jsonData = {};
+
+            // Handle work schedule
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            jsonData.work_schedule = {};
+
+            for (const day of days) {
+                const startValue = formData.get(`${day}_start`);
+                const endValue = formData.get(`${day}_end`);
+
+                if (startValue || endValue) {
+                    jsonData.work_schedule[day] = {
+                        start: startValue || '',
+                        end: endValue || ''
+                    };
+                }
+            }
+
+            // Handle meals
+            const meals = [];
+            for (const meal of formData.getAll('comidas[]')) {
+                meals.push(meal);
+            }
+            jsonData.foods = meals;
+
+            // Handle sleep phase
+            const wakeUpTimeVal = formData.get('wake_up_time');
+            const sleepTimeVal = formData.get('sleep_time');
+            if (wakeUpTimeVal || sleepTimeVal) {
+                jsonData.sleep_phase = {
+                    start: wakeUpTimeVal || '',
+                    end: sleepTimeVal || ''
+                };
+            }
+
+            // Handle lifestyle conversion
+            const lifestyleSlider = formData.get('lifestyle_slider');
+            const lifestyleMap = {
+                '1': 'Very Sedentary',
+                '2': 'Sedentary',
+                '3': 'Balance',
+                '4': 'Atletic',
+                '5': 'Very Atletic'
+            };
+            jsonData.lifestyle = lifestyleMap[lifestyleSlider] || 'Balance';
+
+            // Handle boolean fields
+            jsonData.with_oven = formData.has('with_oven');
+
+            // Handle other fields
+            jsonData.birth_date = formData.get('birth_date');
+            jsonData.genre = formData.get('genre');
+            jsonData.country = formData.get('country');
+            jsonData.height = formData.get('height');
+            jsonData.weight = formData.get('weight');
+            jsonData.profession = formData.get('profession');
+            jsonData.health_difficulties = formData.get('health_difficulties');
+            jsonData.allergenic_products = formData.get('allergenic_products');
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.errors && data.errors.length === 0) {
+                    const toast = document.createElement('div');
+                    toast.className = 'toast align-items-center text-bg-success border-0';
+                    toast.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                Settings saved successfully
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    `;
+                    document.getElementById('mainContent').appendChild(toast);
+                    const bsToast = new bootstrap.Toast(toast);
+                    bsToast.show();
+                } else {
+                    if (data.errors) {
+                        alert('Error saving: ' + (data.message || 'Please check your data'));
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing request');
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

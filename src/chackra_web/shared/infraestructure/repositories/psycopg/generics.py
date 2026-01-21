@@ -1,6 +1,7 @@
 from typing import Type
 
 import psycopg
+from psycopg.types.json import Jsonb
 
 from chackra_web.shared.domain.model.behavior import behavior as shared_behavior
 from chackra_web.shared.domain.model.repository import exceptions as repository_exceptions
@@ -40,18 +41,15 @@ class PsycopgGenericCreator(shared_behavior.CreatorBehavior[shared_behavior.M]):
         try:
             entity_data = entity.model_dump(exclude_none=True, exclude=("id",))
             entity_data["id"] = entity.id.value
-            print("entity_data", entity_data)
             for k, v in entity_data.items():
                 if k.endswith("_id") and isinstance(v, dict) and "value" in v:
                     entity_data[k] = v["value"]
-            print("entity_data 2", entity_data)
             safe_data = self.serializer.to_primitive(entity_data)
-            print("entity_data 3", entity_data)
-        except ValueError as e:
-            raise ValueError(f"Cannot safely serialize entity: {e}")
+        except ValueError as exc:
+            raise ValueError("Cannot safely serialize entity: {}".format(exc))
 
         fields = list(safe_data.keys())
-        values = list(safe_data.values())
+        values = [value if not isinstance(value, dict) else Jsonb(value) for value in safe_data.values()]
         placeholders = ["%s" for _ in fields]
 
         query = CREATE_GENERIC_QUERY.format(
@@ -267,7 +265,9 @@ class PsycopgGenericUpdaterRepository(
             raise ValueError(f"Cannot safely serialize entity: {e}")
 
         placeholders = [f"{field} = %s" for field in safe_data.keys()]
-        values = tuple(safe_data.values()) + (id.value,)
+        values = tuple(
+            value if not isinstance(value, dict) else Jsonb(value) for value in safe_data.values()
+        ) + (id.value,)
 
         query = UPDATE_GENERIC_QUERY.format(
             table_name=self.table_name,

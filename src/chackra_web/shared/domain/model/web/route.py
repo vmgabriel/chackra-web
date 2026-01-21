@@ -6,6 +6,8 @@ import enum
 
 import abc
 
+from chackra_web.shared.domain.model.user import user_id as shared_user_id
+
 
 class HttpMethod(enum.Enum):
     GET = "GET"
@@ -58,6 +60,8 @@ class Session(pydantic.BaseModel):
     email: str
     role: str
 
+    def get_user_id_default(self) -> shared_user_id.UserId:
+        return shared_user_id.UserId(value=self.user_id)
 
 class RouteResponse(pydantic.BaseModel):
     status_code: int

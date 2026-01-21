@@ -70,7 +70,6 @@ class ToBuyListController(shared_controller.WebController):
         self,
         request: shared_route.RequestData,
     ) -> dict | shared_route.RouteResponse:
-        print("request - ", request.body)
 
         created_to_buy_dbt = application_to_buy_create.CreateToBuyListDTO(
             title=request.body.get("title"),
@@ -226,7 +225,6 @@ class ToBuyItemController(shared_controller.WebController):
             to_buy_id: str,
             user: shared_route.Session,
     ) -> dict | shared_route.RouteResponse:
-        print(to_buy_id)
         return {
             "to_buy_id": to_buy_id,
             "user": user,
@@ -237,8 +235,6 @@ class ToBuyItemController(shared_controller.WebController):
         to_buy_id: str,
         request: shared_route.RequestData,
     ) -> dict | shared_route.RouteResponse:
-        print("request - ", request.body)
-
         try:
             adding_item_into_to_buy_list.AddingItemIntoToBuyListCommand(dependencies=self.dependencies).execute(
                 adding_item_into_to_buy_list_dto=adding_item_into_to_buy_list.AddingItemIntoToBuyListDTO(
@@ -275,8 +271,6 @@ class ToBuyItemController(shared_controller.WebController):
             request: shared_route.RequestData,
     ) -> dict | shared_route.RouteResponse:
         current_id = request.body.get("id")
-        print("current_id - ", current_id)
-        print("to_buy_id - ", to_buy_id)
 
         if not current_id:
             return {
@@ -334,9 +328,6 @@ class ToBuyItemController(shared_controller.WebController):
             id: str,
             request: shared_route.RequestData,
     ) -> dict | shared_route.RouteResponse:
-        print("to_buy_id - ", to_buy_id)
-        print("id - ", id)
-        print("request - ", request.body)
         try:
             application_to_buy_update.UpdateToBuyItemCommand(
                 dependencies=self.dependencies

@@ -24,7 +24,7 @@
         <span>Usuarios</span>
       </a>
 
-      <a href="/settings"
+      <a href="{{ url_for('user.settings_me_get') }}"
          class="nav-link sidebar-link {% if request.endpoint == 'settings' %}active{% endif %}">
         <i class="bi bi-gear me-2"></i>
         <span>Configuración</span>

@@ -5,6 +5,8 @@ from chackra_web.shared.domain.model.pagination import pagination as shared_pagi
 
 from chackra_web.user.domain.models import behavior as user_behavior
 
+from chackra_web.shared.domain.model.user import user_id
+
 
 class UserBaseRepository(shared_repository.GenericRepository[shared_behavior.M, shared_behavior.ID]):
     def __init__(
@@ -36,3 +38,22 @@ class UserBaseRepository(shared_repository.GenericRepository[shared_behavior.M, 
 
     def delete(self, id: shared_behavior.ID) -> None:
         return self._deleter.delete(id)
+
+
+class AdditionalUserRepository(shared_repository.GenericRepository[shared_behavior.M, shared_behavior.ID]):
+    def __init__(
+        self,
+        dependencies: shared_dependencies.ControllerDependencies,
+        creator: shared_behavior.CreatorBehavior[shared_behavior.M],
+        finder: user_behavior.AdditionalInformationUserFinderBehavior[shared_behavior.M, shared_behavior.ID],
+        updater: shared_behavior.UpdaterBehavior[shared_behavior.M, shared_behavior.ID],
+    ) -> None:
+        super().__init__(dependencies, creator, finder)
+        self._user_by_id = finder
+        self._updater = updater
+
+    def find_by_user_id(self, user_id: user_id.UserId) -> shared_behavior.M | None:
+        return self._user_by_id.find_by_user_id(user_id)
+
+    def update(self, id: shared_behavior.ID, entity: shared_behavior.M) -> shared_behavior.M:
+        return  self._updater.update(id, entity)
