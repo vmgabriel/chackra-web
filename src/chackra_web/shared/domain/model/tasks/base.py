@@ -22,6 +22,7 @@ class Task(abc.ABC):
 @dataclasses.dataclass
 class PeriodicTask:
     name: str
+    namespace: str
     task: Task
     schedule: dict[str, Any]
     kwargs: dict[str, Any]
@@ -48,6 +49,7 @@ class PeriodicTaskProxyBuilder(abc.ABC):
         self.converter = converter
 
     def append(self, periodic_task: PeriodicTask) -> None:
+        print("added - ", periodic_task.name, periodic_task.schedule)
         self.periodic_tasks.append(periodic_task)
 
     def inject_name_main_function(self, name_main_function: str) -> None:
@@ -56,6 +58,7 @@ class PeriodicTaskProxyBuilder(abc.ABC):
 
     @abc.abstractmethod
     def build_schedule(self) -> dict:
+        print("build schedule")
         raise NotImplementedError()
 
 
@@ -94,13 +97,14 @@ class TaskQueueAdapterApp(TaskQueueAdapter, abc.ABC):
 
     def __init__(self, dependencies: shared_dependencies.ExtendedControllerDependencies) -> None:
         self.dependencies = dependencies
+        self.registries = {}
 
     @abc.abstractmethod
     def _setup(self) -> None:
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _update_configuration(self) -> None:
+    def update_configuration(self) -> None:
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -114,3 +118,4 @@ class TaskQueueAdapterApp(TaskQueueAdapter, abc.ABC):
 
     def add_periodic_task_builder(self, periodic_task_builder: PeriodicTaskProxyBuilder) -> None:
         self.periodic_task_builder = periodic_task_builder
+        self.update_configuration()

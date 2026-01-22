@@ -11,17 +11,18 @@ class CeleryPortApp(shared_task_base.TaskQueueAdapterApp):
         super().__init__(*args, **kwargs)
         self.app = Celery("main", broker=self.dependencies.configuration.broker_url())
         self._setup()
-        self._update_configuration()
 
     def _setup(self) -> None:
         @self.app.task
         def run_task(full_task_name: str, kwargs: dict):
             namespace, task_name = full_task_name.split(".", 1)
+            self.dependencies.logger.info(f"Namespaces - {self.registries}")
+            self.dependencies.logger.info(f"Task - {namespace}.{task_name}")
             registry = self.registries[namespace]
             return registry.execute(task_name, dependencies=self.dependencies, **kwargs)
         self.run_task = run_task
 
-    def _update_configuration(self) -> None:
+    def update_configuration(self) -> None:
         if self.periodic_task_builder:
             self.periodic_task_builder.inject_name_main_function(self.run_task.name)
 
@@ -51,7 +52,7 @@ class CeleryConverterPeriodicTask(shared_task_base.ConverterPeriodicTask):
             {
                 "task": self.name_main_function,
                 "schedule": self._normalize_schedule(periodic_task=periodic_task),
-                "args": [f"{periodic_task.task.__class__.__module__.split('.')[-2]}.{periodic_task.task.name}", periodic_task.kwargs],
+                "args": [f"{periodic_task.namespace}.{periodic_task.name}", periodic_task.kwargs],
             }
         )
 

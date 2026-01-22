@@ -8,7 +8,7 @@ load_dotenv()
 class Configuration:
     def __init__(self):
         # Global configuration
-        self.timezone = os.getenv('TIMEZONE', 'America/Colombia/Bogota')
+        self.timezone = os.getenv('TIMEZONE', 'America/Bogota')
         self.time_format = os.getenv('TIME_FORMAT', '%H:%M')
         self.date_format = os.getenv('DATE_FORMAT', '%Y-%m-%d')
         self.datetime_format = os.getenv('DATETIME_FORMAT', '%Y-%m-%d %H:%M:%S')

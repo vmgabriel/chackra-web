@@ -42,6 +42,9 @@ from chackra_web.shared.infraestructure import (
     notifications as infraestructure_notifications
 )
 
+from chackra_web.food_track.presentation.tasks import periodic as food_track_periodic_tasks
+
+
 def get_configuration() -> shared_configuration.Configuration:
     factory_configuration = infraestructure_configuration_factory.ConfigurationFactory(env="DEV")
     return factory_configuration.build()
@@ -191,6 +194,8 @@ def get_extended_dependences() -> shared_extended_dependencies.ExtendedControlle
     )
 
     task_queue_port = infraestructure_task.get_task_port(configuration=configuration, dependencies=extended_dependencies)
+
+    task_queue_port.register(food_track_periodic_tasks.food_track_registry)
 
     extended_dependencies.inject_task_queue_adapter(task_queue_port)
 
