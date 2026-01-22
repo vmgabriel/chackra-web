@@ -5,11 +5,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
-    env_file: .env
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - FLASK_APP=chackra_web.entrypoints.web
       - POSTGRES_HOST=db
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       db:
         condition: service_healthy
@@ -18,19 +20,69 @@ services:
     ports:
       - "8000:8000"
     networks:
-      - cache-network
+      - backend
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: '1.0'
           memory: 1G
         reservations:
           cpus: '0.5'
           memory: 512M
+    # Sobrescribe CMD para web
+    command: ["python", "-m", "chackra_web.entrypoints.web"]
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+    # Ejecuta worker de Celery
+    command: ["python", "-m", "chackra_web.entrypoints.task_worker"]
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    # Ejecuta Celery Beat
+    command: ["python", "-m", "chackra_web.entrypoints.task_schedule_worker"]
 
   db:
     image: postgres:15.8-bullseye
-    restart: always
+    restart: unless-stopped
     env_file: .env
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
@@ -40,7 +92,7 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - cache-network
+      - backend
     ports:
       - "5432:5432"
     healthcheck:
@@ -51,15 +103,20 @@ services:
     command: postgres -c listen_addresses='*'
 
   redis:
-      image: redis:7.2-alpine
-      restart: always
-      networks:
-        - cache-network
-      ports:
-        - "6379:6379"
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    networks:
+      - backend
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 networks:
-  cache-network:
+  backend:
     driver: bridge
 
 volumes:

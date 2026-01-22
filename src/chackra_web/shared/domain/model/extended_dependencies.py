@@ -1,3 +1,4 @@
+from __future__ import annotations
 import dataclasses
 
 from chackra_web.shared.domain.model import dependencies as shared_dependencies
@@ -59,5 +60,8 @@ class ExtendedControllerDependencies(shared_dependencies.ControllerDependencies)
             raise ValueError("Task queue adapter not injected")
         return self._task_queue_adapter.get_app_instance()
 
-    def inject_periodic_builder_into_task_queue(self, periodic_task_base: shared_task_base.PeriodicTaskProxyBuilder) -> None:
+    def inject_periodic_builder_into_task_queue(
+            self,
+            periodic_task_base: shared_task_base.PeriodicTaskProxyBuilder
+    ) -> None:
         self._task_queue_adapter.add_periodic_task_builder(periodic_task_base)

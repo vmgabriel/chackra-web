@@ -33,6 +33,7 @@ class CeleryPortApp(shared_task_base.TaskQueueAdapterApp):
             result_serializer="json",
             timezone=self.dependencies.configuration.timezone,
             enable_utc=True,
+            beat_schedule_filename="/tmp/celerybeat-schedule",
             beat_schedule=self.periodic_task_builder.build_schedule() if self.periodic_task_builder else {},
         )
 
