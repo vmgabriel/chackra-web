@@ -158,7 +158,7 @@ class PsycopgGenericLister(shared_behavior.ListerBehavior[shared_behavior.M]):
             filters += f" AND {self.default_filters} " if filters else f"WHERE {self.default_filters} " if self.default_filters else ""
         print("filters - ", filters)
 
-        order_by_conversation = [ordered.to_sql() for ordered in pagination.order_by if ordered]
+        order_by_conversation = [ordered.to_sql() for ordered in (pagination.order_by or []) if ordered]
 
         limit_sql = pagination.page_size_to_sql()
         offset_sql = pagination.page_to_sql()

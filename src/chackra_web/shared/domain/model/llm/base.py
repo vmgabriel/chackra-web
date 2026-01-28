@@ -5,6 +5,7 @@ import enum
 import pydantic
 
 from chackra_web.shared.domain.model.configuration import configuration as shared_configuration
+from chackra_web.shared.domain.model.logger import logger as shared_logger
 
 
 class MessageRole(enum.StrEnum):
@@ -34,6 +35,7 @@ class OutputResponse(pydantic.BaseModel, Generic[U]):
 
 class GenericLLMPort(abc.ABC, Generic[T, U]):
     configuration: shared_configuration.Configuration
+    logger: shared_logger.LogAdapter
 
     """
     Puerto genérico para interactuar con un LLM.
@@ -41,8 +43,13 @@ class GenericLLMPort(abc.ABC, Generic[T, U]):
     - U: tipo de la respuesta esperada (pydantic model)
     """
 
-    def __init__(self, configuration: shared_configuration.Configuration) -> None:
+    def __init__(
+            self,
+            configuration: shared_configuration.Configuration,
+            logger: shared_logger.LogAdapter
+    ) -> None:
         self.configuration = configuration
+        self.logger = logger
 
     @abc.abstractmethod
     def invoke(

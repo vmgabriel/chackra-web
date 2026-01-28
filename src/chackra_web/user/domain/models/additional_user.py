@@ -136,6 +136,10 @@ class UserAdditionalInformation(pydantic.BaseModel):
         self.updated_at = datetime.datetime.now()
         return self
 
+    def birth_year(self) -> int:
+        current_datetime = datetime.datetime.now().date()
+        return (current_datetime - self.birth_date).days // 365
+
     def model_dump(self, *args, **kwargs) -> dict:
         values = super().model_dump(*args, **kwargs)
         values["foods"] = ",".join(self.foods)

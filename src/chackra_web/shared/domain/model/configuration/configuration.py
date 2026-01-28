@@ -13,6 +13,9 @@ class Configuration:
         self.date_format = os.getenv('DATE_FORMAT', '%Y-%m-%d')
         self.datetime_format = os.getenv('DATETIME_FORMAT', '%Y-%m-%d %H:%M:%S')
 
+        # Feature Flags
+        self.all_services_user_ids: list[str] = os.getenv('ALL_SERVICES_USER_IDS', '').split(',')
+
         # Web Server Configuration
         self.title = os.getenv('APP_TITLE', 'Chackra_Web')
         self.debug = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
@@ -38,6 +41,8 @@ class Configuration:
         self.model_name = os.getenv('MODEL_NAME', 'llama3:8b')
         self.model_temperature = float(os.getenv('MODEL_TEMPERATURE', '0.7'))
         self.ollama_url = os.getenv('OLLAMA_URL', 'http://localhost:11434')
+        self.cerebras_url = os.getenv('CEREBRAS_URL', 'https://api.cerebras.ai/v1/chat/completions')
+        self.cerebras_api_key = os.getenv('CEREBRAS_API_KEY', '')
 
         # Notification Configuration
         self.notification_token = os.getenv('NOTIFICATION_TOKEN', '')

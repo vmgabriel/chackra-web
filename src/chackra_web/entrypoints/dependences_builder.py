@@ -178,7 +178,7 @@ def get_extended_dependences() -> shared_extended_dependencies.ExtendedControlle
         logger=log
     )
 
-    llm_adapter = infraestructure_llm.get_llm_adapter(configuration=configuration)
+    llm_adapter = infraestructure_llm.get_llm_adapter(configuration=configuration, logger=log)
 
     notification_adapter = infraestructure_notifications.get_notification_adapter(configuration=configuration, logger=log)
 

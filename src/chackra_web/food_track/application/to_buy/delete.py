@@ -59,7 +59,7 @@ class DeleteToBuyItemCommand:
         shared_to_buy_id.FoodTrackItemToBuyId,
     ]
 
-    def __init__(self, dependencies: domain_dependencies.ExtendedControllerDependencies):
+    def __init__(self, dependencies: domain_dependencies.ExtendedControllerDependencies) -> None:
         self.uow = dependencies.uow
         self.logger = dependencies.logger
         self.to_buy_items_repository = dependencies.repository_store.build(
