@@ -29,8 +29,7 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
-    # Sobrescribe CMD para web
-    command: ["python", "-m", "chackra_web.entrypoints.web"]
+    command: ["python", "-m", "gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "chackra_web.entrypoints.web:app"]
 
   worker:
     build:

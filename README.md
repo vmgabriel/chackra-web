@@ -13,9 +13,10 @@
 
 ## 📦 Requisitos
 
-- **Python 3.10+**
-- **Docker** y **Docker Compose** (para entorno completo)
-- **Opcional**: [Ollama](https://ollama.com/) corriendo localmente (puerto `11434`)
+- Python 3.8+
+- Docker y Docker Compose (para despliegue)
+- Make
+- Hatch
 
 ---
 

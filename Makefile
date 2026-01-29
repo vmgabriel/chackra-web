@@ -102,3 +102,11 @@ docker-prune:
 # ==============================
 db-init:
 	$(COMPOSE) exec web $(PYTHON) scripts/db_init.py
+
+
+# Comandos de producción
+run-prod:
+	$(HATCH) -e prod run web
+
+build-prod:
+	$(HATCH) -e prod build

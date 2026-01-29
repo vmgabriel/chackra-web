@@ -24,6 +24,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
+
 dependencies = [
   "Flask>=3.1.2",
   "pydantic>=2.12.4",
@@ -36,15 +37,23 @@ dependencies = [
   "langchain-cerebras>=0.6.0",
 ]
 
-[project.urls]
-Documentation = "https://github.com/Gabriel Vargas/chackra-web#readme"
-Issues = "https://github.com/Gabriel Vargas/chackra-web/issues"
-Source = "https://github.com/Gabriel Vargas/chackra-web"
+[tool.hatch.envs.default]
+extra-dependencies = []
 
-[project.scripts]
-run-server = "chackra_web.entrypoints.web:main"
-run-worker = "chackra_web.entrypoints.task_worker:main"
-run-schedule-worker = "chackra_web.entrypoints.task_schedule_worker:main"
+[tool.hatch.envs.default.scripts]
+web = "python -m flask run --host=0.0.0.0 --port=8000"
+worker = "python -m chackra_web.entrypoints.task_worker"
+schedule-worker = "python -m chackra_web.entrypoints.task_schedule_worker"
+
+[tool.hatch.envs.prod]
+inherits = ["default"]
+extra-dependencies = [
+    "gunicorn>=21.2.0"
+]
+
+[tool.hatch.envs.prod.scripts]
+web = "gunicorn -w 2 -b 0.0.0.0:8000 'chackra_web.entrypoints.web:app'"
+
 
 [tool.hatch.version]
 path = "src/chackra_web/__about__.py"
@@ -53,6 +62,7 @@ path = "src/chackra_web/__about__.py"
 extra-dependencies = [
   "mypy>=1.0.0",
 ]
+
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/chackra_web tests}"
 
@@ -74,8 +84,3 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
-
-[tool.hatch.envs.default.scripts]
-web = "python -m chackra_web.entrypoints.web"
-worker = "python -m chackra_web.entrypoints.task_worker"
-schedule-worker = "python -m chackra_web.entrypoints.task_schedule_worker"

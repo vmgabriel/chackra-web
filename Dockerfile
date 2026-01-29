@@ -27,7 +27,7 @@ ENV PATH="/home/$USER/.local/bin:$PATH"
 COPY . .
 
 # Ejecutar Hatch — ahora tiene permisos
-RUN hatch env create && hatch build
+RUN hatch env create prod && hatch build
 
 # --- Runtime ---
 FROM python:3.12-slim AS runtime
@@ -45,7 +45,7 @@ WORKDIR /home/$USER/app
 
 # Copiar el wheel generado
 COPY --from=builder /home/$USER/app/dist/*.whl ./
-RUN pip install --no-cache-dir *.whl
+RUN pip install --no-cache-dir *.whl && pip install --no-cache-dir "gunicorn>=21.2.0"
 
 # Copiar código fuente (opcional, si usas recursos dinámicos)
 COPY . .
@@ -54,4 +54,4 @@ EXPOSE 8000
 
 HEALTHCHECK CMD curl -f http://localhost:8000/health || exit 1
 
-CMD ["python", "-m", "chackra_web.entrypoints.web"]
+CMD ["python", "-m", "gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "chackra_web.entrypoints.web:app"]
