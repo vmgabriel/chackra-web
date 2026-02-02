@@ -18,6 +18,7 @@ def create_schedule_worker() -> object:
     periodic_task_builder = get_periodic_task(dependencies.configuration)
 
     periodic_task_builder.append(periodic_tasks.send_list_to_buy_for_team)
+    periodic_task_builder.append(periodic_tasks.send_recommendations_menu)
 
     dependencies.inject_periodic_builder_into_task_queue(periodic_task_builder)
 
