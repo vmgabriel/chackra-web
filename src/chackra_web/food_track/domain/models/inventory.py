@@ -1,10 +1,26 @@
 import pydantic
 import datetime
 import uuid
+import enum
 
 from chackra_web.shared.domain.model.food_track import inventory_id as shared_inventory_id
 from chackra_web.shared.domain.model.quantity import quantity as shared_quantity
 from chackra_web.food_track.domain.models import exceptions as food_track_exceptions
+
+
+class InventoryProductType(enum.StrEnum):
+    FOOD = "food"
+    DRINK = "drink"
+    CLEANLINESS = "cleanliness"
+    ELECTRONICS = "electronics"
+    TOOLS = "tools"
+    CLOTHES = "clothes"
+    ORGANIZATION = "organization"
+    MEDICINE = "medicine"
+    TOYS = "toys"
+    SPORT_EQUIPMENT = "sport_equipment"
+    BOOKS = "books"
+    DECORATION = "decoration"
 
 
 class BaseInventoryDTO(pydantic.BaseModel):
@@ -16,6 +32,7 @@ class UpdateInventoryItemDTO(pydantic.BaseModel):
     name: str
     quantity: shared_quantity.Quantity
     is_sold_out: bool
+    type: InventoryProductType = InventoryProductType.FOOD
 
 
 class InventoryItem(pydantic.BaseModel):
@@ -23,6 +40,7 @@ class InventoryItem(pydantic.BaseModel):
     name: str
     quantity: shared_quantity.Quantity
     is_sold_out: bool = False
+    type: InventoryProductType = InventoryProductType.FOOD
 
     active: bool = True
     created_at: datetime.datetime = datetime.datetime.now()
@@ -35,12 +53,14 @@ class InventoryItem(pydantic.BaseModel):
             id=shared_inventory_id.InventoryID(value=str(uuid.uuid4())),
             name=inv_data.name.lower(),
             quantity=inv_data.quantity,
+            type=inv_data.type or InventoryProductType.FOOD,
         )
 
     def update(self, changes: UpdateInventoryItemDTO) -> "InventoryItem":
         self.name = changes.name
         self.quantity = changes.quantity
         self.is_sold_out = changes.is_sold_out
+        self.type = changes.type or InventoryProductType.FOOD
         self.updated_at = datetime.datetime.now()
         return self
 

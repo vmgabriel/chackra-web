@@ -4,6 +4,7 @@ from chackra_web.food_track.infraestructure.migrations.psycopg import (
     migration_1_create_table_inventory,
     migration_2_create_tables_for_to_buy,
     migration_3_add_foreign_key_for_table_inventory_in_food_to_buy_item,
+    migration_4_update_inventory_type_attribute,
 )
 
 
@@ -23,4 +24,9 @@ migrations: list[shared_migration.MigrateHandler] = [
         name="migration_3_add_foreign_key_for_table_inventory_in_food_to_buy_item",
         migrator=migration_3_add_foreign_key_for_table_inventory_in_food_to_buy_item.migrator,
     ),
+    shared_migration.MigrateHandler(
+        module="food_track",
+        name="migration_4_update_inventory_type_attribute",
+        migrator=migration_4_update_inventory_type_attribute.migrator,
+    )
 ]
